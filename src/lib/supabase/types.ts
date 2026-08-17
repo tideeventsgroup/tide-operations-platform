@@ -74,6 +74,424 @@ export type Database = {
           },
         ]
       }
+      characteristic_types: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      client_contact_roles: {
+        Row: {
+          contact_id: string
+          role_code: string
+        }
+        Insert: {
+          contact_id: string
+          role_code: string
+        }
+        Update: {
+          contact_id?: string
+          role_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contact_roles_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_contact_roles_role_code_fkey"
+            columns: ["role_code"]
+            isOneToOne: false
+            referencedRelation: "contact_role_types"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      client_contacts: {
+        Row: {
+          client_id: string
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          surname: string
+          title: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          surname: string
+          title?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          surname?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          account_owner_id: string | null
+          address_line1: string | null
+          address_line2: string | null
+          archived_at: string | null
+          billing_email: string | null
+          billing_notes: string | null
+          charity_number: string | null
+          city: string | null
+          company_number: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          legal_name: string
+          notes: string | null
+          organisation_id: string
+          postcode: string | null
+          reference: string
+          status: string
+          trading_name: string | null
+          website: string | null
+        }
+        Insert: {
+          account_owner_id?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          archived_at?: string | null
+          billing_email?: string | null
+          billing_notes?: string | null
+          charity_number?: string | null
+          city?: string | null
+          company_number?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          legal_name: string
+          notes?: string | null
+          organisation_id: string
+          postcode?: string | null
+          reference: string
+          status?: string
+          trading_name?: string | null
+          website?: string | null
+        }
+        Update: {
+          account_owner_id?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          archived_at?: string | null
+          billing_email?: string | null
+          billing_notes?: string | null
+          charity_number?: string | null
+          city?: string | null
+          company_number?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          legal_name?: string
+          notes?: string | null
+          organisation_id?: string
+          postcode?: string | null
+          reference?: string
+          status?: string
+          trading_name?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_account_owner_id_fkey"
+            columns: ["account_owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_role_types: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      event_characteristics: {
+        Row: {
+          characteristic_code: string
+          event_id: string
+        }
+        Insert: {
+          characteristic_code: string
+          event_id: string
+        }
+        Update: {
+          characteristic_code?: string
+          event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_characteristics_characteristic_code_fkey"
+            columns: ["characteristic_code"]
+            isOneToOne: false
+            referencedRelation: "characteristic_types"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "event_characteristics_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_stage_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          event_id: string
+          from_stage:
+            | Database["public"]["Enums"]["event_lifecycle_stage"]
+            | null
+          id: string
+          reason: string | null
+          to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          event_id: string
+          from_stage?:
+            | Database["public"]["Enums"]["event_lifecycle_stage"]
+            | null
+          id?: string
+          reason?: string | null
+          to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          event_id?: string
+          from_stage?:
+            | Database["public"]["Enums"]["event_lifecycle_stage"]
+            | null
+          id?: string
+          reason?: string | null
+          to_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_stage_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stage_history_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          actual_peak: number | null
+          breakdown_at: string | null
+          build_start_at: string | null
+          category: string | null
+          client_id: string
+          closes_at: string | null
+          contractor_count: number | null
+          created_at: string
+          created_by: string | null
+          current_phase: Database["public"]["Enums"]["event_phase"] | null
+          description: string | null
+          doors_at: string | null
+          end_date: string | null
+          expected_attendance: number | null
+          expected_peak: number | null
+          id: string
+          jurisdiction: string
+          licensed_capacity: number | null
+          lifecycle_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
+          load_in_at: string | null
+          load_out_at: string | null
+          local_authority: string | null
+          name: string
+          opens_at: string | null
+          organisation_id: string
+          performer_count: number | null
+          planned_public_capacity: number | null
+          planning_start_date: string | null
+          portal_enabled: boolean
+          reference: string
+          staff_call_at: string | null
+          staff_count: number | null
+          stand_down_at: string | null
+          start_date: string | null
+          timezone: string
+          year: number
+        }
+        Insert: {
+          actual_peak?: number | null
+          breakdown_at?: string | null
+          build_start_at?: string | null
+          category?: string | null
+          client_id: string
+          closes_at?: string | null
+          contractor_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: Database["public"]["Enums"]["event_phase"] | null
+          description?: string | null
+          doors_at?: string | null
+          end_date?: string | null
+          expected_attendance?: number | null
+          expected_peak?: number | null
+          id?: string
+          jurisdiction?: string
+          licensed_capacity?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
+          load_in_at?: string | null
+          load_out_at?: string | null
+          local_authority?: string | null
+          name: string
+          opens_at?: string | null
+          organisation_id: string
+          performer_count?: number | null
+          planned_public_capacity?: number | null
+          planning_start_date?: string | null
+          portal_enabled?: boolean
+          reference: string
+          staff_call_at?: string | null
+          staff_count?: number | null
+          stand_down_at?: string | null
+          start_date?: string | null
+          timezone?: string
+          year: number
+        }
+        Update: {
+          actual_peak?: number | null
+          breakdown_at?: string | null
+          build_start_at?: string | null
+          category?: string | null
+          client_id?: string
+          closes_at?: string | null
+          contractor_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: Database["public"]["Enums"]["event_phase"] | null
+          description?: string | null
+          doors_at?: string | null
+          end_date?: string | null
+          expected_attendance?: number | null
+          expected_peak?: number | null
+          id?: string
+          jurisdiction?: string
+          licensed_capacity?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
+          load_in_at?: string | null
+          load_out_at?: string | null
+          local_authority?: string | null
+          name?: string
+          opens_at?: string | null
+          organisation_id?: string
+          performer_count?: number | null
+          planned_public_capacity?: number | null
+          planning_start_date?: string | null
+          portal_enabled?: boolean
+          reference?: string
+          staff_call_at?: string | null
+          staff_count?: number | null
+          stand_down_at?: string | null
+          start_date?: string | null
+          timezone?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       id_counters: {
         Row: {
           entity_type: string
@@ -99,6 +517,70 @@ export type Database = {
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operational_locations: {
+        Row: {
+          code: string | null
+          created_at: string
+          description: string | null
+          event_id: string
+          id: string
+          name: string
+          parent_id: string | null
+          status: Database["public"]["Enums"]["operational_location_status"]
+          status_changed_at: string | null
+          status_changed_by: string | null
+          type: Database["public"]["Enums"]["operational_location_type"]
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          event_id: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["operational_location_status"]
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          type: Database["public"]["Enums"]["operational_location_type"]
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          status?: Database["public"]["Enums"]["operational_location_status"]
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          type?: Database["public"]["Enums"]["operational_location_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_locations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operational_locations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "operational_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "operational_locations_status_changed_by_fkey"
+            columns: ["status_changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -323,6 +805,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "user_roles_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "user_roles_granted_by_fkey"
             columns: ["granted_by"]
             isOneToOne: false
@@ -364,6 +860,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_event: {
+        Args: {
+          p_acknowledged_warnings?: string[]
+          p_comments?: string
+          p_event_id: string
+        }
+        Returns: undefined
+      }
+      change_event_phase: {
+        Args: {
+          p_event_id: string
+          p_phase: Database["public"]["Enums"]["event_phase"]
+        }
+        Returns: undefined
+      }
+      change_event_stage: {
+        Args: {
+          p_event_id: string
+          p_reason?: string
+          p_to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
+        }
+        Returns: undefined
+      }
       current_organisation_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
       has_permission: {
@@ -408,6 +927,38 @@ export type Database = {
         | "internal"
         | "confidential"
         | "restricted"
+      event_lifecycle_stage:
+        | "enquiry"
+        | "proposal"
+        | "confirmed"
+        | "planning"
+        | "documentation"
+        | "client_review"
+        | "readiness_review"
+        | "operational_ready"
+        | "live"
+        | "stand_down"
+        | "post_event_review"
+        | "closed"
+        | "archived"
+      event_phase:
+        | "build"
+        | "pre_open"
+        | "ingress"
+        | "live"
+        | "peak"
+        | "egress"
+        | "closed_to_public"
+        | "breakdown"
+        | "stand_down"
+      operational_location_status:
+        | "normal"
+        | "monitoring"
+        | "congested"
+        | "restricted"
+        | "unavailable"
+        | "closed"
+      operational_location_type: "site" | "zone" | "area" | "location"
       profile_status: "active" | "disabled"
     }
     CompositeTypes: {
@@ -544,6 +1095,41 @@ export const Constants = {
         "confidential",
         "restricted",
       ],
+      event_lifecycle_stage: [
+        "enquiry",
+        "proposal",
+        "confirmed",
+        "planning",
+        "documentation",
+        "client_review",
+        "readiness_review",
+        "operational_ready",
+        "live",
+        "stand_down",
+        "post_event_review",
+        "closed",
+        "archived",
+      ],
+      event_phase: [
+        "build",
+        "pre_open",
+        "ingress",
+        "live",
+        "peak",
+        "egress",
+        "closed_to_public",
+        "breakdown",
+        "stand_down",
+      ],
+      operational_location_status: [
+        "normal",
+        "monitoring",
+        "congested",
+        "restricted",
+        "unavailable",
+        "closed",
+      ],
+      operational_location_type: ["site", "zone", "area", "location"],
       profile_status: ["active", "disabled"],
     },
   },

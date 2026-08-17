@@ -117,6 +117,22 @@ policies; the UI hiding a button is a UX nicety, not a security control.
   `STABLE`) are the building blocks every RLS policy composes from, so the
   authorisation logic exists in one place. See `0003_access_helpers.sql`
   once written.
+- **Every new `SECURITY DEFINER` function must be locked down explicitly,
+  in the same migration, immediately after `CREATE FUNCTION`** — do not
+  rely on `ALTER DEFAULT PRIVILEGES ... REVOKE EXECUTE ON FUNCTIONS FROM
+  PUBLIC` to suppress it. Postgres grants `EXECUTE` to `PUBLIC` on every
+  new function by default, and empirically (tested directly against this
+  project, migrations 0007/0009/0010/0020) the default-privilege REVOKE
+  does not reliably prevent that grant from being applied to functions
+  created in later migrations even by the same role. The safe pattern,
+  every time:
+  ```sql
+  create function my_internal_fn() ... ;
+  revoke execute on function my_internal_fn() from public, anon, authenticated;
+  grant execute on function my_internal_fn() to authenticated; -- only if genuinely needed client-side
+  ```
+  Verify with `has_function_privilege('anon', 'my_fn()', 'EXECUTE')` after
+  applying, not just by reading the migration.
 - Classification (`public` | `client` | `internal` | `confidential` |
   `restricted`, see `docs/data-classification.md`) is enforced both at the
   RLS layer (restricted rows are invisible to non-authorised roles, not
