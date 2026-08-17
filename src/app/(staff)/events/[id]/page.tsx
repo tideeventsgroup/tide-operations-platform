@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { LifecycleStageBadge, EventPhaseBadge, LocationStatusBadge } from "@/components/status-badges";
 import { EventLifecycleControls } from "@/components/events/event-lifecycle-controls";
 import { AddLocationForm } from "@/components/events/add-location-form";
+import { Button } from "@/components/ui/button";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -39,10 +40,19 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
             {event.clients?.trading_name || event.clients?.legal_name}
           </Link>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <PageHeader title={event.name} />
-          <LifecycleStageBadge stage={event.lifecycle_stage} />
-          {event.current_phase ? <EventPhaseBadge phase={event.current_phase} /> : null}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <PageHeader title={event.name} />
+            <LifecycleStageBadge stage={event.lifecycle_stage} />
+            {event.current_phase ? <EventPhaseBadge phase={event.current_phase} /> : null}
+          </div>
+          <Button
+            render={<Link href={`/events/${event.id}/incidents`} />}
+            nativeButton={false}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Incident Control
+          </Button>
         </div>
       </div>
 

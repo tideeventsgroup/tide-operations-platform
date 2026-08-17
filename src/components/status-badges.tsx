@@ -76,3 +76,54 @@ export function LocationStatusBadge({ status }: { status: Enums<"operational_loc
     </Badge>
   );
 }
+
+const INCIDENT_STATUS_LABEL: Record<Enums<"incident_status">, string> = {
+  reported: "Reported",
+  acknowledged: "Acknowledged",
+  active: "Active",
+  monitoring: "Monitoring",
+  awaiting_information: "Awaiting Information",
+  external_agency_lead: "External Agency Lead",
+  suspended: "Suspended",
+  resolved: "Resolved",
+  closed: "Closed",
+};
+
+const INCIDENT_STATUS_CLASS: Partial<Record<Enums<"incident_status">, string>> = {
+  reported: "bg-warning-bg text-warning",
+  active: "bg-destructive/10 text-destructive",
+  resolved: "bg-success-bg text-success",
+  closed: "bg-muted text-muted-foreground",
+};
+
+export function IncidentStatusBadge({ status }: { status: Enums<"incident_status"> }) {
+  return (
+    <Badge variant="secondary" className={cn("font-semibold", INCIDENT_STATUS_CLASS[status])}>
+      {INCIDENT_STATUS_LABEL[status]}
+    </Badge>
+  );
+}
+
+const PRIORITY_CLASS: Record<string, string> = {
+  destructive: "bg-destructive text-destructive-foreground",
+  warning: "bg-warning-bg text-warning",
+  info: "bg-info-bg text-info",
+  muted: "bg-muted text-muted-foreground",
+};
+
+export function IncidentPriorityBadge({
+  code,
+  name,
+  colorToken,
+}: {
+  code: string;
+  name?: string;
+  colorToken?: string;
+}) {
+  return (
+    <Badge className={cn("font-bold tracking-wide", PRIORITY_CLASS[colorToken ?? "muted"])}>
+      {code}
+      {name ? ` ${name.toUpperCase()}` : ""}
+    </Badge>
+  );
+}

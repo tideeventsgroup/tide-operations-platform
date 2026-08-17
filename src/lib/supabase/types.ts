@@ -302,6 +302,32 @@ export type Database = {
           },
         ]
       }
+      event_id_counters: {
+        Row: {
+          entity_type: string
+          event_id: string
+          seq: number
+        }
+        Insert: {
+          entity_type: string
+          event_id: string
+          seq?: number
+        }
+        Update: {
+          entity_type?: string
+          event_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_id_counters_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_stage_history: {
         Row: {
           changed_by: string | null
@@ -517,6 +543,300 @@ export type Database = {
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_categories: {
+        Row: {
+          code: string
+          is_system: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          is_system?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          is_system?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      incident_log_entries: {
+        Row: {
+          author_id: string | null
+          body: string
+          corrects_entry_id: string | null
+          created_at: string
+          entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
+          id: string
+          incident_id: string
+          linked_record_id: string | null
+          linked_record_type: string | null
+          occurred_at: string
+          reported_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          corrects_entry_id?: string | null
+          created_at?: string
+          entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
+          id?: string
+          incident_id: string
+          linked_record_id?: string | null
+          linked_record_type?: string | null
+          occurred_at?: string
+          reported_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          corrects_entry_id?: string | null
+          created_at?: string
+          entry_type?: Database["public"]["Enums"]["incident_log_entry_type"]
+          id?: string
+          incident_id?: string
+          linked_record_id?: string | null
+          linked_record_type?: string | null
+          occurred_at?: string
+          reported_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_log_entries_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_log_entries_corrects_entry_id_fkey"
+            columns: ["corrects_entry_id"]
+            isOneToOne: false
+            referencedRelation: "incident_log_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_log_entries_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_priorities: {
+        Row: {
+          code: string
+          color_token: string
+          description: string
+          name: string
+          organisation_id: string
+          rank: number
+        }
+        Insert: {
+          code: string
+          color_token?: string
+          description: string
+          name: string
+          organisation_id: string
+          rank: number
+        }
+        Update: {
+          code?: string
+          color_token?: string
+          description?: string
+          name?: string
+          organisation_id?: string
+          rank?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_priorities_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incidents: {
+        Row: {
+          acknowledged_at: string | null
+          category_code: string
+          classification: Database["public"]["Enums"]["classification_level"]
+          closed_at: string | null
+          closed_by: string | null
+          closure_summary: string | null
+          controller_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_id: string
+          event_phase: Database["public"]["Enums"]["event_phase"] | null
+          id: string
+          location_id: string | null
+          merged_into_incident_id: string | null
+          occurred_at: string
+          organisation_id: string
+          owner_id: string | null
+          priority_code: string | null
+          reference: string
+          report_source: Database["public"]["Enums"]["report_source"]
+          reported_at: string
+          reported_by_name: string | null
+          reported_by_profile_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["incident_status"]
+          subtype: string | null
+          summary: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          category_code: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_summary?: string | null
+          controller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id: string
+          event_phase?: Database["public"]["Enums"]["event_phase"] | null
+          id?: string
+          location_id?: string | null
+          merged_into_incident_id?: string | null
+          occurred_at?: string
+          organisation_id: string
+          owner_id?: string | null
+          priority_code?: string | null
+          reference: string
+          report_source?: Database["public"]["Enums"]["report_source"]
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["incident_status"]
+          subtype?: string | null
+          summary: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          category_code?: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_summary?: string | null
+          controller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id?: string
+          event_phase?: Database["public"]["Enums"]["event_phase"] | null
+          id?: string
+          location_id?: string | null
+          merged_into_incident_id?: string | null
+          occurred_at?: string
+          organisation_id?: string
+          owner_id?: string | null
+          priority_code?: string | null
+          reference?: string
+          report_source?: Database["public"]["Enums"]["report_source"]
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["incident_status"]
+          subtype?: string | null
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_category_code_fkey"
+            columns: ["category_code"]
+            isOneToOne: false
+            referencedRelation: "incident_categories"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "incidents_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_controller_id_fkey"
+            columns: ["controller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "operational_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_merged_into_incident_id_fkey"
+            columns: ["merged_into_incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_organisation_id_priority_code_fkey"
+            columns: ["organisation_id", "priority_code"]
+            isOneToOne: false
+            referencedRelation: "incident_priorities"
+            referencedColumns: ["organisation_id", "code"]
+          },
+          {
+            foreignKeyName: "incidents_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_reported_by_profile_id_fkey"
+            columns: ["reported_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -860,12 +1180,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acknowledge_incident: {
+        Args: { p_incident_id: string }
+        Returns: undefined
+      }
       activate_event: {
         Args: {
           p_acknowledged_warnings?: string[]
           p_comments?: string
           p_event_id: string
         }
+        Returns: undefined
+      }
+      add_incident_correction: {
+        Args: {
+          p_body: string
+          p_corrects_entry_id: string
+          p_incident_id: string
+        }
+        Returns: string
+      }
+      append_incident_log_entry: {
+        Args: {
+          p_body: string
+          p_entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
+          p_incident_id: string
+          p_linked_record_id?: string
+          p_linked_record_type?: string
+          p_occurred_at?: string
+        }
+        Returns: string
+      }
+      assign_incident_controller: {
+        Args: { p_controller_id?: string; p_incident_id: string }
+        Returns: undefined
+      }
+      assign_incident_owner: {
+        Args: { p_incident_id: string; p_owner_id: string }
         Returns: undefined
       }
       change_event_phase: {
@@ -883,6 +1234,32 @@ export type Database = {
         }
         Returns: undefined
       }
+      change_incident_priority: {
+        Args: {
+          p_incident_id: string
+          p_new_priority_code: string
+          p_reason?: string
+        }
+        Returns: undefined
+      }
+      close_incident: {
+        Args: { p_closure_summary: string; p_incident_id: string }
+        Returns: undefined
+      }
+      create_incident: {
+        Args: {
+          p_category_code: string
+          p_description?: string
+          p_event_id: string
+          p_location_id?: string
+          p_occurred_at?: string
+          p_priority_code?: string
+          p_report_source?: Database["public"]["Enums"]["report_source"]
+          p_reported_by_name?: string
+          p_summary: string
+        }
+        Returns: string
+      }
       current_organisation_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
       has_permission: {
@@ -896,6 +1273,14 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      next_event_reference: {
+        Args: {
+          p_entity_type: string
+          p_event_id: string
+          p_suffix_width?: number
+        }
+        Returns: string
+      }
       next_reference: {
         Args: {
           p_entity_type: string
@@ -917,6 +1302,14 @@ export type Database = {
           p_reason?: string
         }
         Returns: string
+      }
+      reopen_incident: {
+        Args: { p_incident_id: string; p_reason: string }
+        Returns: undefined
+      }
+      resolve_incident: {
+        Args: { p_incident_id: string; p_resolution: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -951,6 +1344,30 @@ export type Database = {
         | "closed_to_public"
         | "breakdown"
         | "stand_down"
+      incident_log_entry_type:
+        | "report"
+        | "update"
+        | "status"
+        | "communication"
+        | "dispatch"
+        | "arrival"
+        | "action"
+        | "decision"
+        | "agency"
+        | "attachment"
+        | "escalation"
+        | "system"
+        | "correction"
+      incident_status:
+        | "reported"
+        | "acknowledged"
+        | "active"
+        | "monitoring"
+        | "awaiting_information"
+        | "external_agency_lead"
+        | "suspended"
+        | "resolved"
+        | "closed"
       operational_location_status:
         | "normal"
         | "monitoring"
@@ -960,6 +1377,18 @@ export type Database = {
         | "closed"
       operational_location_type: "site" | "zone" | "area" | "location"
       profile_status: "active" | "disabled"
+      report_source:
+        | "radio"
+        | "telephone"
+        | "in_person"
+        | "field_app"
+        | "event_control_observation"
+        | "client"
+        | "contractor"
+        | "emergency_service"
+        | "public"
+        | "system_integration"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1121,6 +1550,32 @@ export const Constants = {
         "breakdown",
         "stand_down",
       ],
+      incident_log_entry_type: [
+        "report",
+        "update",
+        "status",
+        "communication",
+        "dispatch",
+        "arrival",
+        "action",
+        "decision",
+        "agency",
+        "attachment",
+        "escalation",
+        "system",
+        "correction",
+      ],
+      incident_status: [
+        "reported",
+        "acknowledged",
+        "active",
+        "monitoring",
+        "awaiting_information",
+        "external_agency_lead",
+        "suspended",
+        "resolved",
+        "closed",
+      ],
       operational_location_status: [
         "normal",
         "monitoring",
@@ -1131,6 +1586,19 @@ export const Constants = {
       ],
       operational_location_type: ["site", "zone", "area", "location"],
       profile_status: ["active", "disabled"],
+      report_source: [
+        "radio",
+        "telephone",
+        "in_person",
+        "field_app",
+        "event_control_observation",
+        "client",
+        "contractor",
+        "emergency_service",
+        "public",
+        "system_integration",
+        "other",
+      ],
     },
   },
 } as const

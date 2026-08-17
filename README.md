@@ -67,6 +67,40 @@ Email in the Supabase dashboard, or confirm manually:
 update auth.users set email_confirmed_at = now() where email = '...';
 ```
 
+The project's default (non-custom-SMTP) email sender has a low send rate
+limit that repeated `/request-access` signups during testing will hit
+("email rate limit exceeded", and the account is *not* created when this
+happens — it's not just the email that fails). To create a test account
+without sending any email, insert directly — both `auth.users` **and** a
+matching `auth.identities` row are required for password sign-in to work;
+`auth.users` alone 404s on sign-in with "Incorrect email or password":
+```sql
+do $$
+declare v_user_id uuid := gen_random_uuid();
+begin
+  insert into auth.users (
+    instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+    created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin,
+    confirmation_token, recovery_token, email_change, email_change_token_new, email_change_token_current
+  ) values (
+    '00000000-0000-0000-0000-000000000000', v_user_id, 'authenticated', 'authenticated',
+    'you@example.com', crypt('yourpassword', gen_salt('bf')), now(),
+    now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb,
+    false, '', '', '', '', ''
+  );
+  insert into auth.identities (
+    id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at
+  ) values (
+    gen_random_uuid(), v_user_id::text, v_user_id,
+    jsonb_build_object('sub', v_user_id::text, 'email', 'you@example.com', 'email_verified', true),
+    'email', now(), now(), now()
+  );
+end $$;
+```
+(`email` on `auth.identities` is a generated column — don't include it in
+the insert list.) Then run the bootstrap-admin steps above against the new
+account as normal.
+
 ## Documentation
 
 - `/docs/architecture.md` — target architecture, domains, data flow, tenancy
