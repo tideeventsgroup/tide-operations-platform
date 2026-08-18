@@ -1,46 +1,10 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/types";
 
 export type ActionResult = { error?: string; success?: boolean };
-
-const createIncidentSchema = z.object({
-  event_id: z.string().uuid(),
-  category_code: z.string().min(1, { error: "Select a category." }),
-  summary: z.string().trim().min(1, { error: "Enter a brief description." }),
-  location_id: z.string().uuid().nullish(),
-  description: z.string().trim().nullish(),
-  priority_code: z.string().nullish(),
-  report_source: z.string().nullish(),
-});
-
-export async function createIncidentAction(
-  _prevState: ActionResult | undefined,
-  formData: FormData,
-): Promise<ActionResult> {
-  const parsed = createIncidentSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid details." };
-
-  const supabase = await createClient();
-  const { data: incidentId, error } = await supabase.rpc("create_incident", {
-    p_event_id: parsed.data.event_id,
-    p_category_code: parsed.data.category_code,
-    p_summary: parsed.data.summary,
-    p_location_id: parsed.data.location_id || undefined,
-    p_description: parsed.data.description || undefined,
-    p_priority_code: parsed.data.priority_code || undefined,
-    p_report_source: (parsed.data.report_source as Enums<"report_source">) || undefined,
-  });
-
-  if (error) return { error: error.message };
-
-  revalidatePath(`/events/${parsed.data.event_id}/incidents`);
-  redirect(`/incidents/${incidentId}`);
-}
 
 async function callVoidRpc(
   fn:

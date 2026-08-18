@@ -1,11 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { createIncidentAction } from "@/lib/actions/incidents";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import { addPendingIncident } from "@/lib/offline/db";
+import { refreshPendingCount } from "@/lib/offline/pending-store";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { Tables } from "@/lib/supabase/types";
+import type { Enums, Tables } from "@/lib/supabase/types";
 
 export function RapidIncidentForm({
   eventId,
@@ -18,16 +22,76 @@ export function RapidIncidentForm({
   priorities: Tables<"incident_priorities">[];
   locations: Tables<"operational_locations">[];
 }) {
-  const [state, action, pending] = useActionState(createIncidentAction, undefined);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const [showMore, setShowMore] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  function submit(formData: FormData) {
+    setError(null);
+    const record = {
+      localId: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      event_id: eventId,
+      category_code: String(formData.get("category_code") ?? ""),
+      summary: String(formData.get("summary") ?? "").trim(),
+      location_id: (formData.get("location_id") as string) || undefined,
+      priority_code: (formData.get("priority_code") as string) || undefined,
+      report_source: (formData.get("report_source") as string) || undefined,
+    };
+
+    if (!record.category_code || !record.summary) {
+      setError("Select a category and enter a brief description.");
+      return;
+    }
+
+    startTransition(async () => {
+      if (!navigator.onLine) {
+        await addPendingIncident(record);
+        await refreshPendingCount();
+        toast.success("Saved offline — will sync automatically when signal returns");
+        router.push(`/events/${eventId}/incidents`);
+        return;
+      }
+
+      try {
+        const supabase = createClient();
+        const { data, error: rpcError } = await supabase.rpc("create_incident", {
+          p_event_id: record.event_id,
+          p_category_code: record.category_code,
+          p_summary: record.summary,
+          p_location_id: record.location_id,
+          p_priority_code: record.priority_code,
+          p_report_source: record.report_source as Enums<"report_source"> | undefined,
+        });
+
+        if (rpcError) {
+          if (!("code" in rpcError) || !rpcError.code) {
+            await addPendingIncident(record);
+            await refreshPendingCount();
+            toast.success("Saved offline — will sync automatically when signal returns");
+            router.push(`/events/${eventId}/incidents`);
+            return;
+          }
+          setError(rpcError.message);
+          return;
+        }
+
+        router.push(`/incidents/${data}`);
+      } catch {
+        await addPendingIncident(record);
+        await refreshPendingCount();
+        toast.success("Saved offline — will sync automatically when signal returns");
+        router.push(`/events/${eventId}/incidents`);
+      }
+    });
+  }
 
   return (
-    <form action={action} className="space-y-5" noValidate>
-      <input type="hidden" name="event_id" value={eventId} />
-
-      {state?.error ? (
+    <form action={submit} className="space-y-5" noValidate>
+      {error ? (
         <Alert variant="destructive">
-          <AlertDescription>{state.error}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
 

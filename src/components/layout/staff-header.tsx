@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TideLogo } from "@/components/tide-logo";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SyncStatusBadge } from "@/components/offline/sync-status-badge";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/lib/supabase/types";
 
@@ -91,6 +92,7 @@ export function StaffHeader({ profile, isAdmin }: { profile: Tables<"profiles">;
       </nav>
 
       <div className="flex flex-1 items-center justify-end gap-3 md:flex-none">
+        <SyncStatusBadge />
         <ThemeToggle className="text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground" />
         <span className="hidden text-sm text-sidebar-foreground/90 sm:inline">{name}</span>
         <form action={signOut}>
