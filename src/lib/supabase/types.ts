@@ -547,6 +547,83 @@ export type Database = {
           },
         ]
       }
+      incident_actions: {
+        Row: {
+          assigned_to: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          due_at: string | null
+          id: string
+          incident_id: string
+          reference: string
+          status: Database["public"]["Enums"]["incident_action_status"]
+        }
+        Insert: {
+          assigned_to?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          due_at?: string | null
+          id?: string
+          incident_id: string
+          reference: string
+          status?: Database["public"]["Enums"]["incident_action_status"]
+        }
+        Update: {
+          assigned_to?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_at?: string | null
+          id?: string
+          incident_id?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["incident_action_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_actions_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_actions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_actions_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_categories: {
         Row: {
           code: string
@@ -567,6 +644,54 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      incident_decisions: {
+        Row: {
+          created_at: string
+          decided_at: string
+          decided_by: string | null
+          decision: string
+          id: string
+          incident_id: string
+          rationale: string | null
+          reference: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string
+          decided_by?: string | null
+          decision: string
+          id?: string
+          incident_id: string
+          rationale?: string | null
+          reference: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string
+          decided_by?: string | null
+          decision?: string
+          id?: string
+          incident_id?: string
+          rationale?: string | null
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_decisions_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_decisions_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       incident_log_entries: {
         Row: {
@@ -663,6 +788,66 @@ export type Database = {
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_resources: {
+        Row: {
+          arrived_at: string | null
+          created_at: string
+          description: string | null
+          dispatched_at: string | null
+          id: string
+          incident_id: string
+          reference: string
+          requested_at: string
+          requested_by: string | null
+          resource_type: string
+          status: Database["public"]["Enums"]["incident_resource_status"]
+          stood_down_at: string | null
+        }
+        Insert: {
+          arrived_at?: string | null
+          created_at?: string
+          description?: string | null
+          dispatched_at?: string | null
+          id?: string
+          incident_id: string
+          reference: string
+          requested_at?: string
+          requested_by?: string | null
+          resource_type: string
+          status?: Database["public"]["Enums"]["incident_resource_status"]
+          stood_down_at?: string | null
+        }
+        Update: {
+          arrived_at?: string | null
+          created_at?: string
+          description?: string | null
+          dispatched_at?: string | null
+          id?: string
+          incident_id?: string
+          reference?: string
+          requested_at?: string
+          requested_by?: string | null
+          resource_type?: string
+          status?: Database["public"]["Enums"]["incident_resource_status"]
+          stood_down_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_resources_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_resources_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1219,6 +1404,10 @@ export type Database = {
         Args: { p_incident_id: string; p_owner_id: string }
         Returns: undefined
       }
+      cancel_incident_action: {
+        Args: { p_action_id: string; p_reason: string }
+        Returns: undefined
+      }
       change_event_phase: {
         Args: {
           p_event_id: string
@@ -1246,6 +1435,10 @@ export type Database = {
         Args: { p_closure_summary: string; p_incident_id: string }
         Returns: undefined
       }
+      complete_incident_action: {
+        Args: { p_action_id: string; p_note?: string }
+        Returns: undefined
+      }
       create_incident: {
         Args: {
           p_category_code: string
@@ -1257,6 +1450,15 @@ export type Database = {
           p_report_source?: Database["public"]["Enums"]["report_source"]
           p_reported_by_name?: string
           p_summary: string
+        }
+        Returns: string
+      }
+      create_incident_action: {
+        Args: {
+          p_assigned_to?: string
+          p_description: string
+          p_due_at?: string
+          p_incident_id: string
         }
         Returns: string
       }
@@ -1303,12 +1505,35 @@ export type Database = {
         }
         Returns: string
       }
+      record_incident_decision: {
+        Args: {
+          p_decision: string
+          p_incident_id: string
+          p_rationale?: string
+        }
+        Returns: string
+      }
       reopen_incident: {
         Args: { p_incident_id: string; p_reason: string }
         Returns: undefined
       }
+      request_incident_resource: {
+        Args: {
+          p_description?: string
+          p_incident_id: string
+          p_resource_type: string
+        }
+        Returns: string
+      }
       resolve_incident: {
         Args: { p_incident_id: string; p_resolution: string }
+        Returns: undefined
+      }
+      update_incident_resource_status: {
+        Args: {
+          p_resource_id: string
+          p_status: Database["public"]["Enums"]["incident_resource_status"]
+        }
         Returns: undefined
       }
     }
@@ -1344,6 +1569,7 @@ export type Database = {
         | "closed_to_public"
         | "breakdown"
         | "stand_down"
+      incident_action_status: "open" | "in_progress" | "complete" | "cancelled"
       incident_log_entry_type:
         | "report"
         | "update"
@@ -1358,6 +1584,11 @@ export type Database = {
         | "escalation"
         | "system"
         | "correction"
+      incident_resource_status:
+        | "requested"
+        | "dispatched"
+        | "on_scene"
+        | "stood_down"
       incident_status:
         | "reported"
         | "acknowledged"
@@ -1550,6 +1781,7 @@ export const Constants = {
         "breakdown",
         "stand_down",
       ],
+      incident_action_status: ["open", "in_progress", "complete", "cancelled"],
       incident_log_entry_type: [
         "report",
         "update",
@@ -1564,6 +1796,12 @@ export const Constants = {
         "escalation",
         "system",
         "correction",
+      ],
+      incident_resource_status: [
+        "requested",
+        "dispatched",
+        "on_scene",
+        "stood_down",
       ],
       incident_status: [
         "reported",

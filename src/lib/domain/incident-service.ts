@@ -38,6 +38,39 @@ export async function listIncidentTimeline(incidentId: string) {
   return data;
 }
 
+export async function listIncidentActions(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incident_actions")
+    .select("*, assignee:assigned_to(first_name, surname, email)")
+    .eq("incident_id", incidentId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function listIncidentDecisions(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incident_decisions")
+    .select("*, decided_by_profile:decided_by(first_name, surname, email)")
+    .eq("incident_id", incidentId)
+    .order("decided_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function listIncidentResources(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incident_resources")
+    .select("*")
+    .eq("incident_id", incidentId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function listIncidentCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("incident_categories").select("*").order("sort_order");
