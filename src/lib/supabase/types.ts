@@ -302,6 +302,107 @@ export type Database = {
           },
         ]
       }
+      event_control_roles: {
+        Row: {
+          code: string
+          id: string
+          name: string
+          organisation_id: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          id?: string
+          name: string
+          organisation_id: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          id?: string
+          name?: string
+          organisation_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_control_roles_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_control_sessions: {
+        Row: {
+          ended_at: string | null
+          ended_by: string | null
+          event_id: string
+          id: string
+          profile_id: string
+          role_id: string
+          started_at: string
+          started_by: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          ended_by?: string | null
+          event_id: string
+          id?: string
+          profile_id: string
+          role_id: string
+          started_at?: string
+          started_by?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          ended_by?: string | null
+          event_id?: string
+          id?: string
+          profile_id?: string
+          role_id?: string
+          started_at?: string
+          started_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_control_sessions_ended_by_fkey"
+            columns: ["ended_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "event_control_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_id_counters: {
         Row: {
           entity_type: string
@@ -1026,6 +1127,157 @@ export type Database = {
           },
         ]
       }
+      major_incident_activations: {
+        Row: {
+          activated_at: string
+          activated_by: string | null
+          deactivated_at: string | null
+          deactivated_by: string | null
+          id: string
+          incident_id: string
+          reason: string
+        }
+        Insert: {
+          activated_at?: string
+          activated_by?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          id?: string
+          incident_id: string
+          reason: string
+        }
+        Update: {
+          activated_at?: string
+          activated_by?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          id?: string
+          incident_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "major_incident_activations_activated_by_fkey"
+            columns: ["activated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "major_incident_activations_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "major_incident_activations_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      methane_message_versions: {
+        Row: {
+          access_and_egress: string | null
+          casualties: string | null
+          emergency_services: string | null
+          exact_location: string
+          hazards: string | null
+          id: string
+          incident_type: string
+          major_incident_declared: boolean
+          methane_message_id: string
+          submitted_at: string
+          submitted_by: string | null
+          version_no: number
+        }
+        Insert: {
+          access_and_egress?: string | null
+          casualties?: string | null
+          emergency_services?: string | null
+          exact_location: string
+          hazards?: string | null
+          id?: string
+          incident_type: string
+          major_incident_declared?: boolean
+          methane_message_id: string
+          submitted_at?: string
+          submitted_by?: string | null
+          version_no: number
+        }
+        Update: {
+          access_and_egress?: string | null
+          casualties?: string | null
+          emergency_services?: string | null
+          exact_location?: string
+          hazards?: string | null
+          id?: string
+          incident_type?: string
+          major_incident_declared?: boolean
+          methane_message_id?: string
+          submitted_at?: string
+          submitted_by?: string | null
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "methane_message_versions_methane_message_id_fkey"
+            columns: ["methane_message_id"]
+            isOneToOne: false
+            referencedRelation: "methane_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "methane_message_versions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      methane_messages: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          incident_id: string
+          reference: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          incident_id: string
+          reference: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          incident_id?: string
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "methane_messages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "methane_messages_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operational_locations: {
         Row: {
           code: string | null
@@ -1377,6 +1629,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      activate_major_incident: {
+        Args: { p_incident_id: string; p_reason: string }
+        Returns: string
+      }
       add_incident_correction: {
         Args: {
           p_body: string
@@ -1462,8 +1718,29 @@ export type Database = {
         }
         Returns: string
       }
+      create_methane_message: {
+        Args: {
+          p_access_and_egress?: string
+          p_casualties?: string
+          p_emergency_services?: string
+          p_exact_location: string
+          p_hazards?: string
+          p_incident_id: string
+          p_incident_type: string
+          p_major_incident_declared: boolean
+        }
+        Returns: string
+      }
       current_organisation_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
+      deactivate_major_incident: {
+        Args: { p_incident_id: string; p_reason?: string }
+        Returns: undefined
+      }
+      end_control_session: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
       has_permission: {
         Args: {
           p_client_id?: string
@@ -1528,6 +1805,10 @@ export type Database = {
       resolve_incident: {
         Args: { p_incident_id: string; p_resolution: string }
         Returns: undefined
+      }
+      start_control_session: {
+        Args: { p_event_id: string; p_profile_id?: string; p_role_id: string }
+        Returns: string
       }
       update_incident_resource_status: {
         Args: {

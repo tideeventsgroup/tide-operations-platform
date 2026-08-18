@@ -63,6 +63,28 @@ export async function listEventLocations(eventId: string) {
   return data;
 }
 
+export async function listControlRoles(organisationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("event_control_roles")
+    .select("*")
+    .eq("organisation_id", organisationId)
+    .order("sort_order");
+  if (error) throw error;
+  return data;
+}
+
+export async function listControlSessions(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("event_control_sessions")
+    .select("*, profiles!profile_id(first_name, surname, email), event_control_roles(name)")
+    .eq("event_id", eventId)
+    .order("started_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function createEventRecord(
   input: Omit<TablesInsert<"events">, "reference"> & { organisation_id: string },
 ) {

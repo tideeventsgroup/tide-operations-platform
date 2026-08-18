@@ -133,6 +133,21 @@ policies; the UI hiding a button is a UX nicety, not a security control.
   ```
   Verify with `has_function_privilege('anon', 'my_fn()', 'EXECUTE')` after
   applying, not just by reading the migration.
+- **Every new `permissions` row must be granted to the `admin` role in the
+  same migration** — do not rely on the original `0006` seed
+  (`insert into role_permissions select ... cross join permissions ... where
+  r.code = 'admin'`) to cover it. That was a one-time seed against the
+  permissions that existed *then*; it does not retroactively pick up
+  permissions inserted by later migrations (found in Phase 5, migration
+  0031: `event.control_session.manage` and `incident.major_incident_mode`
+  were invisible to the admin test account until backfilled in 0034). The
+  safe pattern, every time a migration adds to `permissions`:
+  ```sql
+  insert into permissions (code, module, action, description) values (...);
+  insert into role_permissions (role_id, permission_id)
+  select r.id, p.id from roles r join permissions p on p.code = 'my.new.permission'
+  where r.code = 'admin';
+  ```
 - Classification (`public` | `client` | `internal` | `confidential` |
   `restricted`, see `docs/data-classification.md`) is enforced both at the
   RLS layer (restricted rows are invisible to non-authorised roles, not

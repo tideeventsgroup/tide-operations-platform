@@ -71,6 +71,48 @@ export async function listIncidentResources(incidentId: string) {
   return data;
 }
 
+export async function listMethaneVersions(incidentId: string) {
+  const supabase = await createClient();
+  const { data: message, error: messageError } = await supabase
+    .from("methane_messages")
+    .select("id, reference")
+    .eq("incident_id", incidentId)
+    .maybeSingle();
+  if (messageError) throw messageError;
+  if (!message) return { message: null, versions: [] };
+
+  const { data: versions, error } = await supabase
+    .from("methane_message_versions")
+    .select("*, profiles(first_name, surname, email)")
+    .eq("methane_message_id", message.id)
+    .order("version_no", { ascending: false });
+  if (error) throw error;
+  return { message, versions };
+}
+
+export async function getActiveMajorIncidentActivation(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("major_incident_activations")
+    .select("*, activated_by_profile:activated_by(first_name, surname, email)")
+    .eq("incident_id", incidentId)
+    .is("deactivated_at", null)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function listActiveMajorIncidentsForEvent(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("major_incident_activations")
+    .select("*, activated_by_profile:activated_by(first_name, surname, email), incidents!inner(id, reference, summary, event_id)")
+    .eq("incidents.event_id", eventId)
+    .is("deactivated_at", null);
+  if (error) throw error;
+  return data;
+}
+
 export async function listIncidentCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("incident_categories").select("*").order("sort_order");

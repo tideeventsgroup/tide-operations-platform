@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEvent, listEventLocations, listEventStageHistory } from "@/lib/domain/event-service";
+import {
+  getEvent,
+  listControlRoles,
+  listControlSessions,
+  listEventLocations,
+  listEventStageHistory,
+} from "@/lib/domain/event-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { LifecycleStageBadge, EventPhaseBadge, LocationStatusBadge } from "@/components/status-badges";
 import { EventLifecycleControls } from "@/components/events/event-lifecycle-controls";
 import { AddLocationForm } from "@/components/events/add-location-form";
+import { ControlRosterPanel } from "@/components/events/control-roster-panel";
 import { Button } from "@/components/ui/button";
 
 function formatDate(value: string | null) {
@@ -28,7 +35,12 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
     notFound();
   }
 
-  const [locations, stageHistory] = await Promise.all([listEventLocations(id), listEventStageHistory(id)]);
+  const [locations, stageHistory, controlRoles, controlSessions] = await Promise.all([
+    listEventLocations(id),
+    listEventStageHistory(id),
+    listControlRoles(event.organisation_id),
+    listControlSessions(id),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
@@ -46,14 +58,19 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
             <LifecycleStageBadge stage={event.lifecycle_stage} />
             {event.current_phase ? <EventPhaseBadge phase={event.current_phase} /> : null}
           </div>
-          <Button
-            render={<Link href={`/events/${event.id}/incidents`} />}
-            nativeButton={false}
-            size="lg"
-            className="bg-destructive text-base text-destructive-foreground hover:bg-destructive/90"
-          >
-            Incident Control
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button render={<Link href={`/events/${event.id}/control-overview`} />} nativeButton={false} size="lg" variant="outline">
+              Control Overview
+            </Button>
+            <Button
+              render={<Link href={`/events/${event.id}/incidents`} />}
+              nativeButton={false}
+              size="lg"
+              className="bg-destructive text-base text-destructive-foreground hover:bg-destructive/90"
+            >
+              Incident Control
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -162,6 +179,8 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
           )}
         </div>
       </section>
+
+      <ControlRosterPanel eventId={id} roles={controlRoles} sessions={controlSessions} />
     </div>
   );
 }

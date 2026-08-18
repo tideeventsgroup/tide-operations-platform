@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import {
+  getActiveMajorIncidentActivation,
   getIncident,
   listIncidentActions,
   listIncidentCategories,
@@ -8,6 +9,7 @@ import {
   listIncidentResources,
   listIncidentTimeline,
   listIncidents,
+  listMethaneVersions,
 } from "@/lib/domain/incident-service";
 import { IncidentCommandHeader } from "@/components/incidents/incident-command-header";
 import { IncidentQuickActions } from "@/components/incidents/incident-quick-actions";
@@ -15,6 +17,8 @@ import { IncidentTimeline } from "@/components/incidents/incident-timeline";
 import { IncidentActionsPanel } from "@/components/incidents/incident-actions-panel";
 import { IncidentDecisionsPanel } from "@/components/incidents/incident-decisions-panel";
 import { IncidentResourcesPanel } from "@/components/incidents/incident-resources-panel";
+import { MethanePanel } from "@/components/incidents/methane-panel";
+import { MajorIncidentBanner } from "@/components/incidents/major-incident-banner";
 import { IncidentContextRail } from "@/components/incidents/incident-context-rail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -28,15 +32,18 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     notFound();
   }
 
-  const [timeline, actions, decisions, resources, categories, priorities, eventIncidents] = await Promise.all([
-    listIncidentTimeline(id),
-    listIncidentActions(id),
-    listIncidentDecisions(id),
-    listIncidentResources(id),
-    listIncidentCategories(),
-    listIncidentPriorities(incident.organisation_id),
-    listIncidents(incident.event_id),
-  ]);
+  const [timeline, actions, decisions, resources, methane, majorIncidentActivation, categories, priorities, eventIncidents] =
+    await Promise.all([
+      listIncidentTimeline(id),
+      listIncidentActions(id),
+      listIncidentDecisions(id),
+      listIncidentResources(id),
+      listMethaneVersions(id),
+      getActiveMajorIncidentActivation(id),
+      listIncidentCategories(),
+      listIncidentPriorities(incident.organisation_id),
+      listIncidents(incident.event_id),
+    ]);
 
   const category = categories.find((c) => c.code === incident.category_code);
   const otherOpenIncidents = eventIncidents.filter(
@@ -49,6 +56,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0 space-y-6">
           <IncidentCommandHeader incident={incident} categoryName={category?.name ?? incident.category_code} />
+          <MajorIncidentBanner incidentId={id} activation={majorIncidentActivation} />
           <IncidentQuickActions incident={incident} priorities={priorities} />
 
           <Tabs defaultValue="timeline">
@@ -59,6 +67,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
               </TabsTrigger>
               <TabsTrigger value="decisions">Decisions</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="methane">M/ETHANE</TabsTrigger>
             </TabsList>
             <TabsContent value="timeline" className="pt-4">
               <IncidentTimeline incidentId={id} entries={timeline} />
@@ -71,6 +80,9 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
             </TabsContent>
             <TabsContent value="resources" className="pt-4">
               <IncidentResourcesPanel incidentId={id} resources={resources} />
+            </TabsContent>
+            <TabsContent value="methane" className="pt-4">
+              <MethanePanel incidentId={id} data={methane} />
             </TabsContent>
           </Tabs>
         </div>
