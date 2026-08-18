@@ -120,8 +120,18 @@ export function IncidentPriorityBadge({
   name?: string;
   colorToken?: string;
 }) {
+  // P1/P2 need to out-rank every other badge on the row at a glance — colour
+  // alone isn't enough (spec §11: never colour-only). Size/weight carry the
+  // second signal.
+  const isUrgent = code === "P1" || code === "P2";
   return (
-    <Badge className={cn("font-bold tracking-wide", PRIORITY_CLASS[colorToken ?? "muted"])}>
+    <Badge
+      className={cn(
+        "font-bold tracking-wide",
+        isUrgent ? "h-6 px-2.5 text-[13px]" : "text-xs",
+        PRIORITY_CLASS[colorToken ?? "muted"],
+      )}
+    >
       {code}
       {name ? ` ${name.toUpperCase()}` : ""}
     </Badge>

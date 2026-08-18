@@ -9,7 +9,7 @@ export default async function ClientsPage() {
   const clients = await listClients();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-6 py-10">
+    <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
       <PageHeader
         title="Clients"
         description="Client register and reusable contacts."

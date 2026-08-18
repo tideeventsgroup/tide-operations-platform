@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { IncidentPriorityBadge, IncidentStatusBadge } from "@/components/status-badges";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { listIncidentCategories, listIncidentPriorities, listIncidents } from "@/lib/domain/incident-service";
@@ -64,8 +65,20 @@ export function IncidentBoard({
         <TableBody>
           {sorted.map((incident) => {
             const priority = incident.priority_code ? priorityByCode.get(incident.priority_code) : undefined;
+            const isOpen = incident.status !== "closed" && incident.status !== "resolved";
+            const isUrgent = isOpen && (incident.priority_code === "P1" || incident.priority_code === "P2");
             return (
-              <TableRow key={incident.id} className="row-interactive">
+              <TableRow
+                key={incident.id}
+                className={cn(
+                  "row-interactive border-l-4",
+                  isUrgent
+                    ? incident.priority_code === "P1"
+                      ? "border-l-destructive"
+                      : "border-l-warning"
+                    : "border-l-transparent",
+                )}
+              >
                 <TableCell className="font-mono text-xs">
                   <Link href={`/incidents/${incident.id}`} className="block font-medium text-foreground">
                     {incident.reference.split("-INC-").pop()}

@@ -31,7 +31,7 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
   const [locations, stageHistory] = await Promise.all([listEventLocations(id), listEventStageHistory(id)]);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-6 py-10">
+    <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
       <div className="space-y-2">
         <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
           {event.reference}
@@ -49,7 +49,8 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
           <Button
             render={<Link href={`/events/${event.id}/incidents`} />}
             nativeButton={false}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            size="lg"
+            className="bg-destructive text-base text-destructive-foreground hover:bg-destructive/90"
           >
             Incident Control
           </Button>
@@ -62,7 +63,7 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
         eventControlManagerName={undefined}
       />
 
-      <section className="grid grid-cols-2 gap-4 text-sm">
+      <section className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="section-label mb-2">Dates</div>
           <dl className="space-y-1">
@@ -101,46 +102,65 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
             </div>
           </dl>
         </div>
+        <div className="rounded-lg border border-border bg-card p-4 sm:col-span-2 lg:col-span-1">
+          <div className="section-label mb-2">Event</div>
+          <dl className="space-y-1">
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Category</dt>
+              <dd className="data-value">{event.category ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Local authority</dt>
+              <dd className="data-value">{event.local_authority ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Jurisdiction</dt>
+              <dd className="data-value">{event.jurisdiction}</dd>
+            </div>
+          </dl>
+        </div>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="section-label">Site locations ({locations.length})</h2>
-        {locations.length === 0 ? (
-          <EmptyState message="No locations defined yet" />
-        ) : (
-          <div className="divide-y divide-border rounded-lg border border-border bg-card">
-            {locations.map((loc) => (
-              <div key={loc.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="section-label !text-[10px]">{loc.type}</span>
-                  <span className="font-medium text-foreground">{loc.name}</span>
+      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="section-label">Site locations ({locations.length})</h2>
+          {locations.length === 0 ? (
+            <EmptyState message="No locations defined yet" />
+          ) : (
+            <div className="divide-y divide-border rounded-lg border border-border bg-card">
+              {locations.map((loc) => (
+                <div key={loc.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="section-label !text-[10px]">{loc.type}</span>
+                    <span className="font-medium text-foreground">{loc.name}</span>
+                  </div>
+                  <LocationStatusBadge status={loc.status} />
                 </div>
-                <LocationStatusBadge status={loc.status} />
-              </div>
-            ))}
-          </div>
-        )}
-        <AddLocationForm eventId={id} locations={locations} />
-      </section>
+              ))}
+            </div>
+          )}
+          <AddLocationForm eventId={id} locations={locations} />
+        </div>
 
-      <section className="space-y-3">
-        <h2 className="section-label">Lifecycle history</h2>
-        {stageHistory.length === 0 ? (
-          <EmptyState message="No stage changes recorded" />
-        ) : (
-          <div className="divide-y divide-border rounded-lg border border-border bg-card">
-            {stageHistory.map((h) => (
-              <div key={h.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                <div>
-                  <span className="text-muted-foreground">{h.from_stage ?? "—"} → </span>
-                  <span className="font-medium text-foreground">{h.to_stage}</span>
-                  {h.reason ? <span className="text-muted-foreground"> · {h.reason}</span> : null}
+        <div className="space-y-3">
+          <h2 className="section-label">Lifecycle history</h2>
+          {stageHistory.length === 0 ? (
+            <EmptyState message="No stage changes recorded" />
+          ) : (
+            <div className="divide-y divide-border rounded-lg border border-border bg-card">
+              {stageHistory.map((h) => (
+                <div key={h.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">{h.from_stage ?? "—"} → </span>
+                    <span className="font-medium text-foreground">{h.to_stage}</span>
+                    {h.reason ? <span className="text-muted-foreground"> · {h.reason}</span> : null}
+                  </div>
+                  <div className="text-xs text-muted-foreground">{formatDateTime(h.created_at)}</div>
                 </div>
-                <div className="text-xs text-muted-foreground">{formatDateTime(h.created_at)}</div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );
