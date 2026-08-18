@@ -44,19 +44,21 @@ export function IncidentCommandHeader({ incident, categoryName }: { incident: In
               {incident.events?.reference}
             </Link>
           </div>
-          <div className="mt-0.5 flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <div className="mt-0.5 flex flex-wrap items-center gap-2.5">
+            <h1 className="text-[28px] leading-none font-bold tracking-tight text-foreground">
               INC-{incidentNumber} · {categoryName.toUpperCase()}
             </h1>
             {incident.priority_code ? (
-              <Badge className="bg-destructive font-bold text-destructive-foreground">{incident.priority_code}</Badge>
+              <Badge className="h-6 bg-destructive px-2.5 text-[13px] font-bold text-destructive-foreground">
+                {incident.priority_code}
+              </Badge>
             ) : null}
             <IncidentStatusBadge status={incident.status} />
           </div>
         </div>
         <div className="text-right">
           <div className="section-label">Elapsed</div>
-          <div className="data-value font-mono text-lg">{elapsed}</div>
+          <div className="data-value font-mono text-2xl">{elapsed}</div>
         </div>
       </div>
 

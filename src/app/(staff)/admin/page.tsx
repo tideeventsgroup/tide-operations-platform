@@ -28,7 +28,7 @@ export default async function AdminUsersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-8 py-8">
+    <div className="mx-auto max-w-5xl space-y-6 px-8 py-8">
       <PageHeader title="Users & Roles" description="Approve pending accounts and manage role grants." />
 
       <section className="space-y-3">
