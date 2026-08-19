@@ -37,7 +37,7 @@ export function StaffHeader({ profile, isAdmin }: { profile: Tables<"profiles">;
   const items = isAdmin ? [...NAV, { label: "Administration", href: "/admin" }] : NAV;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-sidebar px-4 text-sidebar-foreground md:gap-6">
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-sidebar px-4 text-sidebar-foreground md:gap-6 print:hidden">
       <Sheet>
         <SheetTrigger
           render={
