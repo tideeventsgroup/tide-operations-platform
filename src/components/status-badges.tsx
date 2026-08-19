@@ -137,3 +137,29 @@ export function IncidentPriorityBadge({
     </Badge>
   );
 }
+
+const DOCUMENT_STATUS_LABEL: Record<Enums<"document_status">, string> = {
+  draft: "Draft",
+  in_review: "In Review",
+  approved: "Approved",
+  issued: "Issued",
+  superseded: "Superseded",
+  archived: "Archived",
+};
+
+const DOCUMENT_STATUS_CLASS: Partial<Record<Enums<"document_status">, string>> = {
+  draft: "bg-muted text-muted-foreground",
+  in_review: "bg-warning-bg text-warning",
+  approved: "bg-info-bg text-info",
+  issued: "bg-success-bg text-success",
+  superseded: "bg-muted text-muted-foreground",
+  archived: "bg-muted text-muted-foreground",
+};
+
+export function DocumentStatusBadge({ status }: { status: Enums<"document_status"> }) {
+  return (
+    <Badge variant="secondary" className={cn("font-semibold", DOCUMENT_STATUS_CLASS[status])}>
+      {DOCUMENT_STATUS_LABEL[status]}
+    </Badge>
+  );
+}

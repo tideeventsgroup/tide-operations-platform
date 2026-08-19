@@ -272,6 +272,244 @@ export type Database = {
         }
         Relationships: []
       }
+      document_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          document_id: string
+          from_status: Database["public"]["Enums"]["document_status"] | null
+          id: string
+          reason: string | null
+          to_status: Database["public"]["Enums"]["document_status"]
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          document_id: string
+          from_status?: Database["public"]["Enums"]["document_status"] | null
+          id?: string
+          reason?: string | null
+          to_status: Database["public"]["Enums"]["document_status"]
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          document_id?: string
+          from_status?: Database["public"]["Enums"]["document_status"] | null
+          id?: string
+          reason?: string | null
+          to_status?: Database["public"]["Enums"]["document_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_status_history_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_types: {
+        Row: {
+          code: string
+          description: string | null
+          id: string
+          name: string
+          organisation_id: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          description?: string | null
+          id?: string
+          name: string
+          organisation_id: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organisation_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_types_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_versions: {
+        Row: {
+          document_id: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          notes: string | null
+          storage_path: string
+          uploaded_at: string
+          uploaded_by: string | null
+          version_no: number
+        }
+        Insert: {
+          document_id: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          storage_path: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_no: number
+        }
+        Update: {
+          document_id?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          notes?: string | null
+          storage_path?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_versions_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          classification: Database["public"]["Enums"]["classification_level"]
+          created_at: string
+          created_by: string | null
+          current_version_id: string | null
+          document_type_id: string
+          event_id: string
+          id: string
+          issued_at: string | null
+          issued_by: string | null
+          organisation_id: string
+          reference: string
+          status: Database["public"]["Enums"]["document_status"]
+          title: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          document_type_id: string
+          event_id: string
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          organisation_id: string
+          reference: string
+          status?: Database["public"]["Enums"]["document_status"]
+          title: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          current_version_id?: string | null
+          document_type_id?: string
+          event_id?: string
+          id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          organisation_id?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["document_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_current_version_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_issued_by_fkey"
+            columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_characteristics: {
         Row: {
           characteristic_code: string
@@ -1718,6 +1956,14 @@ export type Database = {
         }
         Returns: string
       }
+      approve_document: {
+        Args: { p_comments?: string; p_document_id: string }
+        Returns: undefined
+      }
+      archive_document: {
+        Args: { p_document_id: string; p_reason: string }
+        Returns: undefined
+      }
       assign_incident_controller: {
         Args: { p_controller_id?: string; p_incident_id: string }
         Returns: undefined
@@ -1760,6 +2006,15 @@ export type Database = {
       complete_incident_action: {
         Args: { p_action_id: string; p_note?: string }
         Returns: undefined
+      }
+      create_document: {
+        Args: {
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_document_type_id: string
+          p_event_id: string
+          p_title: string
+        }
+        Returns: string
       }
       create_incident: {
         Args: {
@@ -1818,6 +2073,7 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      issue_document: { Args: { p_document_id: string }; Returns: undefined }
       next_event_reference: {
         Args: {
           p_entity_type: string
@@ -1866,6 +2122,17 @@ export type Database = {
         }
         Returns: string
       }
+      register_document_version: {
+        Args: {
+          p_document_id: string
+          p_file_name: string
+          p_file_size?: number
+          p_mime_type?: string
+          p_notes?: string
+          p_storage_path: string
+        }
+        Returns: string
+      }
       reopen_incident: {
         Args: { p_incident_id: string; p_reason: string }
         Returns: undefined
@@ -1885,6 +2152,10 @@ export type Database = {
       start_control_session: {
         Args: { p_event_id: string; p_profile_id?: string; p_role_id: string }
         Returns: string
+      }
+      submit_document_for_review: {
+        Args: { p_document_id: string }
+        Returns: undefined
       }
       update_incident_agency_status: {
         Args: {
@@ -1909,6 +2180,13 @@ export type Database = {
         | "internal"
         | "confidential"
         | "restricted"
+      document_status:
+        | "draft"
+        | "in_review"
+        | "approved"
+        | "issued"
+        | "superseded"
+        | "archived"
       event_lifecycle_stage:
         | "enquiry"
         | "proposal"
@@ -2123,6 +2401,14 @@ export const Constants = {
         "internal",
         "confidential",
         "restricted",
+      ],
+      document_status: [
+        "draft",
+        "in_review",
+        "approved",
+        "issued",
+        "superseded",
+        "archived",
       ],
       event_lifecycle_stage: [
         "enquiry",
