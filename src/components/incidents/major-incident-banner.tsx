@@ -65,7 +65,11 @@ export function MajorIncidentBanner({ incidentId, activation }: { incidentId: st
   return (
     <div className="rounded-lg border border-border bg-card p-3">
       {!open ? (
-        <Button size="sm" variant="destructive" onClick={() => setOpen(true)}>
+        <Button
+          size="lg"
+          className="bg-destructive text-base font-semibold text-destructive-foreground hover:bg-destructive/90"
+          onClick={() => setOpen(true)}
+        >
           Activate Major Incident Mode
         </Button>
       ) : (
@@ -79,7 +83,12 @@ export function MajorIncidentBanner({ incidentId, activation }: { incidentId: st
               className="flex-1"
               disabled={pending}
             />
-            <Button size="sm" variant="destructive" disabled={pending || !reason.trim()} onClick={activate}>
+            <Button
+              size="sm"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={pending || !reason.trim()}
+              onClick={activate}
+            >
               Confirm activation
             </Button>
             <Button size="sm" variant="ghost" disabled={pending} onClick={() => setOpen(false)}>

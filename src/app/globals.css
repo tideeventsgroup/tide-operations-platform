@@ -61,7 +61,7 @@
 }
 
 :root {
-  --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   --tide-charcoal: #373536;
   --tide-teal: #60b9c5;
   --tide-white: #ffffff;

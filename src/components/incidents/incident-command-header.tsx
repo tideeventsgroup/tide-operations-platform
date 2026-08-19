@@ -19,10 +19,18 @@ function useElapsed(since: string) {
     function tick() {
       const ms = Date.now() - new Date(since).getTime();
       const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-      const h = Math.floor(totalSeconds / 3600);
+      const days = Math.floor(totalSeconds / 86400);
+      const h = Math.floor((totalSeconds % 86400) / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
-      setElapsed(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
+      // Past 24h, second-precision stops being useful and HH climbing past
+      // 24 reads as a bug rather than a duration — switch to a day-aware
+      // "Xd Yh Zm" format instead of ticking seconds indefinitely.
+      setElapsed(
+        days > 0
+          ? `${days}d ${h}h ${m}m`
+          : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+      );
     }
     tick();
     const interval = setInterval(tick, 1000);
