@@ -109,4 +109,13 @@ account as normal.
 
 ## Status
 
-Early rebuild — foundation phase. See open tasks for current build phase.
+All 12 build phases are live: foundation (orgs/roles/RLS), clients &
+events, Incident Control (the flagship module), operational coordination
+(actions/decisions/resources), Flagship Control (duty roster, M/ETHANE,
+Major Incident Mode, wallboard), the mobile field PWA with offline
+incident queueing, external agency liaison, Document Studio (versioned
+documents with an approval workflow), planning & risk (risk register,
+readiness checklist), the Client Portal, post-event reporting, and a
+hardening pass (RLS/permission audit — see `docs/architecture.md`'s
+standing rules on function grants and admin permission backfill, both
+added after real bugs found during that audit).
