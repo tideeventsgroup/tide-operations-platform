@@ -113,6 +113,17 @@ export async function listActiveMajorIncidentsForEvent(eventId: string) {
   return data;
 }
 
+export async function listIncidentAgencies(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incident_agencies")
+    .select("*")
+    .eq("incident_id", incidentId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function listIncidentCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("incident_categories").select("*").order("sort_order");
