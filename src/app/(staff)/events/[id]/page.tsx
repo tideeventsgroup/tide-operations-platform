@@ -7,12 +7,14 @@ import {
   listEventLocations,
   listEventStageHistory,
 } from "@/lib/domain/event-service";
+import { listAssignableRoles, listEventPortalGrants } from "@/lib/domain/user-admin-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { LifecycleStageBadge, EventPhaseBadge, LocationStatusBadge } from "@/components/status-badges";
 import { EventLifecycleControls } from "@/components/events/event-lifecycle-controls";
 import { AddLocationForm } from "@/components/events/add-location-form";
 import { ControlRosterPanel } from "@/components/events/control-roster-panel";
+import { PortalAccessPanel } from "@/components/events/portal-access-panel";
 import { Button } from "@/components/ui/button";
 
 function formatDate(value: string | null) {
@@ -35,12 +37,15 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
     notFound();
   }
 
-  const [locations, stageHistory, controlRoles, controlSessions] = await Promise.all([
+  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants] = await Promise.all([
     listEventLocations(id),
     listEventStageHistory(id),
     listControlRoles(event.organisation_id),
     listControlSessions(id),
+    listAssignableRoles(),
+    listEventPortalGrants(id),
   ]);
+  const externalRoles = assignableRoles.filter((r) => r.is_external);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
@@ -187,6 +192,13 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
       </section>
 
       <ControlRosterPanel eventId={id} roles={controlRoles} sessions={controlSessions} />
+
+      <PortalAccessPanel
+        eventId={id}
+        portalEnabled={event.portal_enabled}
+        externalRoles={externalRoles}
+        grants={portalGrants}
+      />
     </div>
   );
 }

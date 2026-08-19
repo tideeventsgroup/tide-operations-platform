@@ -10,6 +10,7 @@ export type ActionResult = { error?: string; success?: boolean };
 const approveUserSchema = z.object({
   userId: z.string().uuid(),
   roleId: z.string().uuid(),
+  eventId: z.string().uuid().nullish(),
 });
 
 /**
@@ -17,6 +18,14 @@ const approveUserSchema = z.object({
  * promotes account_type to staff (or leaves it for an explicitly external
  * role — see roleIsExternal), and grants the chosen role. All three writes
  * happen together so a user is never left half-approved.
+ *
+ * External roles (client_administrator, client_viewer, contractor, ...)
+ * are always scoped to a single event, never granted organisation-wide —
+ * has_permission() treats a user_roles row with both client_id and
+ * event_id null as an organisation-wide grant, so an unscoped external
+ * role would see every event across the whole org, not just the client's
+ * own. Caught while building the client portal (Phase 10), which is the
+ * first thing that actually exercises this path.
  */
 export async function approveUser(formData: FormData): Promise<ActionResult> {
   if (!(await isAdmin())) return { error: "Not authorised." };
@@ -24,6 +33,7 @@ export async function approveUser(formData: FormData): Promise<ActionResult> {
   const parsed = approveUserSchema.safeParse({
     userId: formData.get("userId"),
     roleId: formData.get("roleId"),
+    eventId: formData.get("eventId") || null,
   });
   if (!parsed.success) return { error: "Invalid request." };
 
@@ -33,6 +43,10 @@ export async function approveUser(formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
 
   const { data: role } = await supabase.from("roles").select("is_external").eq("id", parsed.data.roleId).single();
+
+  if (role?.is_external && !parsed.data.eventId) {
+    return { error: "External roles must be scoped to an event." };
+  }
 
   const { error: profileError } = await supabase
     .from("profiles")
@@ -48,6 +62,7 @@ export async function approveUser(formData: FormData): Promise<ActionResult> {
     user_id: parsed.data.userId,
     role_id: parsed.data.roleId,
     organisation_id: admin.organisation_id,
+    event_id: role?.is_external ? parsed.data.eventId : null,
     granted_by: admin.id,
   });
 
@@ -57,7 +72,11 @@ export async function approveUser(formData: FormData): Promise<ActionResult> {
     p_entity_type: "user",
     p_entity_id: parsed.data.userId,
     p_action: "approved",
-    p_after_state: { role_id: parsed.data.roleId, account_type: role?.is_external ? "client" : "staff" },
+    p_after_state: {
+      role_id: parsed.data.roleId,
+      account_type: role?.is_external ? "client" : "staff",
+      event_id: role?.is_external ? parsed.data.eventId : null,
+    },
   });
 
   revalidatePath("/admin");

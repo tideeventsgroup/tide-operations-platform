@@ -4,6 +4,7 @@ import {
   listOrganisationProfiles,
   listUserRoleGrants,
 } from "@/lib/domain/user-admin-service";
+import { listEvents } from "@/lib/domain/event-service";
 import { PageHeader } from "@/components/page-header";
 import { ApproveUserForm } from "@/components/admin/approve-user-form";
 import { RevokeRoleButton } from "@/components/admin/revoke-role-button";
@@ -14,10 +15,11 @@ export default async function AdminUsersPage() {
   const profile = await getCurrentProfile();
   if (!profile?.organisation_id) return null;
 
-  const [profiles, roles, grants] = await Promise.all([
+  const [profiles, roles, grants, events] = await Promise.all([
     listOrganisationProfiles(profile.organisation_id),
     listAssignableRoles(),
     listUserRoleGrants(profile.organisation_id),
+    listEvents(),
   ]);
 
   const pending = profiles.filter((p) => p.account_type === "pending");
@@ -45,7 +47,7 @@ export default async function AdminUsersPage() {
                   </div>
                   <div className="truncate text-sm text-muted-foreground">{p.email}</div>
                 </div>
-                <ApproveUserForm userId={p.id} roles={roles} />
+                <ApproveUserForm userId={p.id} roles={roles} events={events} />
               </div>
             ))}
           </div>

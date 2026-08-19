@@ -2266,6 +2266,19 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: undefined
       }
+      get_portal_incident_summary: {
+        Args: { p_event_id: string }
+        Returns: {
+          closed_incidents: number
+          open_incidents: number
+          resolved_incidents: number
+          total_incidents: number
+        }[]
+      }
+      grant_event_portal_access: {
+        Args: { p_email: string; p_event_id: string; p_role_id: string }
+        Returns: string
+      }
       has_permission: {
         Args: {
           p_client_id?: string
@@ -2351,6 +2364,10 @@ export type Database = {
       }
       resolve_incident: {
         Args: { p_incident_id: string; p_resolution: string }
+        Returns: undefined
+      }
+      set_event_portal_enabled: {
+        Args: { p_enabled: boolean; p_event_id: string }
         Returns: undefined
       }
       start_control_session: {

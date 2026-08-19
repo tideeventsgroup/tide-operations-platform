@@ -25,6 +25,18 @@ export async function listAssignableRoles() {
   return data;
 }
 
+export async function listEventPortalGrants(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("*, roles(name, is_external), profiles!user_id(first_name, surname, email)")
+    .eq("event_id", eventId)
+    .is("revoked_at", null);
+
+  if (error) throw error;
+  return data;
+}
+
 export async function listUserRoleGrants(organisationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
