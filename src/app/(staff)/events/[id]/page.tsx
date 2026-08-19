@@ -59,6 +59,9 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
             {event.current_phase ? <EventPhaseBadge phase={event.current_phase} /> : null}
           </div>
           <div className="flex items-center gap-2">
+            <Button render={<Link href={`/events/${event.id}/risk`} />} nativeButton={false} size="lg" variant="outline">
+              Risk &amp; Readiness
+            </Button>
             <Button render={<Link href={`/events/${event.id}/documents`} />} nativeButton={false} size="lg" variant="outline">
               Documents
             </Button>

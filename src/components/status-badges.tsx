@@ -163,3 +163,43 @@ export function DocumentStatusBadge({ status }: { status: Enums<"document_status
     </Badge>
   );
 }
+
+const RISK_STATUS_LABEL: Record<Enums<"risk_status">, string> = {
+  open: "Open",
+  mitigated: "Mitigated",
+  accepted: "Accepted",
+  closed: "Closed",
+};
+
+const RISK_STATUS_CLASS: Record<Enums<"risk_status">, string> = {
+  open: "bg-warning-bg text-warning",
+  mitigated: "bg-info-bg text-info",
+  accepted: "bg-muted text-muted-foreground",
+  closed: "bg-success-bg text-success",
+};
+
+export function RiskStatusBadge({ status }: { status: Enums<"risk_status"> }) {
+  return (
+    <Badge variant="secondary" className={cn("font-semibold", RISK_STATUS_CLASS[status])}>
+      {RISK_STATUS_LABEL[status]}
+    </Badge>
+  );
+}
+
+// 1-5 x 1-5 scoring: 1-4 low, 5-9 medium, 10-15 high, 16-25 critical —
+// matches the standard 5x5 risk matrix bands most event-safety plans use.
+export function RiskScoreBadge({ score }: { score: number }) {
+  const band =
+    score >= 16
+      ? { label: "Critical", className: "bg-destructive text-destructive-foreground" }
+      : score >= 10
+        ? { label: "High", className: "bg-destructive/10 text-destructive" }
+        : score >= 5
+          ? { label: "Medium", className: "bg-warning-bg text-warning" }
+          : { label: "Low", className: "bg-muted text-muted-foreground" };
+  return (
+    <Badge className={cn("font-bold tracking-wide", band.className)}>
+      {score} · {band.label.toUpperCase()}
+    </Badge>
+  );
+}

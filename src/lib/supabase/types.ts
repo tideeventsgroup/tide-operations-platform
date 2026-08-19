@@ -667,6 +667,58 @@ export type Database = {
           },
         ]
       }
+      event_readiness_checks: {
+        Row: {
+          checklist_item_id: string
+          completed: boolean
+          completed_at: string | null
+          completed_by: string | null
+          event_id: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          checklist_item_id: string
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          event_id: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          checklist_item_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          event_id?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_readiness_checks_checklist_item_id_fkey"
+            columns: ["checklist_item_id"]
+            isOneToOne: false
+            referencedRelation: "readiness_checklist_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_readiness_checks_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_readiness_checks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_stage_history: {
         Row: {
           changed_by: string | null
@@ -1756,6 +1808,137 @@ export type Database = {
           },
         ]
       }
+      readiness_checklist_items: {
+        Row: {
+          code: string
+          description: string | null
+          id: string
+          name: string
+          organisation_id: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          description?: string | null
+          id?: string
+          name: string
+          organisation_id: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organisation_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "readiness_checklist_items_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      risks: {
+        Row: {
+          category: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_id: string
+          id: string
+          impact: number
+          likelihood: number
+          mitigation: string | null
+          organisation_id: string
+          owner_id: string | null
+          reference: string
+          risk_score: number | null
+          status: Database["public"]["Enums"]["risk_status"]
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          impact: number
+          likelihood: number
+          mitigation?: string | null
+          organisation_id: string
+          owner_id?: string | null
+          reference: string
+          risk_score?: number | null
+          status?: Database["public"]["Enums"]["risk_status"]
+          title: string
+        }
+        Update: {
+          category?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          impact?: number
+          likelihood?: number
+          mitigation?: string | null
+          organisation_id?: string
+          owner_id?: string | null
+          reference?: string
+          risk_score?: number | null
+          status?: Database["public"]["Enums"]["risk_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risks_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risks_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risks_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           permission_id: string
@@ -2007,6 +2190,14 @@ export type Database = {
         Args: { p_action_id: string; p_note?: string }
         Returns: undefined
       }
+      complete_readiness_check: {
+        Args: {
+          p_checklist_item_id: string
+          p_event_id: string
+          p_notes?: string
+        }
+        Returns: undefined
+      }
       create_document: {
         Args: {
           p_classification?: Database["public"]["Enums"]["classification_level"]
@@ -2049,6 +2240,19 @@ export type Database = {
           p_incident_id: string
           p_incident_type: string
           p_major_incident_declared: boolean
+        }
+        Returns: string
+      }
+      create_risk: {
+        Args: {
+          p_category?: string
+          p_description?: string
+          p_event_id: string
+          p_impact: number
+          p_likelihood: number
+          p_mitigation?: string
+          p_owner_id?: string
+          p_title: string
         }
         Returns: string
       }
@@ -2157,6 +2361,10 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: undefined
       }
+      uncomplete_readiness_check: {
+        Args: { p_checklist_item_id: string; p_event_id: string }
+        Returns: undefined
+      }
       update_incident_agency_status: {
         Args: {
           p_agency_id: string
@@ -2168,6 +2376,23 @@ export type Database = {
         Args: {
           p_resource_id: string
           p_status: Database["public"]["Enums"]["incident_resource_status"]
+        }
+        Returns: undefined
+      }
+      update_risk_assessment: {
+        Args: {
+          p_impact: number
+          p_likelihood: number
+          p_mitigation?: string
+          p_risk_id: string
+        }
+        Returns: undefined
+      }
+      update_risk_status: {
+        Args: {
+          p_note?: string
+          p_risk_id: string
+          p_status: Database["public"]["Enums"]["risk_status"]
         }
         Returns: undefined
       }
@@ -2267,6 +2492,7 @@ export type Database = {
         | "public"
         | "system_integration"
         | "other"
+      risk_status: "open" | "mitigated" | "accepted" | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2498,6 +2724,7 @@ export const Constants = {
         "system_integration",
         "other",
       ],
+      risk_status: ["open", "mitigated", "accepted", "closed"],
     },
   },
 } as const
