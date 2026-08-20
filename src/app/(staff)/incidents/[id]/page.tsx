@@ -6,9 +6,11 @@ import {
   listIncidentAgencies,
   listIncidentCategories,
   listIncidentDecisions,
+  listIncidentPeople,
   listIncidentPriorities,
   listIncidentResources,
   listIncidentTimeline,
+  listIncidentVehicles,
   listIncidents,
   listMethaneVersions,
 } from "@/lib/domain/incident-service";
@@ -19,6 +21,7 @@ import { IncidentActionsPanel } from "@/components/incidents/incident-actions-pa
 import { IncidentDecisionsPanel } from "@/components/incidents/incident-decisions-panel";
 import { IncidentResourcesPanel } from "@/components/incidents/incident-resources-panel";
 import { IncidentAgenciesPanel } from "@/components/incidents/incident-agencies-panel";
+import { IncidentIntelligencePanel } from "@/components/incidents/incident-intelligence-panel";
 import { MethanePanel } from "@/components/incidents/methane-panel";
 import { MajorIncidentBanner } from "@/components/incidents/major-incident-banner";
 import { IncidentContextRail } from "@/components/incidents/incident-context-rail";
@@ -40,6 +43,8 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     decisions,
     resources,
     agencies,
+    people,
+    vehicles,
     methane,
     majorIncidentActivation,
     categories,
@@ -51,6 +56,8 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     listIncidentDecisions(id),
     listIncidentResources(id),
     listIncidentAgencies(id),
+    listIncidentPeople(id),
+    listIncidentVehicles(id),
     listMethaneVersions(id),
     getActiveMajorIncidentActivation(id),
     listIncidentCategories(),
@@ -81,6 +88,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
               <TabsTrigger value="decisions">Decisions</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
               <TabsTrigger value="agencies">Agencies</TabsTrigger>
+              <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
               <TabsTrigger value="methane">M/ETHANE</TabsTrigger>
             </TabsList>
             <TabsContent value="timeline" className="pt-4">
@@ -97,6 +105,14 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
             </TabsContent>
             <TabsContent value="agencies" className="pt-4">
               <IncidentAgenciesPanel incidentId={id} agencies={agencies} />
+            </TabsContent>
+            <TabsContent value="intelligence" className="pt-4">
+              <IncidentIntelligencePanel
+                incidentId={id}
+                organisationId={incident.organisation_id}
+                people={people}
+                vehicles={vehicles}
+              />
             </TabsContent>
             <TabsContent value="methane" className="pt-4">
               <MethanePanel incidentId={id} data={methane} />

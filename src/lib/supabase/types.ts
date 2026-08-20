@@ -1214,6 +1214,58 @@ export type Database = {
           },
         ]
       }
+      incident_people: {
+        Row: {
+          id: string
+          incident_id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          person_id: string
+          role_code: string
+        }
+        Insert: {
+          id?: string
+          incident_id: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id: string
+          role_code: string
+        }
+        Update: {
+          id?: string
+          incident_id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id?: string
+          role_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_people_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_people_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_people_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_priorities: {
         Row: {
           code: string
@@ -1305,6 +1357,58 @@ export type Database = {
             columns: ["requested_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incident_vehicles: {
+        Row: {
+          id: string
+          incident_id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Insert: {
+          id?: string
+          incident_id: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Update: {
+          id?: string
+          incident_id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_vehicles_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_vehicles_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_vehicles_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -1698,6 +1802,32 @@ export type Database = {
           },
         ]
       }
+      organisation_id_counters: {
+        Row: {
+          entity_type: string
+          organisation_id: string
+          seq: number
+        }
+        Insert: {
+          entity_type: string
+          organisation_id: string
+          seq?: number
+        }
+        Update: {
+          entity_type?: string
+          organisation_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organisation_id_counters_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organisations: {
         Row: {
           code: string
@@ -1724,6 +1854,66 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      people: {
+        Row: {
+          classification: Database["public"]["Enums"]["classification_level"]
+          created_at: string
+          created_by: string | null
+          date_of_birth: string | null
+          description: string | null
+          first_name: string | null
+          id: string
+          organisation_id: string
+          purpose: string
+          reference: string
+          status: Database["public"]["Enums"]["intelligence_record_status"]
+          surname: string | null
+        }
+        Insert: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          description?: string | null
+          first_name?: string | null
+          id?: string
+          organisation_id: string
+          purpose: string
+          reference: string
+          status?: Database["public"]["Enums"]["intelligence_record_status"]
+          surname?: string | null
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          date_of_birth?: string | null
+          description?: string | null
+          first_name?: string | null
+          id?: string
+          organisation_id?: string
+          purpose?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["intelligence_record_status"]
+          surname?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       permissions: {
         Row: {
@@ -2099,6 +2289,69 @@ export type Database = {
           },
         ]
       }
+      vehicles: {
+        Row: {
+          classification: Database["public"]["Enums"]["classification_level"]
+          colour: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          make: string | null
+          model: string | null
+          organisation_id: string
+          purpose: string
+          reference: string
+          registration: string | null
+          status: Database["public"]["Enums"]["intelligence_record_status"]
+        }
+        Insert: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          colour?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          make?: string | null
+          model?: string | null
+          organisation_id: string
+          purpose: string
+          reference: string
+          registration?: string | null
+          status?: Database["public"]["Enums"]["intelligence_record_status"]
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          colour?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          make?: string | null
+          model?: string | null
+          organisation_id?: string
+          purpose?: string
+          reference?: string
+          registration?: string | null
+          status?: Database["public"]["Enums"]["intelligence_record_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -2243,6 +2496,20 @@ export type Database = {
         }
         Returns: string
       }
+      create_person: {
+        Args: {
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_date_of_birth?: string
+          p_description?: string
+          p_first_name?: string
+          p_incident_id: string
+          p_notes?: string
+          p_purpose: string
+          p_role_code: string
+          p_surname?: string
+        }
+        Returns: string
+      }
       create_risk: {
         Args: {
           p_category?: string
@@ -2253,6 +2520,21 @@ export type Database = {
           p_mitigation?: string
           p_owner_id?: string
           p_title: string
+        }
+        Returns: string
+      }
+      create_vehicle: {
+        Args: {
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_colour?: string
+          p_description?: string
+          p_incident_id: string
+          p_make?: string
+          p_model?: string
+          p_notes?: string
+          p_purpose: string
+          p_registration?: string
+          p_role_code: string
         }
         Returns: string
       }
@@ -2291,10 +2573,36 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       issue_document: { Args: { p_document_id: string }; Returns: undefined }
+      link_existing_person_to_incident: {
+        Args: {
+          p_incident_id: string
+          p_notes?: string
+          p_person_id: string
+          p_role_code: string
+        }
+        Returns: string
+      }
+      link_existing_vehicle_to_incident: {
+        Args: {
+          p_incident_id: string
+          p_notes?: string
+          p_role_code: string
+          p_vehicle_id: string
+        }
+        Returns: string
+      }
       next_event_reference: {
         Args: {
           p_entity_type: string
           p_event_id: string
+          p_suffix_width?: number
+        }
+        Returns: string
+      }
+      next_organisation_reference: {
+        Args: {
+          p_entity_type: string
+          p_organisation_id: string
           p_suffix_width?: number
         }
         Returns: string
@@ -2473,6 +2781,7 @@ export type Database = {
         | "escalation"
         | "system"
         | "correction"
+        | "intelligence"
       incident_resource_status:
         | "requested"
         | "dispatched"
@@ -2488,6 +2797,7 @@ export type Database = {
         | "suspended"
         | "resolved"
         | "closed"
+      intelligence_record_status: "active" | "archived"
       operational_location_status:
         | "normal"
         | "monitoring"
@@ -2700,6 +3010,7 @@ export const Constants = {
         "escalation",
         "system",
         "correction",
+        "intelligence",
       ],
       incident_resource_status: [
         "requested",
@@ -2718,6 +3029,7 @@ export const Constants = {
         "resolved",
         "closed",
       ],
+      intelligence_record_status: ["active", "archived"],
       operational_location_status: [
         "normal",
         "monitoring",
