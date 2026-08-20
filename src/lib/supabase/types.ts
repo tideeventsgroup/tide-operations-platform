@@ -909,6 +909,130 @@ export type Database = {
           },
         ]
       }
+      evidence_custody_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          evidence_item_id: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          evidence_item_id: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          evidence_item_id?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_custody_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_custody_log_evidence_item_id_fkey"
+            columns: ["evidence_item_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evidence_items: {
+        Row: {
+          classification: Database["public"]["Enums"]["classification_level"]
+          collected_at: string
+          collected_by_name: string | null
+          created_at: string
+          description: string
+          file_name: string | null
+          file_size: number | null
+          id: string
+          incident_id: string
+          item_type: string
+          logged_by: string | null
+          mime_type: string | null
+          organisation_id: string
+          reference: string
+          sha256_hash: string | null
+          status: Database["public"]["Enums"]["evidence_status"]
+          storage_path: string | null
+        }
+        Insert: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          collected_at?: string
+          collected_by_name?: string | null
+          created_at?: string
+          description: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id: string
+          item_type: string
+          logged_by?: string | null
+          mime_type?: string | null
+          organisation_id: string
+          reference: string
+          sha256_hash?: string | null
+          status?: Database["public"]["Enums"]["evidence_status"]
+          storage_path?: string | null
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          collected_at?: string
+          collected_by_name?: string | null
+          created_at?: string
+          description?: string
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          incident_id?: string
+          item_type?: string
+          logged_by?: string | null
+          mime_type?: string | null
+          organisation_id?: string
+          reference?: string
+          sha256_hash?: string | null
+          status?: Database["public"]["Enums"]["evidence_status"]
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_items_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_items_logged_by_fkey"
+            columns: ["logged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_items_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       id_counters: {
         Row: {
           entity_type: string
@@ -2803,6 +2927,22 @@ export type Database = {
         }
         Returns: string
       }
+      log_evidence_item: {
+        Args: {
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_collected_at?: string
+          p_collected_by_name?: string
+          p_description: string
+          p_file_name?: string
+          p_file_size?: number
+          p_incident_id: string
+          p_item_type: string
+          p_mime_type?: string
+          p_sha256_hash?: string
+          p_storage_path?: string
+        }
+        Returns: string
+      }
       log_radio_entry: {
         Args: {
           p_channel?: string
@@ -2872,6 +3012,10 @@ export type Database = {
         }
         Returns: string
       }
+      record_evidence_access: {
+        Args: { p_action?: string; p_evidence_item_id: string }
+        Returns: undefined
+      }
       record_incident_decision: {
         Args: {
           p_decision: string
@@ -2921,6 +3065,14 @@ export type Database = {
       }
       uncomplete_readiness_check: {
         Args: { p_checklist_item_id: string; p_event_id: string }
+        Returns: undefined
+      }
+      update_evidence_status: {
+        Args: {
+          p_evidence_item_id: string
+          p_notes?: string
+          p_status: Database["public"]["Enums"]["evidence_status"]
+        }
         Returns: undefined
       }
       update_incident_agency_status: {
@@ -3002,6 +3154,7 @@ export type Database = {
         | "closed_to_public"
         | "breakdown"
         | "stand_down"
+      evidence_status: "logged" | "reviewed" | "released" | "disposed"
       incident_action_status: "open" | "in_progress" | "complete" | "cancelled"
       incident_agency_status:
         | "notified"
@@ -3231,6 +3384,7 @@ export const Constants = {
         "breakdown",
         "stand_down",
       ],
+      evidence_status: ["logged", "reviewed", "released", "disposed"],
       incident_action_status: ["open", "in_progress", "complete", "cancelled"],
       incident_agency_status: [
         "notified",
