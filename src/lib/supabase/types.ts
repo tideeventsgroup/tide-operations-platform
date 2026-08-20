@@ -1738,6 +1738,128 @@ export type Database = {
           },
         ]
       }
+      observations: {
+        Row: {
+          category: string
+          classification: Database["public"]["Enums"]["classification_level"]
+          created_at: string
+          created_by: string | null
+          description: string | null
+          dismissed_reason: string | null
+          event_id: string
+          event_phase: Database["public"]["Enums"]["event_phase"] | null
+          id: string
+          location_id: string | null
+          occurred_at: string
+          organisation_id: string
+          promoted_incident_id: string | null
+          reference: string
+          reported_at: string
+          reported_by_name: string | null
+          reported_by_profile_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["observation_status"]
+          summary: string
+        }
+        Insert: {
+          category: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          dismissed_reason?: string | null
+          event_id: string
+          event_phase?: Database["public"]["Enums"]["event_phase"] | null
+          id?: string
+          location_id?: string | null
+          occurred_at?: string
+          organisation_id: string
+          promoted_incident_id?: string | null
+          reference: string
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["observation_status"]
+          summary: string
+        }
+        Update: {
+          category?: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          dismissed_reason?: string | null
+          event_id?: string
+          event_phase?: Database["public"]["Enums"]["event_phase"] | null
+          id?: string
+          location_id?: string | null
+          occurred_at?: string
+          organisation_id?: string
+          promoted_incident_id?: string | null
+          reference?: string
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["observation_status"]
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "operational_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_promoted_incident_id_fkey"
+            columns: ["promoted_incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_reported_by_profile_id_fkey"
+            columns: ["reported_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "observations_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operational_locations: {
         Row: {
           code: string | null
@@ -1991,6 +2113,83 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      radio_log_entries: {
+        Row: {
+          channel: string | null
+          created_at: string
+          event_id: string
+          from_callsign: string | null
+          id: string
+          linked_incident_id: string | null
+          logged_by: string | null
+          message: string
+          occurred_at: string
+          organisation_id: string
+          reference: string
+          significant: boolean
+          to_callsign: string | null
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          event_id: string
+          from_callsign?: string | null
+          id?: string
+          linked_incident_id?: string | null
+          logged_by?: string | null
+          message: string
+          occurred_at?: string
+          organisation_id: string
+          reference: string
+          significant?: boolean
+          to_callsign?: string | null
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          event_id?: string
+          from_callsign?: string | null
+          id?: string
+          linked_incident_id?: string | null
+          logged_by?: string | null
+          message?: string
+          occurred_at?: string
+          organisation_id?: string
+          reference?: string
+          significant?: boolean
+          to_callsign?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radio_log_entries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radio_log_entries_linked_incident_id_fkey"
+            columns: ["linked_incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radio_log_entries_logged_by_fkey"
+            columns: ["logged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radio_log_entries_organisation_id_fkey"
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
@@ -2496,6 +2695,19 @@ export type Database = {
         }
         Returns: string
       }
+      create_observation: {
+        Args: {
+          p_category: string
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_description?: string
+          p_event_id: string
+          p_location_id?: string
+          p_occurred_at?: string
+          p_reported_by_name?: string
+          p_summary: string
+        }
+        Returns: string
+      }
       create_person: {
         Args: {
           p_classification?: Database["public"]["Enums"]["classification_level"]
@@ -2591,6 +2803,19 @@ export type Database = {
         }
         Returns: string
       }
+      log_radio_entry: {
+        Args: {
+          p_channel?: string
+          p_event_id: string
+          p_from_callsign?: string
+          p_linked_incident_id?: string
+          p_message: string
+          p_occurred_at?: string
+          p_significant?: boolean
+          p_to_callsign?: string
+        }
+        Returns: string
+      }
       next_event_reference: {
         Args: {
           p_entity_type: string
@@ -2623,6 +2848,14 @@ export type Database = {
           p_contact_name?: string
           p_contact_number?: string
           p_incident_id: string
+        }
+        Returns: string
+      }
+      promote_observation_to_incident: {
+        Args: {
+          p_category_code: string
+          p_observation_id: string
+          p_priority_code?: string
         }
         Returns: string
       }
@@ -2701,6 +2934,14 @@ export type Database = {
         Args: {
           p_resource_id: string
           p_status: Database["public"]["Enums"]["incident_resource_status"]
+        }
+        Returns: undefined
+      }
+      update_observation_status: {
+        Args: {
+          p_dismissed_reason?: string
+          p_observation_id: string
+          p_status: Database["public"]["Enums"]["observation_status"]
         }
         Returns: undefined
       }
@@ -2798,6 +3039,7 @@ export type Database = {
         | "resolved"
         | "closed"
       intelligence_record_status: "active" | "archived"
+      observation_status: "open" | "reviewed" | "promoted" | "dismissed"
       operational_location_status:
         | "normal"
         | "monitoring"
@@ -3030,6 +3272,7 @@ export const Constants = {
         "closed",
       ],
       intelligence_record_status: ["active", "archived"],
+      observation_status: ["open", "reviewed", "promoted", "dismissed"],
       operational_location_status: [
         "normal",
         "monitoring",

@@ -79,6 +79,12 @@ export default async function EventDetailPage({ params }: PageProps<"/events/[id
           </div>
         </div>
         <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          <Link href={`/events/${event.id}/observations`} className="hover:text-foreground hover:underline">
+            Observations
+          </Link>
+          <Link href={`/events/${event.id}/radio-log`} className="hover:text-foreground hover:underline">
+            Radio Log
+          </Link>
           <Link href={`/events/${event.id}/documents`} className="hover:text-foreground hover:underline">
             Documents
           </Link>
