@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
-import { TideLogo } from "@/components/tide-logo";
+import { SentinelWordmark } from "@/components/sentinel-wordmark";
 import type { Tables } from "@/lib/supabase/types";
 
 export function PortalHeader({ profile }: { profile: Tables<"profiles"> }) {
@@ -10,7 +10,7 @@ export function PortalHeader({ profile }: { profile: Tables<"profiles"> }) {
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-sidebar px-4 text-sidebar-foreground md:gap-6">
       <Link href="/portal" className="shrink-0">
-        <TideLogo variant="dark" height={20} />
+        <SentinelWordmark variant="dark" height={20} />
       </Link>
       <span className="hidden text-sm font-medium text-sidebar-foreground/80 sm:inline">Client Portal</span>
       <div className="flex flex-1 items-center justify-end gap-3">

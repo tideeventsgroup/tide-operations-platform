@@ -14,7 +14,7 @@ export default function SignInPage() {
 
   return (
     <AuthShell
-      title="Sign in to Tide Operations"
+      title="Sign in to SENTINEL"
       footer={
         <>
           Need access?{" "}

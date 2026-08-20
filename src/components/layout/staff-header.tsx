@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
-import { TideLogo } from "@/components/tide-logo";
+import { SentinelWordmark } from "@/components/sentinel-wordmark";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SyncStatusBadge } from "@/components/offline/sync-status-badge";
@@ -56,7 +56,7 @@ export function StaffHeader({ profile, isAdmin }: { profile: Tables<"profiles">;
         <SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar text-sidebar-foreground">
           <SheetHeader>
             <SheetTitle className="text-sidebar-foreground">
-              <TideLogo variant="dark" height={18} />
+              <SentinelWordmark variant="dark" height={18} />
             </SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-1 px-4 pb-4">
@@ -77,7 +77,7 @@ export function StaffHeader({ profile, isAdmin }: { profile: Tables<"profiles">;
       </Sheet>
 
       <Link href="/dashboard" className="shrink-0">
-        <TideLogo variant="dark" height={20} />
+        <SentinelWordmark variant="dark" height={20} />
       </Link>
 
       <nav className="hidden flex-1 items-center gap-1 md:flex">

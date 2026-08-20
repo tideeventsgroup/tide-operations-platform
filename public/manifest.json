@@ -1,7 +1,7 @@
 {
-  "name": "Tide Operations",
-  "short_name": "Tide Ops",
-  "description": "Tide Events Group Scotland's operations platform — planning, documents, risk, readiness, and live incident control.",
+  "name": "SENTINEL",
+  "short_name": "SENTINEL",
+  "description": "Event Incident Management Platform — live incident control, intelligence, and command for event operations.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

@@ -12,20 +12,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Tide Operations",
-    template: "%s · Tide Operations",
+    default: "SENTINEL",
+    template: "%s · SENTINEL",
   },
-  description:
-    "Tide Events Group Scotland's operations platform — planning, documents, risk, readiness, and live incident control.",
+  description: "Event Incident Management Platform — live incident control, intelligence, and command for event operations.",
   icons: {
-    icon: "https://res.cloudinary.com/p8fhvvbp/image/upload/v1785770678/2_wktobe.png",
+    icon: "/icons/icon-192.png",
     apple: "/icons/icon-192.png",
   },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Tide Ops",
+    title: "SENTINEL",
   },
 };
 

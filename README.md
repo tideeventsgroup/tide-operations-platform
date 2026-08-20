@@ -1,8 +1,9 @@
-# Tide Operations
+# SENTINEL
 
-Tide Events Group Scotland's operational platform — client and event
-lifecycle, planning, controlled documents, risk and readiness, and the
-flagship live incident control room.
+Event Incident Management Platform for Tide Events Group Scotland — live
+incident control and intelligence at the core, with client and event
+lifecycle, planning, controlled documents, and risk and readiness as
+supporting modules.
 
 This is a ground-up rebuild against a comprehensive technical/product
 specification, superseding the previous `tide-operations` codebase. The

@@ -15,7 +15,7 @@ function personName(p: { first_name: string | null; surname: string | null; emai
 }
 
 const DISCLAIMER =
-  "Tide Operations does not contact emergency services automatically. Follow the approved event emergency communications procedure and use 999 where required.";
+  "SENTINEL does not contact emergency services automatically. Follow the approved event emergency communications procedure and use 999 where required.";
 
 export function MajorIncidentBanner({ incidentId, activation }: { incidentId: string; activation: Activation }) {
   const [open, setOpen] = useState(false);
