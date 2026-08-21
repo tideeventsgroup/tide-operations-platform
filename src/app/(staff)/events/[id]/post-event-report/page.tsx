@@ -4,6 +4,7 @@ import { listIncidentCategories, listIncidentPriorities, listIncidents } from "@
 import { listDocuments } from "@/lib/domain/document-service";
 import { listRisks } from "@/lib/domain/risk-service";
 import { listControlSessions } from "@/lib/domain/event-service";
+import { getEventIntelligenceSummary } from "@/lib/domain/event-intelligence-summary";
 import { PrintButton } from "@/components/print-button";
 
 function formatDate(value: string | null) {
@@ -38,13 +39,14 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
     notFound();
   }
 
-  const [incidents, categories, priorities, documents, risks, controlSessions] = await Promise.all([
+  const [incidents, categories, priorities, documents, risks, controlSessions, intelligenceSummary] = await Promise.all([
     listIncidents(id),
     listIncidentCategories(),
     listIncidentPriorities(event.organisation_id),
     listDocuments(id),
     listRisks(id),
     listControlSessions(id),
+    getEventIntelligenceSummary(id),
   ]);
 
   const categoryByCode = new Map(categories.map((c) => [c.code, c.name]));
@@ -185,6 +187,51 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
             )}
           </div>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="section-label">Intelligence</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="section-label mb-1">Observations</div>
+            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.observationsTotal}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="section-label mb-1">People linked</div>
+            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.peopleLinked}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="section-label mb-1">Vehicles linked</div>
+            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.vehiclesLinked}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="section-label mb-1">Evidence items</div>
+            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.evidenceItems}</div>
+          </div>
+        </div>
+        {intelligenceSummary.observationsTotal > 0 || intelligenceSummary.investigationsLinked > 0 ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {intelligenceSummary.observationsTotal > 0 ? (
+              <div className="rounded-lg border border-border bg-card p-4">
+                <div className="section-label mb-2">Observations by status</div>
+                <dl className="space-y-1 text-sm">
+                  {Object.entries(intelligenceSummary.observationsByStatus).map(([status, count]) => (
+                    <div key={status} className="flex justify-between">
+                      <dt className="capitalize text-muted-foreground">{status.replace("_", " ")}</dt>
+                      <dd className="data-value">{count}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : null}
+            {intelligenceSummary.investigationsLinked > 0 ? (
+              <div className="rounded-lg border border-border bg-card p-4">
+                <div className="section-label mb-1">Investigations touching this event</div>
+                <div className="text-2xl font-bold text-foreground">{intelligenceSummary.investigationsLinked}</div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </section>
 
       <section className="space-y-3">
