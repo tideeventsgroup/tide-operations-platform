@@ -70,6 +70,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
   ]);
 
   const category = categories.find((c) => c.code === incident.category_code);
+  const priority = priorities.find((p) => p.code === incident.priority_code);
   const otherOpenIncidents = eventIncidents.filter(
     (i) => i.id !== incident.id && i.status !== "closed" && i.status !== "resolved",
   );
@@ -79,7 +80,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     <div className="mx-auto max-w-[1400px] px-8 py-8">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0 space-y-6">
-          <IncidentCommandHeader incident={incident} categoryName={category?.name ?? incident.category_code} />
+          <IncidentCommandHeader incident={incident} categoryName={category?.name ?? incident.category_code} priority={priority} />
           <MajorIncidentBanner incidentId={id} activation={majorIncidentActivation} />
           <IncidentQuickActions incident={incident} priorities={priorities} />
 

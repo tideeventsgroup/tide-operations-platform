@@ -1,46 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { IncidentStatusBadge } from "@/components/status-badges";
 import { Badge } from "@/components/ui/badge";
-import type { getIncident } from "@/lib/domain/incident-service";
+import { ResponseClocks } from "@/components/incidents/response-clocks";
+import type { getIncident, listIncidentPriorities } from "@/lib/domain/incident-service";
 
 type Incident = Awaited<ReturnType<typeof getIncident>>;
+type Priority = Awaited<ReturnType<typeof listIncidentPriorities>>[number];
 
 function personName(p: { first_name: string | null; surname: string | null; email: string } | null | undefined) {
   if (!p) return "Unassigned";
   return [p.first_name, p.surname].filter(Boolean).join(" ") || p.email;
 }
 
-function useElapsed(since: string) {
-  const [elapsed, setElapsed] = useState("");
-  useEffect(() => {
-    function tick() {
-      const ms = Date.now() - new Date(since).getTime();
-      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-      const days = Math.floor(totalSeconds / 86400);
-      const h = Math.floor((totalSeconds % 86400) / 3600);
-      const m = Math.floor((totalSeconds % 3600) / 60);
-      const s = totalSeconds % 60;
-      // Past 24h, second-precision stops being useful and HH climbing past
-      // 24 reads as a bug rather than a duration — switch to a day-aware
-      // "Xd Yh Zm" format instead of ticking seconds indefinitely.
-      setElapsed(
-        days > 0
-          ? `${days}d ${h}h ${m}m`
-          : `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
-      );
-    }
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [since]);
-  return elapsed;
-}
-
-export function IncidentCommandHeader({ incident, categoryName }: { incident: Incident; categoryName: string }) {
-  const elapsed = useElapsed(incident.created_at);
+export function IncidentCommandHeader({
+  incident,
+  categoryName,
+  priority,
+}: {
+  incident: Incident;
+  categoryName: string;
+  priority: Priority | undefined;
+}) {
   const incidentNumber = incident.reference.split("-INC-").pop();
 
   return (
@@ -64,10 +46,14 @@ export function IncidentCommandHeader({ incident, categoryName }: { incident: In
             <IncidentStatusBadge status={incident.status} />
           </div>
         </div>
-        <div className="text-right">
-          <div className="section-label">Elapsed</div>
-          <div className="data-value font-mono text-2xl">{elapsed}</div>
-        </div>
+        <ResponseClocks
+          createdAt={incident.created_at}
+          acknowledgedAt={incident.acknowledged_at}
+          resolvedAt={incident.resolved_at}
+          closedAt={incident.closed_at}
+          targetAckMinutes={priority?.target_ack_minutes ?? null}
+          targetResolveMinutes={priority?.target_resolve_minutes ?? null}
+        />
       </div>
 
       <p className="mt-3 text-sm text-foreground">{incident.summary}</p>

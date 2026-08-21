@@ -1398,6 +1398,8 @@ export type Database = {
           name: string
           organisation_id: string
           rank: number
+          target_ack_minutes: number | null
+          target_resolve_minutes: number | null
         }
         Insert: {
           code: string
@@ -1406,6 +1408,8 @@ export type Database = {
           name: string
           organisation_id: string
           rank: number
+          target_ack_minutes?: number | null
+          target_resolve_minutes?: number | null
         }
         Update: {
           code?: string
@@ -1414,6 +1418,8 @@ export type Database = {
           name?: string
           organisation_id?: string
           rank?: number
+          target_ack_minutes?: number | null
+          target_resolve_minutes?: number | null
         }
         Relationships: [
           {
