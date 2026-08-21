@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { Lock, Mail } from "lucide-react";
 import { signIn } from "@/lib/actions/auth";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function SignInPage() {
   return (
     <AuthShell
       title="Sign in to SENTINEL"
+      description="Enter your credentials to access the control room."
       footer={
         <>
           Need access?{" "}
@@ -24,7 +26,7 @@ export default function SignInPage() {
         </>
       }
     >
-      <form action={action} className="space-y-4" noValidate>
+      <form action={action} className="space-y-5" noValidate>
         {state?.error ? (
           <Alert variant="destructive">
             <AlertDescription>{state.error}</AlertDescription>
@@ -33,12 +35,18 @@ export default function SignInPage() {
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required />
+          <div className="relative">
+            <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="email" name="email" type="email" autoComplete="email" required className="h-9 pl-8" />
+          </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" name="password" type="password" autoComplete="current-password" required />
+          <div className="relative">
+            <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input id="password" name="password" type="password" autoComplete="current-password" required className="h-9 pl-8" />
+          </div>
         </div>
 
         <Button type="submit" className="w-full" disabled={pending}>

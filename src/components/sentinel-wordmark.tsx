@@ -1,4 +1,7 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+
+const ASPECT = 1978 / 351;
 
 export function SentinelWordmark({
   variant,
@@ -10,16 +13,13 @@ export function SentinelWordmark({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 font-bold tracking-[0.14em]",
-        variant === "dark" ? "text-white" : "text-foreground",
-        className,
-      )}
-      style={{ fontSize: height * 0.62, lineHeight: 1 }}
-    >
-      SENTINEL
-      <span className="inline-block rounded-full bg-destructive" style={{ width: height * 0.14, height: height * 0.14 }} />
-    </span>
+    <Image
+      src={variant === "dark" ? "/brand/sentinel-wordmark-white.png" : "/brand/sentinel-wordmark-navy.png"}
+      alt="SENTINEL"
+      width={Math.round(height * ASPECT)}
+      height={height}
+      className={cn("shrink-0", className)}
+      priority
+    />
   );
 }
