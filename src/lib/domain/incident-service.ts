@@ -142,6 +142,17 @@ export async function listIncidentPriorities(organisationId: string) {
   return data;
 }
 
+export async function getIncidentRestrictedNarrative(incidentId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("incident_restricted_narrative")
+    .select("*, created_by_profile:created_by(first_name, surname, email), updated_by_profile:updated_by(first_name, surname, email)")
+    .eq("incident_id", incidentId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function listIncidentPeople(incidentId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

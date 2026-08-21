@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import {
   getActiveMajorIncidentActivation,
   getIncident,
+  getIncidentRestrictedNarrative,
   listIncidentActions,
   listIncidentAgencies,
   listIncidentCategories,
@@ -15,6 +16,7 @@ import {
   listMethaneVersions,
 } from "@/lib/domain/incident-service";
 import { listEvidenceItems } from "@/lib/domain/evidence-service";
+import { hasPermission } from "@/lib/domain/auth-service";
 import { IncidentCommandHeader } from "@/components/incidents/incident-command-header";
 import { IncidentQuickActions } from "@/components/incidents/incident-quick-actions";
 import { IncidentTimeline } from "@/components/incidents/incident-timeline";
@@ -24,6 +26,7 @@ import { IncidentResourcesPanel } from "@/components/incidents/incident-resource
 import { IncidentAgenciesPanel } from "@/components/incidents/incident-agencies-panel";
 import { IncidentIntelligencePanel } from "@/components/incidents/incident-intelligence-panel";
 import { IncidentEvidencePanel } from "@/components/incidents/incident-evidence-panel";
+import { IncidentRestrictedPanel } from "@/components/incidents/incident-restricted-panel";
 import { MethanePanel } from "@/components/incidents/methane-panel";
 import { MajorIncidentBanner } from "@/components/incidents/major-incident-banner";
 import { IncidentContextRail } from "@/components/incidents/incident-context-rail";
@@ -53,6 +56,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     categories,
     priorities,
     eventIncidents,
+    canViewRestricted,
   ] = await Promise.all([
     listIncidentTimeline(id),
     listIncidentActions(id),
@@ -67,7 +71,10 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
     listIncidentCategories(),
     listIncidentPriorities(incident.organisation_id),
     listIncidents(incident.event_id),
+    hasPermission("incident.view_restricted", { organisationId: incident.organisation_id, eventId: incident.event_id }),
   ]);
+
+  const restrictedNarrative = canViewRestricted ? await getIncidentRestrictedNarrative(id) : null;
 
   const category = categories.find((c) => c.code === incident.category_code);
   const priority = priorities.find((p) => p.code === incident.priority_code);
@@ -95,6 +102,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
               <TabsTrigger value="agencies">Agencies</TabsTrigger>
               <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
               <TabsTrigger value="evidence">Evidence</TabsTrigger>
+              {canViewRestricted ? <TabsTrigger value="restricted">Restricted</TabsTrigger> : null}
               <TabsTrigger value="methane">M/ETHANE</TabsTrigger>
             </TabsList>
             <TabsContent value="timeline" className="pt-4">
@@ -123,6 +131,11 @@ export default async function IncidentDetailPage({ params }: PageProps<"/inciden
             <TabsContent value="evidence" className="pt-4">
               <IncidentEvidencePanel incidentId={id} eventId={incident.event_id} items={evidence} />
             </TabsContent>
+            {canViewRestricted ? (
+              <TabsContent value="restricted" className="pt-4">
+                <IncidentRestrictedPanel incidentId={id} classification={incident.classification} narrative={restrictedNarrative} />
+              </TabsContent>
+            ) : null}
             <TabsContent value="methane" className="pt-4">
               <MethanePanel incidentId={id} data={methane} />
             </TabsContent>

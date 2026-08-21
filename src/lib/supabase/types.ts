@@ -1491,6 +1491,55 @@ export type Database = {
           },
         ]
       }
+      incident_restricted_narrative: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          incident_id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          incident_id: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          incident_id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_restricted_narrative_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_restricted_narrative_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: true
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_restricted_narrative_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_vehicles: {
         Row: {
           id: string
@@ -3404,6 +3453,17 @@ export type Database = {
       }
       set_event_portal_enabled: {
         Args: { p_enabled: boolean; p_event_id: string }
+        Returns: undefined
+      }
+      set_incident_classification: {
+        Args: {
+          p_classification: Database["public"]["Enums"]["classification_level"]
+          p_incident_id: string
+        }
+        Returns: undefined
+      }
+      set_incident_restricted_narrative: {
+        Args: { p_body: string; p_incident_id: string }
         Returns: undefined
       }
       start_control_session: {

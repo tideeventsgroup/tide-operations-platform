@@ -14,6 +14,19 @@ function personName(p: { first_name: string | null; surname: string | null; emai
   return [p.first_name, p.surname].filter(Boolean).join(" ") || p.email;
 }
 
+// Only shown when actually elevated — a "Standard" badge on every ordinary
+// incident would just be noise, same reasoning as the priority badge only
+// appearing once a priority is set.
+function ClassificationBadge({ classification }: { classification: Incident["classification"] }) {
+  if (classification === "confidential") {
+    return <Badge className="h-6 bg-warning-bg px-2.5 text-[13px] font-bold text-warning">Restricted</Badge>;
+  }
+  if (classification === "restricted") {
+    return <Badge className="h-6 bg-destructive px-2.5 text-[13px] font-bold text-destructive-foreground">Highly Restricted</Badge>;
+  }
+  return null;
+}
+
 export function IncidentCommandHeader({
   incident,
   categoryName,
@@ -44,6 +57,7 @@ export function IncidentCommandHeader({
               </Badge>
             ) : null}
             <IncidentStatusBadge status={incident.status} />
+            <ClassificationBadge classification={incident.classification} />
           </div>
         </div>
         <ResponseClocks

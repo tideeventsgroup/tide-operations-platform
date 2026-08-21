@@ -34,8 +34,16 @@ export async function isAdmin(): Promise<boolean> {
   return data ?? false;
 }
 
-export async function hasPermission(code: string): Promise<boolean> {
+export async function hasPermission(
+  code: string,
+  scope?: { organisationId?: string; clientId?: string; eventId?: string },
+): Promise<boolean> {
   const supabase = await createClient();
-  const { data } = await supabase.rpc("has_permission", { p_permission_code: code });
+  const { data } = await supabase.rpc("has_permission", {
+    p_permission_code: code,
+    p_organisation_id: scope?.organisationId,
+    p_client_id: scope?.clientId,
+    p_event_id: scope?.eventId,
+  });
   return data ?? false;
 }
