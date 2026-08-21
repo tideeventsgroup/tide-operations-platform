@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEvent, listControlSessions } from "@/lib/domain/event-service";
+import { getEvent, listControlSessions, listEventLocations } from "@/lib/domain/event-service";
 import {
   listActiveMajorIncidentsForEvent,
   listIncidentCategories,
@@ -8,6 +8,7 @@ import {
   listIncidents,
 } from "@/lib/domain/incident-service";
 import { IncidentBoard } from "@/components/incidents/incident-board";
+import { LocationStatusBoard } from "@/components/events/location-status-board";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { EventPhaseBadge } from "@/components/status-badges";
 
@@ -26,17 +27,24 @@ export default async function ControlOverviewPage({ params }: PageProps<"/events
     notFound();
   }
 
-  const [incidents, categories, priorities, controlSessions, majorIncidents] = await Promise.all([
+  const [incidents, categories, priorities, controlSessions, majorIncidents, locations] = await Promise.all([
     listIncidents(id),
     listIncidentCategories(),
     listIncidentPriorities(event.organisation_id),
     listControlSessions(id),
     listActiveMajorIncidentsForEvent(id),
+    listEventLocations(id),
   ]);
 
   const openIncidents = incidents.filter((i) => i.status !== "closed" && i.status !== "resolved");
   const urgentCount = openIncidents.filter((i) => i.priority_code === "P1" || i.priority_code === "P2").length;
   const onDuty = controlSessions.filter((s) => !s.ended_at);
+
+  const openIncidentCountByLocation = new Map<string, number>();
+  for (const incident of openIncidents) {
+    if (!incident.location_id) continue;
+    openIncidentCountByLocation.set(incident.location_id, (openIncidentCountByLocation.get(incident.location_id) ?? 0) + 1);
+  }
 
   return (
     <div className="mx-auto max-w-[1800px] space-y-6 px-8 py-8">
@@ -93,6 +101,11 @@ export default async function ControlOverviewPage({ params }: PageProps<"/events
             {majorIncidents.length}
           </div>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="section-label">Locations</h2>
+        <LocationStatusBoard eventId={id} locations={locations} openIncidentCountByLocation={openIncidentCountByLocation} />
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_280px]">
