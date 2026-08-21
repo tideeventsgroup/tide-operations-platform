@@ -1711,6 +1711,311 @@ export type Database = {
           },
         ]
       }
+      investigation_evidence: {
+        Row: {
+          evidence_item_id: string
+          id: string
+          investigation_id: string
+          linked_at: string
+          linked_by: string | null
+        }
+        Insert: {
+          evidence_item_id: string
+          id?: string
+          investigation_id: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Update: {
+          evidence_item_id?: string
+          id?: string
+          investigation_id?: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigation_evidence_evidence_item_id_fkey"
+            columns: ["evidence_item_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_evidence_investigation_id_fkey"
+            columns: ["investigation_id"]
+            isOneToOne: false
+            referencedRelation: "investigations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_evidence_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investigation_incidents: {
+        Row: {
+          id: string
+          incident_id: string
+          investigation_id: string
+          linked_at: string
+          linked_by: string | null
+        }
+        Insert: {
+          id?: string
+          incident_id: string
+          investigation_id: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Update: {
+          id?: string
+          incident_id?: string
+          investigation_id?: string
+          linked_at?: string
+          linked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigation_incidents_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_incidents_investigation_id_fkey"
+            columns: ["investigation_id"]
+            isOneToOne: false
+            referencedRelation: "investigations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_incidents_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investigation_notes: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          investigation_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          investigation_id: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          investigation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigation_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_notes_investigation_id_fkey"
+            columns: ["investigation_id"]
+            isOneToOne: false
+            referencedRelation: "investigations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investigation_people: {
+        Row: {
+          id: string
+          investigation_id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          person_id: string
+          role_code: string
+        }
+        Insert: {
+          id?: string
+          investigation_id: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id: string
+          role_code: string
+        }
+        Update: {
+          id?: string
+          investigation_id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id?: string
+          role_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigation_people_investigation_id_fkey"
+            columns: ["investigation_id"]
+            isOneToOne: false
+            referencedRelation: "investigations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_people_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_people_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investigation_vehicles: {
+        Row: {
+          id: string
+          investigation_id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Insert: {
+          id?: string
+          investigation_id: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Update: {
+          id?: string
+          investigation_id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigation_vehicles_investigation_id_fkey"
+            columns: ["investigation_id"]
+            isOneToOne: false
+            referencedRelation: "investigations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_vehicles_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigation_vehicles_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investigations: {
+        Row: {
+          classification: Database["public"]["Enums"]["classification_level"]
+          closed_at: string | null
+          closed_reason: string | null
+          created_at: string
+          id: string
+          lead_investigator_id: string | null
+          opened_at: string
+          opened_by: string | null
+          organisation_id: string
+          reference: string
+          status: Database["public"]["Enums"]["investigation_status"]
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_reason?: string | null
+          created_at?: string
+          id?: string
+          lead_investigator_id?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          organisation_id: string
+          reference: string
+          status?: Database["public"]["Enums"]["investigation_status"]
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_reason?: string | null
+          created_at?: string
+          id?: string
+          lead_investigator_id?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          organisation_id?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["investigation_status"]
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investigations_lead_investigator_id_fkey"
+            columns: ["lead_investigator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigations_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investigations_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       major_incident_activations: {
         Row: {
           activated_at: string
@@ -2704,6 +3009,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_investigation_note: {
+        Args: { p_body: string; p_investigation_id: string }
+        Returns: string
+      }
       append_incident_log_entry: {
         Args: {
           p_body: string
@@ -2803,6 +3112,16 @@ export type Database = {
           p_description: string
           p_due_at?: string
           p_incident_id: string
+        }
+        Returns: string
+      }
+      create_investigation: {
+        Args: {
+          p_classification?: Database["public"]["Enums"]["classification_level"]
+          p_lead_investigator_id?: string
+          p_organisation_id: string
+          p_summary?: string
+          p_title: string
         }
         Returns: string
       }
@@ -2909,6 +3228,10 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       issue_document: { Args: { p_document_id: string }; Returns: undefined }
+      link_evidence_to_investigation: {
+        Args: { p_evidence_item_id: string; p_investigation_id: string }
+        Returns: string
+      }
       link_existing_person_to_incident: {
         Args: {
           p_incident_id: string
@@ -2921,6 +3244,28 @@ export type Database = {
       link_existing_vehicle_to_incident: {
         Args: {
           p_incident_id: string
+          p_notes?: string
+          p_role_code: string
+          p_vehicle_id: string
+        }
+        Returns: string
+      }
+      link_incident_to_investigation: {
+        Args: { p_incident_id: string; p_investigation_id: string }
+        Returns: string
+      }
+      link_person_to_investigation: {
+        Args: {
+          p_investigation_id: string
+          p_notes?: string
+          p_person_id: string
+          p_role_code: string
+        }
+        Returns: string
+      }
+      link_vehicle_to_investigation: {
+        Args: {
+          p_investigation_id: string
           p_notes?: string
           p_role_code: string
           p_vehicle_id: string
@@ -3089,6 +3434,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_investigation_status: {
+        Args: {
+          p_investigation_id: string
+          p_reason?: string
+          p_status: Database["public"]["Enums"]["investigation_status"]
+        }
+        Returns: undefined
+      }
       update_observation_status: {
         Args: {
           p_dismissed_reason?: string
@@ -3192,6 +3545,7 @@ export type Database = {
         | "resolved"
         | "closed"
       intelligence_record_status: "active" | "archived"
+      investigation_status: "open" | "active" | "closed" | "archived"
       observation_status: "open" | "reviewed" | "promoted" | "dismissed"
       operational_location_status:
         | "normal"
@@ -3426,6 +3780,7 @@ export const Constants = {
         "closed",
       ],
       intelligence_record_status: ["active", "archived"],
+      investigation_status: ["open", "active", "closed", "archived"],
       observation_status: ["open", "reviewed", "promoted", "dismissed"],
       operational_location_status: [
         "normal",

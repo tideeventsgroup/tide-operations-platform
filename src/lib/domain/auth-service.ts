@@ -33,3 +33,9 @@ export async function isAdmin(): Promise<boolean> {
   const { data } = await supabase.rpc("is_admin");
   return data ?? false;
 }
+
+export async function hasPermission(code: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("has_permission", { p_permission_code: code });
+  return data ?? false;
+}

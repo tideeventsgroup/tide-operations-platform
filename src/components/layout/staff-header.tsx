@@ -30,11 +30,23 @@ function navLinkClass(active: boolean) {
   );
 }
 
-export function StaffHeader({ profile, isAdmin }: { profile: Tables<"profiles">; isAdmin: boolean }) {
+export function StaffHeader({
+  profile,
+  isAdmin,
+  canViewInvestigations,
+}: {
+  profile: Tables<"profiles">;
+  isAdmin: boolean;
+  canViewInvestigations: boolean;
+}) {
   const pathname = usePathname();
   const name = [profile.first_name, profile.surname].filter(Boolean).join(" ") || profile.email;
 
-  const items = isAdmin ? [...NAV, { label: "Administration", href: "/admin" }] : NAV;
+  const items = [
+    ...NAV,
+    ...(canViewInvestigations ? [{ label: "Investigations", href: "/investigations" }] : []),
+    ...(isAdmin ? [{ label: "Administration", href: "/admin" }] : []),
+  ];
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-sidebar px-4 text-sidebar-foreground md:gap-6 print:hidden">
