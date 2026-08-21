@@ -260,7 +260,9 @@ function PeopleSection({ investigationId, organisationId, people }: { investigat
           people.map((link) => (
             <div key={link.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
               <div>
-                <p className="font-medium text-foreground">{personLabel(link.people, link.people?.reference ?? "")}</p>
+                <Link href={`/people/${link.person_id}`} className="font-medium text-foreground hover:underline">
+                  {personLabel(link.people, link.people?.reference ?? "")}
+                </Link>
                 <p className="text-xs text-muted-foreground">{link.people?.reference}</p>
               </div>
               <Badge variant="secondary">{link.role_code}</Badge>
@@ -329,7 +331,9 @@ function VehiclesSection({ investigationId, organisationId, vehicles }: { invest
           vehicles.map((link) => (
             <div key={link.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
               <div>
-                <p className="font-medium text-foreground">{vehicleLabel(link.vehicles, link.vehicles?.reference ?? "")}</p>
+                <Link href={`/vehicles/${link.vehicle_id}`} className="font-medium text-foreground hover:underline">
+                  {vehicleLabel(link.vehicles, link.vehicles?.reference ?? "")}
+                </Link>
                 <p className="text-xs text-muted-foreground">{link.vehicles?.reference}</p>
               </div>
               <Badge variant="secondary">{link.role_code}</Badge>
