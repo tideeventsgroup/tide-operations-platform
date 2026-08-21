@@ -209,6 +209,17 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
             <div className="text-2xl font-bold text-foreground">{intelligenceSummary.evidenceItems}</div>
           </div>
         </div>
+        {intelligenceSummary.radioLogTotal > 0 ? (
+          <div className="rounded-lg border border-border bg-card p-4">
+            <div className="section-label mb-1">Radio log</div>
+            <div className="text-2xl font-bold text-foreground">
+              {intelligenceSummary.radioLogTotal}
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                entries{intelligenceSummary.radioLogSignificant > 0 ? ` · ${intelligenceSummary.radioLogSignificant} significant` : ""}
+              </span>
+            </div>
+          </div>
+        ) : null}
         {intelligenceSummary.observationsTotal > 0 || intelligenceSummary.investigationsLinked > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {intelligenceSummary.observationsTotal > 0 ? (

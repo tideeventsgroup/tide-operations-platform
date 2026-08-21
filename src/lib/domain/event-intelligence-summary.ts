@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getEventIntelligenceSummary(eventId: string) {
   const supabase = await createClient();
 
-  const [peopleResult, vehiclesResult, evidenceResult, observationsResult, investigationsResult] = await Promise.all([
+  const [peopleResult, vehiclesResult, evidenceResult, observationsResult, investigationsResult, radioLogResult] = await Promise.all([
     supabase.from("incident_people").select("id, incidents!inner(event_id)", { count: "exact", head: true }).eq("incidents.event_id", eventId),
     supabase.from("incident_vehicles").select("id, incidents!inner(event_id)", { count: "exact", head: true }).eq("incidents.event_id", eventId),
     supabase.from("evidence_items").select("id, incidents!inner(event_id)", { count: "exact", head: true }).eq("incidents.event_id", eventId),
@@ -19,6 +19,7 @@ export async function getEventIntelligenceSummary(eventId: string) {
       .from("investigation_incidents")
       .select("investigation_id, incidents!inner(event_id)")
       .eq("incidents.event_id", eventId),
+    supabase.from("radio_log_entries").select("significant").eq("event_id", eventId),
   ]);
 
   const observationsByStatus: Record<string, number> = {};
@@ -27,6 +28,7 @@ export async function getEventIntelligenceSummary(eventId: string) {
   }
 
   const uniqueInvestigationIds = new Set((investigationsResult.data ?? []).map((row) => row.investigation_id));
+  const radioLogEntries = radioLogResult.data ?? [];
 
   return {
     peopleLinked: peopleResult.count ?? 0,
@@ -35,5 +37,7 @@ export async function getEventIntelligenceSummary(eventId: string) {
     observationsTotal: observationsResult.data?.length ?? 0,
     observationsByStatus,
     investigationsLinked: uniqueInvestigationIds.size,
+    radioLogTotal: radioLogEntries.length,
+    radioLogSignificant: radioLogEntries.filter((e) => e.significant).length,
   };
 }
