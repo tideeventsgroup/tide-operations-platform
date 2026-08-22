@@ -10,6 +10,8 @@ export type FeedItem = {
   href: string;
   badge: string;
   badgeTone: "destructive" | "warning" | "info" | "success" | "muted";
+  isOpen: boolean;
+  activity?: { author: string; body: string };
 };
 
 // Cross-cutting activity stream — Auror's "Feed" (their landing page).
@@ -47,9 +49,32 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       .limit(30),
   ]);
 
+  const incidents = incidentsResult.data ?? [];
+
+  // One batched query for the latest timeline entry per incident, rather
+  // than N+1 — Auror's own feed shows the most recent comment/activity
+  // inline on each card, this is the real equivalent rather than a
+  // decorative stand-in.
+  const latestActivityByIncident = new Map<string, { author: string; body: string }>();
+  if (incidents.length > 0) {
+    const { data: entries } = await supabase
+      .from("incident_log_entries")
+      .select("incident_id, body, created_at, profiles(first_name, surname, email)")
+      .in(
+        "incident_id",
+        incidents.map((i) => i.id),
+      )
+      .order("created_at", { ascending: false });
+    for (const entry of entries ?? []) {
+      if (latestActivityByIncident.has(entry.incident_id)) continue;
+      const author = entry.profiles ? [entry.profiles.first_name, entry.profiles.surname].filter(Boolean).join(" ") || entry.profiles.email : "System";
+      latestActivityByIncident.set(entry.incident_id, { author, body: entry.body });
+    }
+  }
+
   const items: FeedItem[] = [];
 
-  for (const i of incidentsResult.data ?? []) {
+  for (const i of incidents) {
     items.push({
       id: `incident-${i.id}`,
       kind: "incident",
@@ -59,6 +84,8 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       href: `/incidents/${i.id}`,
       badge: i.priority_code ?? i.category_code,
       badgeTone: i.priority_code === "P1" || i.priority_code === "P2" ? "destructive" : "info",
+      isOpen: i.status !== "resolved" && i.status !== "closed",
+      activity: latestActivityByIncident.get(i.id),
     });
   }
 
@@ -72,6 +99,7 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       href: `/events/${o.event_id}/observations`,
       badge: o.status,
       badgeTone: o.status === "promoted" ? "destructive" : o.status === "dismissed" ? "muted" : "warning",
+      isOpen: o.status === "open",
     });
   }
 
@@ -86,6 +114,7 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       href: `/audits/${a.id}`,
       badge: score !== null ? `${score}%` : "N/A",
       badgeTone: score === null ? "muted" : score >= 90 ? "success" : score >= 70 ? "warning" : "destructive",
+      isOpen: false,
     });
   }
 
@@ -99,6 +128,7 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       href: `/investigations/${inv.id}`,
       badge: inv.status,
       badgeTone: inv.status === "closed" || inv.status === "archived" ? "muted" : "info",
+      isOpen: inv.status === "open" || inv.status === "active",
     });
   }
 
