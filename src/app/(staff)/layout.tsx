@@ -11,10 +11,12 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   if (profile.account_type !== "staff") redirect("/portal");
   if (!profile.organisation_id) redirect("/sign-in");
 
-  const [admin, canViewInvestigations, canViewInsights] = await Promise.all([
+  const [admin, canViewInvestigations, canViewInsights, canViewAudits, canSubmitAudits] = await Promise.all([
     isAdmin(),
     hasPermission("investigation.view"),
     hasPermission("intelligence.view", { organisationId: profile.organisation_id }),
+    hasPermission("site_audit.view", { organisationId: profile.organisation_id }),
+    hasPermission("site_audit.submit", { organisationId: profile.organisation_id }),
   ]);
 
   return (
@@ -23,6 +25,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
       isAdmin={admin}
       canViewInvestigations={canViewInvestigations}
       canViewInsights={canViewInsights}
+      canViewAudits={canViewAudits || canSubmitAudits}
       organisationId={profile.organisation_id}
     >
       {children}

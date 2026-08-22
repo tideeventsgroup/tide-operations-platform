@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_answers: {
+        Row: {
+          answered_at: string
+          id: string
+          notes: string | null
+          question_id: string
+          response: Database["public"]["Enums"]["audit_response"]
+          submission_id: string
+        }
+        Insert: {
+          answered_at?: string
+          id?: string
+          notes?: string | null
+          question_id: string
+          response: Database["public"]["Enums"]["audit_response"]
+          submission_id: string
+        }
+        Update: {
+          answered_at?: string
+          id?: string
+          notes?: string | null
+          question_id?: string
+          response?: Database["public"]["Enums"]["audit_response"]
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "audit_template_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_answers_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "audit_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -67,6 +109,164 @@ export type Database = {
           },
           {
             foreignKeyName: "audit_logs_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_submissions: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          id: string
+          location_id: string | null
+          organisation_id: string
+          score: number | null
+          status: Database["public"]["Enums"]["audit_submission_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          organisation_id: string
+          score?: number | null
+          status?: Database["public"]["Enums"]["audit_submission_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          location_id?: string | null
+          organisation_id?: string
+          score?: number | null
+          status?: Database["public"]["Enums"]["audit_submission_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_submissions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_submissions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "operational_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_submissions_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_submissions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "audit_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_template_questions: {
+        Row: {
+          created_at: string
+          id: string
+          question_text: string
+          section: string | null
+          sort_order: number
+          template_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_text: string
+          section?: string | null
+          sort_order?: number
+          template_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_text?: string
+          section?: string | null
+          sort_order?: number
+          template_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_template_questions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "audit_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organisation_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organisation_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organisation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_templates_organisation_id_fkey"
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
@@ -3056,6 +3256,16 @@ export type Database = {
         Args: { p_incident_id: string; p_reason: string }
         Returns: string
       }
+      add_audit_template_question: {
+        Args: {
+          p_question_text: string
+          p_section?: string
+          p_sort_order?: number
+          p_template_id: string
+          p_weight?: number
+        }
+        Returns: string
+      }
       add_incident_correction: {
         Args: {
           p_body: string
@@ -3066,6 +3276,15 @@ export type Database = {
       }
       add_investigation_note: {
         Args: { p_body: string; p_investigation_id: string }
+        Returns: string
+      }
+      answer_audit_question: {
+        Args: {
+          p_notes?: string
+          p_question_id: string
+          p_response: Database["public"]["Enums"]["audit_response"]
+          p_submission_id: string
+        }
         Returns: string
       }
       append_incident_log_entry: {
@@ -3137,6 +3356,14 @@ export type Database = {
           p_notes?: string
         }
         Returns: undefined
+      }
+      create_audit_template: {
+        Args: {
+          p_description?: string
+          p_name: string
+          p_organisation_id: string
+        }
+        Returns: string
       }
       create_document: {
         Args: {
@@ -3466,10 +3693,19 @@ export type Database = {
         Args: { p_body: string; p_incident_id: string }
         Returns: undefined
       }
+      start_audit_submission: {
+        Args: {
+          p_event_id?: string
+          p_location_id?: string
+          p_template_id: string
+        }
+        Returns: string
+      }
       start_control_session: {
         Args: { p_event_id: string; p_profile_id?: string; p_role_id: string }
         Returns: string
       }
+      submit_audit: { Args: { p_submission_id: string }; Returns: number }
       submit_document_for_review: {
         Args: { p_document_id: string }
         Returns: undefined
@@ -3536,6 +3772,8 @@ export type Database = {
     }
     Enums: {
       account_type: "pending" | "staff" | "client" | "contractor"
+      audit_response: "pass" | "fail" | "not_applicable"
+      audit_submission_status: "draft" | "submitted"
       classification_level:
         | "public"
         | "client"
@@ -3763,6 +4001,8 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["pending", "staff", "client", "contractor"],
+      audit_response: ["pass", "fail", "not_applicable"],
+      audit_submission_status: ["draft", "submitted"],
       classification_level: [
         "public",
         "client",
