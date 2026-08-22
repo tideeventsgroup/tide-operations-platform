@@ -19,7 +19,7 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
     notFound();
   }
 
-  const { person, incidentLinks, investigationLinks } = profile;
+  const { person, incidentLinks, investigationLinks, possibleMatches } = profile;
 
   const nodes: ConnectionNode[] = [
     ...incidentLinks
@@ -60,6 +60,28 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
         <h2 className="section-label">Connections ({nodes.length})</h2>
         <ConnectionsDiagram centerLabel={personName(person, person.reference)} nodes={nodes} />
       </div>
+
+      {possibleMatches.length > 0 ? (
+        <div className="space-y-3">
+          <h2 className="section-label">Possible matches</h2>
+          <p className="text-xs text-muted-foreground">
+            Other records sharing a surname or date of birth. Matching only — nothing is merged automatically; confirm and
+            link manually if these are the same person.
+          </p>
+          <div className="divide-y divide-border rounded-lg border border-border bg-card">
+            {possibleMatches.map((match) => (
+              <Link
+                key={match.id}
+                href={`/people/${match.id}`}
+                className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50"
+              >
+                <p className="font-medium text-foreground">{personName(match, match.reference)}</p>
+                <p className="text-xs text-muted-foreground">{match.reference}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="space-y-3">
         <h2 className="section-label">Incidents</h2>
