@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/domain/auth-service";
 import { listEvents } from "@/lib/domain/event-service";
 import { listIncidents } from "@/lib/domain/incident-service";
+import { getActivityFeed } from "@/lib/domain/feed-service";
 import { EventPhaseBadge } from "@/components/status-badges";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import { ActivityFeed } from "@/components/feed/activity-feed";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -13,6 +16,9 @@ function formatDate(value: string | null) {
 
 export default async function DashboardPage() {
   const profile = await getCurrentProfile();
+  if (!profile) redirect("/sign-in");
+  if (!profile.organisation_id) redirect("/sign-in");
+
   const events = await listEvents();
 
   const liveEvents = events.filter((e) => e.lifecycle_stage === "live");
@@ -22,41 +28,34 @@ export default async function DashboardPage() {
     .sort((a, b) => new Date(a.start_date!).getTime() - new Date(b.start_date!).getTime())
     .slice(0, 5);
 
-  const liveIncidentCounts = await Promise.all(
-    liveEvents.map(async (event) => {
-      const incidents = await listIncidents(event.id);
-      return {
-        eventId: event.id,
-        open: incidents.filter((i) => i.status !== "resolved" && i.status !== "closed").length,
-        urgent: incidents.filter(
-          (i) => i.status !== "resolved" && i.status !== "closed" && (i.priority_code === "P1" || i.priority_code === "P2"),
-        ).length,
-      };
-    }),
-  );
+  const [liveIncidentCounts, feedItems] = await Promise.all([
+    Promise.all(
+      liveEvents.map(async (event) => {
+        const incidents = await listIncidents(event.id);
+        return {
+          eventId: event.id,
+          open: incidents.filter((i) => i.status !== "resolved" && i.status !== "closed").length,
+          urgent: incidents.filter(
+            (i) => i.status !== "resolved" && i.status !== "closed" && (i.priority_code === "P1" || i.priority_code === "P2"),
+          ).length,
+        };
+      }),
+    ),
+    getActivityFeed(profile.organisation_id),
+  ]);
   const countsByEvent = new Map(liveIncidentCounts.map((c) => [c.eventId, c]));
-  const totalOpen = liveIncidentCounts.reduce((sum, c) => sum + c.open, 0);
-  const totalUrgent = liveIncidentCounts.reduce((sum, c) => sum + c.urgent, 0);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-8 py-8">
       <div>
         <h1 className="text-[28px] leading-none font-bold text-foreground">
-          Welcome{profile?.first_name ? `, ${profile.first_name}` : ""}
+          Welcome{profile.first_name ? `, ${profile.first_name}` : ""}
         </h1>
       </div>
 
       {liveEvents.length > 0 ? (
         <section className="space-y-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="section-label">Live now ({liveEvents.length})</h2>
-            {totalOpen > 0 ? (
-              <span className={totalUrgent > 0 ? "text-sm font-semibold text-destructive" : "text-sm text-muted-foreground"}>
-                {totalOpen} open incident{totalOpen === 1 ? "" : "s"}
-                {totalUrgent > 0 ? ` · ${totalUrgent} P1/P2` : ""}
-              </span>
-            ) : null}
-          </div>
+          <h2 className="section-label">Live now ({liveEvents.length})</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {liveEvents.map((event) => {
               const counts = countsByEvent.get(event.id);
@@ -117,6 +116,11 @@ export default async function DashboardPage() {
           </div>
         </section>
       ) : null}
+
+      <section className="space-y-3">
+        <h2 className="section-label">Feed</h2>
+        <ActivityFeed items={feedItems} />
+      </section>
     </div>
   );
 }

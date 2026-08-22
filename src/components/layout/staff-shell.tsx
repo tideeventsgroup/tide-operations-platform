@@ -16,7 +16,7 @@ import type { Tables } from "@/lib/supabase/types";
 type NavItem = { label: string; href: string };
 
 const NAV: NavItem[] = [
-  { label: "Home", href: "/dashboard" },
+  { label: "Feed", href: "/dashboard" },
   { label: "Events", href: "/events" },
   { label: "Clients", href: "/clients" },
 ];
