@@ -51,6 +51,8 @@ export function StaffShell({
   const items = [
     ...NAV,
     ...(canViewInsights ? [{ label: "Insights", href: "/insights" }] : []),
+    ...(canViewInsights ? [{ label: "Find a person", href: "/people" }] : []),
+    ...(canViewInsights ? [{ label: "Find a vehicle", href: "/vehicles" }] : []),
     ...(canViewAudits ? [{ label: "Audits", href: "/audits" }] : []),
     ...(canViewInvestigations ? [{ label: "Investigations", href: "/investigations" }] : []),
     ...(isAdmin ? [{ label: "Administration", href: "/admin" }] : []),

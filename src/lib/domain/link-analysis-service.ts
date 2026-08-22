@@ -1,6 +1,35 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
+// Directory listings for the dedicated Find-a-Person/Find-a-Vehicle
+// pages (Auror's own top-nav has a standalone "Find a vehicle"). RLS
+// (intelligence.view, organisation-wide) is the real access boundary.
+export async function listPeople(organisationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("people")
+    .select("id, reference, first_name, surname, description, classification")
+    .eq("organisation_id", organisationId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function listVehicles(organisationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("vehicles")
+    .select("id, reference, registration, make, model, colour, classification")
+    .eq("organisation_id", organisationId)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return data ?? [];
+}
+
 // Surname/registration/etc. are free text on the source record (set via
 // create_person/create_vehicle with no character restrictions), so they
 // need the same PostgREST filter-syntax sanitization as user-supplied
