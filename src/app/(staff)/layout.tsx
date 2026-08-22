@@ -11,10 +11,20 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   if (profile.account_type !== "staff") redirect("/portal");
   if (!profile.organisation_id) redirect("/sign-in");
 
-  const [admin, canViewInvestigations] = await Promise.all([isAdmin(), hasPermission("investigation.view")]);
+  const [admin, canViewInvestigations, canViewInsights] = await Promise.all([
+    isAdmin(),
+    hasPermission("investigation.view"),
+    hasPermission("intelligence.view", { organisationId: profile.organisation_id }),
+  ]);
 
   return (
-    <StaffShell profile={profile} isAdmin={admin} canViewInvestigations={canViewInvestigations} organisationId={profile.organisation_id}>
+    <StaffShell
+      profile={profile}
+      isAdmin={admin}
+      canViewInvestigations={canViewInvestigations}
+      canViewInsights={canViewInsights}
+      organisationId={profile.organisation_id}
+    >
       {children}
     </StaffShell>
   );

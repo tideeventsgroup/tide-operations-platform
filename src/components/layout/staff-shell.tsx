@@ -32,12 +32,14 @@ export function StaffShell({
   profile,
   isAdmin,
   canViewInvestigations,
+  canViewInsights,
   organisationId,
   children,
 }: {
   profile: Tables<"profiles">;
   isAdmin: boolean;
   canViewInvestigations: boolean;
+  canViewInsights: boolean;
   organisationId: string;
   children: React.ReactNode;
 }) {
@@ -46,6 +48,7 @@ export function StaffShell({
 
   const items = [
     ...NAV,
+    ...(canViewInsights ? [{ label: "Insights", href: "/insights" }] : []),
     ...(canViewInvestigations ? [{ label: "Investigations", href: "/investigations" }] : []),
     ...(isAdmin ? [{ label: "Administration", href: "/admin" }] : []),
   ];
