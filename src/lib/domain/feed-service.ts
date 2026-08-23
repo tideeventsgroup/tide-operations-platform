@@ -6,10 +6,10 @@ export type FeedItem = {
   kind: "incident" | "observation" | "audit" | "investigation";
   timestamp: string;
   title: string;
+  reference: string;
   subtitle: string;
   href: string;
-  badge: string;
-  badgeTone: "destructive" | "warning" | "info" | "success" | "muted";
+  value: string;
   isOpen: boolean;
   activity?: { author: string; body: string };
 };
@@ -80,10 +80,10 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       kind: "incident",
       timestamp: i.created_at,
       title: i.summary,
-      subtitle: [i.events?.name, i.operational_locations?.name].filter(Boolean).join(" · ") || i.reference,
+      reference: i.reference,
+      subtitle: [i.events?.name, i.operational_locations?.name].filter(Boolean).join(" · "),
       href: `/incidents/${i.id}`,
-      badge: i.priority_code ?? i.category_code,
-      badgeTone: i.priority_code === "P1" || i.priority_code === "P2" ? "destructive" : "info",
+      value: i.priority_code ?? i.category_code,
       isOpen: i.status !== "resolved" && i.status !== "closed",
       activity: latestActivityByIncident.get(i.id),
     });
@@ -95,25 +95,24 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       kind: "observation",
       timestamp: o.created_at,
       title: o.summary,
-      subtitle: [o.events?.name, o.category].filter(Boolean).join(" · ") || o.reference,
+      reference: o.reference,
+      subtitle: [o.events?.name, o.category].filter(Boolean).join(" · "),
       href: `/events/${o.event_id}/observations`,
-      badge: o.status,
-      badgeTone: o.status === "promoted" ? "destructive" : o.status === "dismissed" ? "muted" : "warning",
+      value: o.status,
       isOpen: o.status === "open",
     });
   }
 
   for (const a of auditsResult.data ?? []) {
-    const score = a.score;
     items.push({
       id: `audit-${a.id}`,
       kind: "audit",
       timestamp: a.submitted_at ?? a.created_at,
       title: a.audit_templates?.name ?? "Audit submitted",
-      subtitle: a.events?.name ?? "Audit",
+      reference: a.id.slice(0, 8),
+      subtitle: a.events?.name ?? "",
       href: `/audits/${a.id}`,
-      badge: score !== null ? `${score}%` : "N/A",
-      badgeTone: score === null ? "muted" : score >= 90 ? "success" : score >= 70 ? "warning" : "destructive",
+      value: a.score !== null ? `${a.score}%` : "N/A",
       isOpen: false,
     });
   }
@@ -124,10 +123,10 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       kind: "investigation",
       timestamp: inv.opened_at,
       title: inv.title,
-      subtitle: inv.reference,
+      reference: inv.reference,
+      subtitle: "",
       href: `/investigations/${inv.id}`,
-      badge: inv.status,
-      badgeTone: inv.status === "closed" || inv.status === "archived" ? "muted" : "info",
+      value: inv.status,
       isOpen: inv.status === "open" || inv.status === "active",
     });
   }

@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { FeedItem } from "@/lib/domain/feed-service";
-
-const KIND_LABEL: Record<FeedItem["kind"], string> = {
-  incident: "Incident",
-  observation: "Observation",
-  audit: "Audit",
-  investigation: "Investigation",
-};
 
 const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
   incident: "Incidents",
@@ -20,13 +12,7 @@ const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
   investigation: "Investigations",
 };
 
-const TONE_TEXT: Record<FeedItem["badgeTone"], string> = {
-  destructive: "text-destructive",
-  warning: "text-warning",
-  info: "text-info",
-  success: "text-success",
-  muted: "text-muted-foreground",
-};
+const KINDS = Object.keys(KIND_FILTER_LABEL) as FeedItem["kind"][];
 
 function relativeTime(iso: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -44,8 +30,7 @@ function exactDate(iso: string) {
 }
 
 export function ActivityFeed({ items }: { items: FeedItem[] }) {
-  const kinds = Object.keys(KIND_LABEL) as FeedItem["kind"][];
-  const [visibleKinds, setVisibleKinds] = useState<Set<FeedItem["kind"]>>(new Set(kinds));
+  const [visibleKinds, setVisibleKinds] = useState<Set<FeedItem["kind"]>>(new Set(KINDS));
   const [openOnly, setOpenOnly] = useState(false);
 
   const filtered = useMemo(
@@ -63,7 +48,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_240px]">
       <div className="min-w-0 space-y-3">
         {filtered.length === 0 ? (
           <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
@@ -74,24 +59,24 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
             <Link key={item.id} href={item.href} className="block rounded-lg border border-border bg-card p-5 hover:border-primary/40">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className="font-semibold text-primary">{item.title}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">{relativeTime(item.timestamp)}</span>
+                  <span className="font-bold text-foreground">{item.title}</span>{" "}
+                  <span className="font-bold text-primary">{item.reference}</span>{" "}
+                  <span className="text-xs font-normal text-muted-foreground">{relativeTime(item.timestamp)}</span>
                 </div>
-                <span className={cn("shrink-0 text-lg font-bold capitalize", TONE_TEXT[item.badgeTone])}>{item.badge}</span>
+                <span className="shrink-0 text-lg font-bold text-foreground capitalize">{item.value}</span>
               </div>
-              <div className="mt-0.5 flex items-baseline justify-between gap-3">
-                <p className="truncate text-sm text-muted-foreground">{item.subtitle}</p>
+              <div className="mt-1 flex items-baseline justify-between gap-3">
+                {item.subtitle ? <p className="truncate text-sm text-muted-foreground">{item.subtitle}</p> : <span />}
                 <p className="shrink-0 text-xs text-muted-foreground">{exactDate(item.timestamp)}</p>
               </div>
 
               {item.activity ? (
-                <div className="mt-3 flex items-start gap-2 border-t border-border pt-3">
-                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <MessageCircle className="size-3.5" />
+                <div className="mt-3 flex items-start gap-3 border-t border-border pt-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <MessageCircle className="size-4" />
                   </span>
-                  <p className="min-w-0 truncate text-sm text-foreground">
-                    <span className="font-medium">{item.activity.author}</span>{" "}
-                    <span className="text-muted-foreground">{item.activity.body}</span>
+                  <p className="min-w-0 text-sm text-foreground">
+                    <span className="font-bold">{item.activity.author}</span> {item.activity.body}
                   </p>
                 </div>
               ) : null}
@@ -100,25 +85,23 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
         )}
       </div>
 
-      <div className="space-y-4">
-        <h2 className="section-label">Show me</h2>
-        <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-foreground">Type</p>
-            {kinds.map((kind) => (
-              <label key={kind} className="flex items-center gap-2 text-sm text-foreground">
-                <input type="checkbox" checked={visibleKinds.has(kind)} onChange={() => toggleKind(kind)} />
-                {KIND_FILTER_LABEL[kind]}
-              </label>
-            ))}
-          </div>
-          <div className="space-y-2 border-t border-border pt-4">
-            <p className="text-xs font-semibold text-foreground">Status</p>
-            <label className="flex items-center gap-2 text-sm text-foreground">
-              <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
-              Open only
+      <div className="space-y-5">
+        <h2 className="text-lg font-bold text-foreground">Show me</h2>
+        <div className="space-y-2">
+          <p className="text-sm font-bold text-foreground">Type</p>
+          {KINDS.map((kind) => (
+            <label key={kind} className="flex items-center gap-2 text-sm text-foreground">
+              <input type="checkbox" checked={visibleKinds.has(kind)} onChange={() => toggleKind(kind)} />
+              {KIND_FILTER_LABEL[kind]}
             </label>
-          </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm font-bold text-foreground">Status</p>
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
+            Open only
+          </label>
         </div>
       </div>
     </div>
