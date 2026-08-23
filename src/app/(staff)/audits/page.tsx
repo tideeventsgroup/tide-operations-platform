@@ -1,17 +1,17 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile, hasPermission } from "@/lib/domain/auth-service";
 import { listAuditSubmissions, listAuditTemplates } from "@/lib/domain/audit-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { EntityCard } from "@/components/ui/entity-card";
+import { DataTable, DataTableBody, DataTableCell, DataTableHead, DataTableHeadCell, DataTableRow, Pill } from "@/components/ui/data-table";
 import { StartAuditForm } from "@/components/audits/start-audit-form";
 
-function scoreColor(score: number | null) {
-  if (score === null) return "bg-muted text-muted-foreground";
-  if (score >= 90) return "bg-success-bg text-success";
-  if (score >= 70) return "bg-warning-bg text-warning";
-  return "bg-destructive/10 text-destructive";
+function scoreTone(score: number | null): "neutral" | "success" | "warning" | "destructive" {
+  if (score === null) return "neutral";
+  if (score >= 90) return "success";
+  if (score >= 70) return "warning";
+  return "destructive";
 }
 
 export default async function AuditsPage() {
@@ -39,30 +39,41 @@ export default async function AuditsPage() {
         {submissions.length === 0 ? (
           <EmptyState message="No audits recorded yet" />
         ) : (
-          <div className="space-y-3">
-            {submissions.map((s) => (
-              <EntityCard
-                key={s.id}
-                href={`/audits/${s.id}`}
-                title={s.audit_templates?.name ?? "Audit"}
-                value={
-                  s.status === "submitted" ? (
-                    <Badge variant="secondary" className={scoreColor(s.score)}>
-                      {s.score !== null ? `${s.score}%` : "N/A"}
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary">Draft</Badge>
-                  )
-                }
-                subtitle={
-                  [[s.submitted_by_profile?.first_name, s.submitted_by_profile?.surname].filter(Boolean).join(" "), s.events?.name]
-                    .filter(Boolean)
-                    .join(" · ") || undefined
-                }
-                subtitleRight={new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-              />
-            ))}
-          </div>
+          <DataTable>
+            <DataTableHead>
+              <DataTableHeadCell>Audit</DataTableHeadCell>
+              <DataTableHeadCell>Score</DataTableHeadCell>
+              <DataTableHeadCell>Date</DataTableHeadCell>
+            </DataTableHead>
+            <DataTableBody>
+              {submissions.map((s) => (
+                <DataTableRow key={s.id}>
+                  <td className="px-4 py-3 align-top">
+                    <Link href={`/audits/${s.id}`} className="font-medium text-primary hover:underline">
+                      {s.audit_templates?.name ?? "Audit"}
+                    </Link>
+                    {[[s.submitted_by_profile?.first_name, s.submitted_by_profile?.surname].filter(Boolean).join(" "), s.events?.name]
+                      .filter(Boolean)
+                      .join(" · ") ? (
+                      <div className="text-xs text-muted-foreground">
+                        {[[s.submitted_by_profile?.first_name, s.submitted_by_profile?.surname].filter(Boolean).join(" "), s.events?.name]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    {s.status === "submitted" ? (
+                      <Pill tone={scoreTone(s.score)}>{s.score !== null ? `${s.score}%` : "N/A"}</Pill>
+                    ) : (
+                      <Pill tone="neutral">Draft</Pill>
+                    )}
+                  </td>
+                  <DataTableCell primary={new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} />
+                </DataTableRow>
+              ))}
+            </DataTableBody>
+          </DataTable>
         )}
       </div>
     </div>

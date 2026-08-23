@@ -1,19 +1,18 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/domain/auth-service";
 import { listInvestigations } from "@/lib/domain/investigation-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { EntityCard } from "@/components/ui/entity-card";
+import { DataTable, DataTableBody, DataTableCell, DataTableHead, DataTableHeadCell, DataTableRow, Pill } from "@/components/ui/data-table";
 import { NewInvestigationForm } from "@/components/investigations/new-investigation-form";
-import { cn } from "@/lib/utils";
 import type { Enums } from "@/lib/supabase/types";
 
-const STATUS_CLASS: Record<Enums<"investigation_status">, string> = {
-  open: "bg-warning-bg text-warning",
-  active: "bg-info-bg text-info",
-  closed: "bg-success-bg text-success",
-  archived: "bg-muted text-muted-foreground",
+const STATUS_TONE: Record<Enums<"investigation_status">, "warning" | "info" | "success" | "neutral"> = {
+  open: "warning",
+  active: "info",
+  closed: "success",
+  archived: "neutral",
 };
 
 export default async function InvestigationsPage() {
@@ -35,26 +34,35 @@ export default async function InvestigationsPage() {
       {investigations.length === 0 ? (
         <EmptyState message="No investigations open" />
       ) : (
-        <div className="space-y-3">
-          {investigations.map((inv) => (
-            <EntityCard
-              key={inv.id}
-              href={`/investigations/${inv.id}`}
-              title={inv.title}
-              reference={inv.reference}
-              value={
-                <Badge variant="secondary" className={cn("font-medium capitalize", STATUS_CLASS[inv.status])}>
-                  {inv.status}
-                </Badge>
-              }
-              subtitle={
-                inv.lead_investigator
-                  ? `Led by ${[inv.lead_investigator.first_name, inv.lead_investigator.surname].filter(Boolean).join(" ")}`
-                  : undefined
-              }
-            />
-          ))}
-        </div>
+        <DataTable>
+          <DataTableHead>
+            <DataTableHeadCell>Reference</DataTableHeadCell>
+            <DataTableHeadCell>Investigation</DataTableHeadCell>
+            <DataTableHeadCell>Status</DataTableHeadCell>
+          </DataTableHead>
+          <DataTableBody>
+            {investigations.map((inv) => (
+              <DataTableRow key={inv.id}>
+                <td className="px-4 py-3 align-top">
+                  <Link href={`/investigations/${inv.id}`} className="font-medium text-primary hover:underline">
+                    {inv.reference}
+                  </Link>
+                </td>
+                <DataTableCell
+                  primary={inv.title}
+                  secondary={
+                    inv.lead_investigator
+                      ? `Led by ${[inv.lead_investigator.first_name, inv.lead_investigator.surname].filter(Boolean).join(" ")}`
+                      : undefined
+                  }
+                />
+                <td className="px-4 py-3 align-top">
+                  <Pill tone={STATUS_TONE[inv.status]}>{inv.status}</Pill>
+                </td>
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+        </DataTable>
       )}
     </div>
   );

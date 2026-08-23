@@ -6,7 +6,7 @@ import { answerAuditQuestionAction, submitAuditAction } from "@/lib/actions/audi
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { ChoiceCard } from "@/components/ui/choice-card";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 type Question = Tables<"audit_template_questions">;
@@ -18,6 +18,11 @@ const RESPONSE_CLASS: Record<Response, string> = {
   pass: "bg-success-bg text-success",
   fail: "bg-destructive/10 text-destructive",
   not_applicable: "bg-muted text-muted-foreground",
+};
+const RESPONSE_TONE: Record<Response, "success" | "destructive" | "neutral"> = {
+  pass: "success",
+  fail: "destructive",
+  not_applicable: "neutral",
 };
 
 function groupBySection(questions: Question[]) {
@@ -84,16 +89,14 @@ export function AuditSubmissionWorkspace({
                   {isDraft ? (
                     <div className="flex flex-wrap items-center gap-2">
                       {(["pass", "fail", "not_applicable"] as Response[]).map((r) => (
-                        <Button
+                        <ChoiceCard
                           key={r}
-                          size="sm"
-                          variant="outline"
+                          label={RESPONSE_LABEL[r]}
+                          selected={current?.response === r}
                           disabled={pending}
-                          className={cn(current?.response === r && RESPONSE_CLASS[r])}
+                          tone={RESPONSE_TONE[r]}
                           onClick={() => answer(q, r)}
-                        >
-                          {RESPONSE_LABEL[r]}
-                        </Button>
+                        />
                       ))}
                       <Input
                         placeholder="Notes (optional)"
