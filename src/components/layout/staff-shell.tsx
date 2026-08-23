@@ -23,7 +23,7 @@ const NAV: NavItem[] = [
 
 function navItemClass(active: boolean) {
   return cn(
-    "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+    "rounded-md px-3.5 py-2 text-[15px] font-semibold whitespace-nowrap transition-colors",
     active ? "bg-black/10 text-white" : "text-white/85 hover:bg-black/5 hover:text-white",
   );
 }
@@ -60,7 +60,7 @@ export function StaffShell({
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-4 bg-primary px-4 text-primary-foreground md:gap-6 print:hidden">
+      <header className="flex h-[72px] shrink-0 items-center gap-4 bg-primary px-4 text-primary-foreground md:gap-6 print:hidden">
         <Sheet>
           <SheetTrigger
             render={
@@ -68,7 +68,7 @@ export function StaffShell({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="shrink-0 text-white/85 hover:bg-black/5 hover:text-white lg:hidden"
+                className="shrink-0 text-white/85 hover:bg-black/5 hover:text-white 2xl:hidden"
                 aria-label="Open menu"
               />
             }
@@ -110,10 +110,10 @@ export function StaffShell({
         </Sheet>
 
         <Link href="/dashboard" className="shrink-0">
-          <SentinelWordmark variant="dark" height={20} />
+          <SentinelWordmark variant="dark" height={16} />
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-1 lg:flex">
+        <nav className="hidden flex-1 items-center gap-2 2xl:flex">
           {items.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -124,7 +124,7 @@ export function StaffShell({
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-3 lg:flex-none">
+        <div className="flex flex-1 items-center justify-end gap-3 2xl:flex-none">
           <SyncStatusBadge />
           <ThemeToggle className="text-white/85 hover:bg-black/5 hover:text-white" />
           <span className="hidden text-sm text-white/90 sm:inline">{name}</span>
