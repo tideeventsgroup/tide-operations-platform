@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/domain/auth-service";
 import { listEvents } from "@/lib/domain/event-service";
 import { getActivityFeed } from "@/lib/domain/feed-service";
 import { ActivityFeed } from "@/components/feed/activity-feed";
+import { EntityCard } from "@/components/ui/entity-card";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -38,13 +38,13 @@ export default async function DashboardPage() {
           <h2 className="section-label">Upcoming</h2>
           <div className="space-y-3">
             {upcomingEvents.map((event) => (
-              <Link key={event.id} href={`/events/${event.id}`} className="block rounded-lg border border-border bg-card p-5 hover:border-primary/40">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="font-bold text-foreground">{event.name}</span>
-                  <span className="shrink-0 text-lg font-bold text-foreground">{formatDate(event.start_date)}</span>
-                </div>
-                <p className="mt-1 text-sm text-muted-foreground">{event.clients?.trading_name || event.clients?.legal_name}</p>
-              </Link>
+              <EntityCard
+                key={event.id}
+                href={`/events/${event.id}`}
+                title={event.name}
+                value={formatDate(event.start_date)}
+                subtitle={event.clients?.trading_name || event.clients?.legal_name || undefined}
+              />
             ))}
           </div>
         </section>

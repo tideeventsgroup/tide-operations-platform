@@ -53,18 +53,21 @@ export function GlobalSearchBar({ organisationId }: { organisationId: string }) 
   const hasResults = results.events.length > 0 || results.clients.length > 0 || results.incidents.length > 0;
 
   return (
-    <div ref={containerRef} className="relative flex w-full max-w-xl items-center gap-2">
-      <div className="relative min-w-0 flex-1">
-        <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-white/50" />
-        <input
-          value={query}
-          onChange={(e) => runSearch(e.target.value)}
-          onFocus={() => query.trim().length >= 2 && setOpen(true)}
-          placeholder="Search for anything (events, clients, incidents)…"
-          className="h-9 w-full rounded-md border border-white/15 bg-white/10 pl-8 pr-3 text-sm text-white placeholder:text-white/50 outline-none focus-visible:border-white/40"
-        />
-      </div>
-      <Button size="sm" className="shrink-0" disabled={pending || query.trim().length < 2} onClick={() => setOpen(query.trim().length >= 2)}>
+    <div ref={containerRef} className="relative flex w-full max-w-2xl items-center gap-2 rounded-full border border-border bg-background pr-2 pl-4 shadow-sm">
+      <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
+      <input
+        value={query}
+        onChange={(e) => runSearch(e.target.value)}
+        onFocus={() => query.trim().length >= 2 && setOpen(true)}
+        placeholder="Find a person, vehicle, event or incident"
+        className="h-12 min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+      />
+      <Button
+        variant="ghost"
+        className="shrink-0 text-primary hover:bg-transparent hover:underline"
+        disabled={pending || query.trim().length < 2}
+        onClick={() => setOpen(query.trim().length >= 2)}
+      >
         Search
       </Button>
 

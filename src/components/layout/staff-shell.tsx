@@ -136,7 +136,7 @@ export function StaffShell({
         </div>
       </header>
 
-      <div className="flex h-14 shrink-0 items-center border-b border-border bg-sidebar px-4 print:hidden">
+      <div className="flex h-20 shrink-0 items-center justify-center border-b border-border bg-card px-4 print:hidden">
         <GlobalSearchBar organisationId={organisationId} />
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { ClipboardCheck, Eye, FileSearch, MessageCircle, Siren } from "lucide-react";
 import { EntityCard } from "@/components/ui/entity-card";
 import type { FeedItem } from "@/lib/domain/feed-service";
 
@@ -10,6 +10,13 @@ const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
   observation: "Observations",
   audit: "Audits",
   investigation: "Investigations",
+};
+
+const KIND_ICON: Record<FeedItem["kind"], React.ComponentType<{ className?: string }>> = {
+  incident: Siren,
+  observation: Eye,
+  audit: ClipboardCheck,
+  investigation: FileSearch,
 };
 
 const KINDS = Object.keys(KIND_FILTER_LABEL) as FeedItem["kind"][];
@@ -55,29 +62,33 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
             Nothing to show for the selected filters
           </div>
         ) : (
-          filtered.map((item) => (
-            <EntityCard
-              key={item.id}
-              href={item.href}
-              title={item.title}
-              reference={item.reference}
-              meta={relativeTime(item.timestamp)}
-              value={item.value}
-              subtitle={item.subtitle}
-              subtitleRight={exactDate(item.timestamp)}
-            >
-              {item.activity ? (
-                <div className="mt-3 flex items-start gap-3 border-t border-border pt-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <MessageCircle className="size-4" />
-                  </span>
-                  <p className="min-w-0 text-sm text-foreground">
-                    <span className="font-bold">{item.activity.author}</span> {item.activity.body}
-                  </p>
-                </div>
-              ) : null}
-            </EntityCard>
-          ))
+          filtered.map((item) => {
+            const Icon = KIND_ICON[item.kind];
+            return (
+              <EntityCard
+                key={item.id}
+                href={item.href}
+                icon={<Icon className="size-5" />}
+                title={item.title}
+                reference={item.reference}
+                meta={relativeTime(item.timestamp)}
+                value={item.value}
+                subtitle={item.subtitle}
+                subtitleRight={exactDate(item.timestamp)}
+              >
+                {item.activity ? (
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <MessageCircle className="size-4" />
+                    </span>
+                    <p className="min-w-0 text-sm text-foreground">
+                      <span className="font-bold">{item.activity.author}</span> {item.activity.body}
+                    </p>
+                  </div>
+                ) : null}
+              </EntityCard>
+            );
+          })
         )}
       </div>
 
