@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
-import { EntityCard } from "@/components/ui/entity-card";
+import { DataTable, DataTableBody, DataTableHead, DataTableHeadCell, DataTableRow } from "@/components/ui/data-table";
 import { searchPeopleAction } from "@/lib/actions/incident-intelligence";
 
 type Person = { id: string; reference: string; first_name: string | null; surname: string | null };
@@ -36,11 +37,24 @@ export function PeopleDirectory({ organisationId, initial }: { organisationId: s
       {list.length === 0 ? (
         <div className="rounded-lg border border-border bg-card px-4 py-6 text-center text-sm text-muted-foreground">No people found</div>
       ) : (
-        <div className="space-y-3">
-          {list.map((p) => (
-            <EntityCard key={p.id} href={`/people/${p.id}`} title={personName(p)} reference={p.reference} />
-          ))}
-        </div>
+        <DataTable>
+          <DataTableHead>
+            <DataTableHeadCell>Reference</DataTableHeadCell>
+            <DataTableHeadCell>Person</DataTableHeadCell>
+          </DataTableHead>
+          <DataTableBody>
+            {list.map((p) => (
+              <DataTableRow key={p.id}>
+                <td className="px-4 py-3 align-top">
+                  <Link href={`/people/${p.id}`} className="font-medium text-primary hover:underline">
+                    {p.reference}
+                  </Link>
+                </td>
+                <td className="px-4 py-3 align-top font-medium text-foreground">{personName(p)}</td>
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+        </DataTable>
       )}
     </div>
   );

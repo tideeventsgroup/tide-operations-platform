@@ -3,7 +3,7 @@ import { listClients } from "@/lib/domain/client-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import { EntityCard } from "@/components/ui/entity-card";
+import { DataTable, DataTableBody, DataTableCell, DataTableHead, DataTableHeadCell, DataTableRow, Pill } from "@/components/ui/data-table";
 
 export default async function ClientsPage() {
   const clients = await listClients();
@@ -23,18 +23,28 @@ export default async function ClientsPage() {
       {clients.length === 0 ? (
         <EmptyState message="No clients yet" />
       ) : (
-        <div className="space-y-3">
-          {clients.map((client) => (
-            <EntityCard
-              key={client.id}
-              href={`/clients/${client.id}`}
-              title={client.trading_name || client.legal_name}
-              reference={client.reference}
-              value={client.status}
-              subtitle={client.city ?? undefined}
-            />
-          ))}
-        </div>
+        <DataTable>
+          <DataTableHead>
+            <DataTableHeadCell>Reference</DataTableHeadCell>
+            <DataTableHeadCell>Client</DataTableHeadCell>
+            <DataTableHeadCell>Status</DataTableHeadCell>
+          </DataTableHead>
+          <DataTableBody>
+            {clients.map((client) => (
+              <DataTableRow key={client.id}>
+                <td className="px-4 py-3 align-top">
+                  <Link href={`/clients/${client.id}`} className="font-medium text-primary hover:underline">
+                    {client.reference}
+                  </Link>
+                </td>
+                <DataTableCell primary={client.trading_name || client.legal_name} secondary={client.city ?? undefined} />
+                <td className="px-4 py-3 align-top">
+                  <Pill tone={client.status === "active" ? "success" : "neutral"}>{client.status}</Pill>
+                </td>
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+        </DataTable>
       )}
     </div>
   );

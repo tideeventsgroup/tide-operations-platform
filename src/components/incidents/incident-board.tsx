@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { IncidentPriorityBadge, IncidentStatusBadge } from "@/components/status-badges";
-import { EntityCard } from "@/components/ui/entity-card";
+import { DataTable, DataTableBody, DataTableCell, DataTableHead, DataTableHeadCell, DataTableRow } from "@/components/ui/data-table";
 import type { listIncidentCategories, listIncidentPriorities, listIncidents } from "@/lib/domain/incident-service";
 
 type Incident = Awaited<ReturnType<typeof listIncidents>>[number];
@@ -48,35 +49,48 @@ export function IncidentBoard({
   });
 
   return (
-    <div className="space-y-3">
-      {sorted.map((incident) => {
-        const priority = incident.priority_code ? priorityByCode.get(incident.priority_code) : undefined;
-        const isOpen = incident.status !== "closed" && incident.status !== "resolved";
-        const isUrgent = isOpen && (incident.priority_code === "P1" || incident.priority_code === "P2");
-        return (
-          <EntityCard
-            key={incident.id}
-            href={`/incidents/${incident.id}`}
-            title={incident.summary}
-            reference={incident.reference.split("-INC-").pop()}
-            meta={formatAge(incident.created_at)}
-            value={<IncidentStatusBadge status={incident.status} />}
-            subtitle={[categoryByCode.get(incident.category_code) ?? incident.category_code, incident.operational_locations?.name]
-              .filter(Boolean)
-              .join(" · ")}
-            className={cn(
-              "border-l-4",
-              isUrgent ? (incident.priority_code === "P1" ? "border-l-destructive" : "border-l-warning") : "border-l-border",
-            )}
-          >
-            <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-              {priority ? <IncidentPriorityBadge code={priority.code} name={priority.name} colorToken={priority.color_token} /> : null}
-              <span>Controller: {personName(incident.controller)}</span>
-              <span>Owner: {personName(incident.owner)}</span>
-            </div>
-          </EntityCard>
-        );
-      })}
-    </div>
+    <DataTable>
+      <DataTableHead>
+        <DataTableHeadCell>Reference</DataTableHeadCell>
+        <DataTableHeadCell>Incident</DataTableHeadCell>
+        <DataTableHeadCell>Priority</DataTableHeadCell>
+        <DataTableHeadCell>Status</DataTableHeadCell>
+        <DataTableHeadCell>Controller / Owner</DataTableHeadCell>
+        <DataTableHeadCell>Age</DataTableHeadCell>
+      </DataTableHead>
+      <DataTableBody>
+        {sorted.map((incident) => {
+          const priority = incident.priority_code ? priorityByCode.get(incident.priority_code) : undefined;
+          const isOpen = incident.status !== "closed" && incident.status !== "resolved";
+          const isUrgent = isOpen && (incident.priority_code === "P1" || incident.priority_code === "P2");
+          return (
+            <DataTableRow
+              key={incident.id}
+              className={cn("border-l-4", isUrgent ? (incident.priority_code === "P1" ? "border-l-destructive" : "border-l-warning") : "border-l-transparent")}
+            >
+              <td className="px-4 py-3 align-top">
+                <Link href={`/incidents/${incident.id}`} className="font-medium text-primary hover:underline">
+                  {incident.reference.split("-INC-").pop()}
+                </Link>
+              </td>
+              <DataTableCell
+                primary={incident.summary}
+                secondary={[categoryByCode.get(incident.category_code) ?? incident.category_code, incident.operational_locations?.name]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+              <td className="px-4 py-3 align-top">
+                {priority ? <IncidentPriorityBadge code={priority.code} name={priority.name} colorToken={priority.color_token} /> : "—"}
+              </td>
+              <td className="px-4 py-3 align-top">
+                <IncidentStatusBadge status={incident.status} />
+              </td>
+              <DataTableCell primary={personName(incident.controller)} secondary={`Owner: ${personName(incident.owner)}`} />
+              <DataTableCell primary={formatAge(incident.created_at)} />
+            </DataTableRow>
+          );
+        })}
+      </DataTableBody>
+    </DataTable>
   );
 }
