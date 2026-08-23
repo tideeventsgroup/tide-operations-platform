@@ -196,3 +196,16 @@
     @apply font-semibold tracking-[-0.015em] text-tide-charcoal tabular-nums;
   }
 }
+
+@keyframes auth-blob-a {
+  0%, 100% { transform: translate(-5%, -5%) scale(1); }
+  50% { transform: translate(6%, 8%) scale(1.15); }
+}
+@keyframes auth-blob-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-8%, 6%) scale(1.1); }
+}
+@keyframes auth-blob-c {
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate(5%, -7%) rotate(10deg) scale(1.08); }
+}
