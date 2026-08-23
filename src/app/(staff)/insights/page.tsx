@@ -5,6 +5,7 @@ import { listIncidentCategories } from "@/lib/domain/incident-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { EntityCard } from "@/components/ui/entity-card";
+import { StatTile, StatTileGroup } from "@/components/ui/stat-tile";
 
 function personLabel(p: { first_name: string | null; surname: string | null; reference: string }) {
   return [p.first_name, p.surname].filter(Boolean).join(" ") || p.reference;
@@ -32,27 +33,20 @@ export default async function InsightsPage() {
     <div className="mx-auto max-w-5xl space-y-8 px-8 py-8">
       <PageHeader title="Insights" description="Strategic analytics across incidents, people, and vehicles." />
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Total incidents</div>
-          <div className="text-3xl font-bold text-foreground">{summary.totalIncidents}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Open incidents</div>
-          <div className="text-3xl font-bold text-foreground">{summary.openIncidents}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Open investigations</div>
-          <div className="text-3xl font-bold text-foreground">
-            {summary.openInvestigations}
-            <span className="ml-1 text-base font-normal text-muted-foreground">/ {summary.totalInvestigations}</span>
-          </div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Evidence items</div>
-          <div className="text-3xl font-bold text-foreground">{summary.totalEvidenceItems}</div>
-        </div>
-      </section>
+      <StatTileGroup>
+        <StatTile label="Total incidents" value={summary.totalIncidents} />
+        <StatTile label="Open incidents" value={summary.openIncidents} />
+        <StatTile
+          label="Open investigations"
+          value={
+            <>
+              {summary.openInvestigations}
+              <span className="ml-1 text-base font-normal text-muted-foreground">/ {summary.totalInvestigations}</span>
+            </>
+          }
+        />
+        <StatTile label="Evidence items" value={summary.totalEvidenceItems} />
+      </StatTileGroup>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-3">

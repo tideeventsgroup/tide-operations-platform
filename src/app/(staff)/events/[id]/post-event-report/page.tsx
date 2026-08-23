@@ -6,6 +6,7 @@ import { listRisks } from "@/lib/domain/risk-service";
 import { listControlSessions } from "@/lib/domain/event-service";
 import { getEventIntelligenceSummary } from "@/lib/domain/event-intelligence-summary";
 import { PrintButton } from "@/components/print-button";
+import { StatTile, StatTileGroup } from "@/components/ui/stat-tile";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -94,26 +95,12 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
 
       <section className="space-y-3">
         <h2 className="section-label">Incidents</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Total</div>
-            <div className="text-2xl font-bold text-foreground">{incidents.length}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Open</div>
-            <div className="text-2xl font-bold text-foreground">
-              {incidents.filter((i) => i.status !== "resolved" && i.status !== "closed").length}
-            </div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Closed</div>
-            <div className="text-2xl font-bold text-foreground">{incidentsByStatus.closed ?? 0}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Avg. time to resolve</div>
-            <div className="text-2xl font-bold text-foreground">{avgResolveMs !== null ? formatDuration(avgResolveMs) : "—"}</div>
-          </div>
-        </div>
+        <StatTileGroup>
+          <StatTile label="Total" value={incidents.length} />
+          <StatTile label="Open" value={incidents.filter((i) => i.status !== "resolved" && i.status !== "closed").length} />
+          <StatTile label="Closed" value={incidentsByStatus.closed ?? 0} />
+          <StatTile label="Avg. time to resolve" value={avgResolveMs !== null ? formatDuration(avgResolveMs) : "—"} />
+        </StatTileGroup>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-card p-4">
@@ -191,33 +178,19 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
 
       <section className="space-y-3">
         <h2 className="section-label">Intelligence</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Observations</div>
-            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.observationsTotal}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">People linked</div>
-            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.peopleLinked}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Vehicles linked</div>
-            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.vehiclesLinked}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Evidence items</div>
-            <div className="text-2xl font-bold text-foreground">{intelligenceSummary.evidenceItems}</div>
-          </div>
-        </div>
+        <StatTileGroup>
+          <StatTile label="Observations" value={intelligenceSummary.observationsTotal} />
+          <StatTile label="People linked" value={intelligenceSummary.peopleLinked} />
+          <StatTile label="Vehicles linked" value={intelligenceSummary.vehiclesLinked} />
+          <StatTile label="Evidence items" value={intelligenceSummary.evidenceItems} />
+        </StatTileGroup>
         {intelligenceSummary.radioLogTotal > 0 ? (
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Radio log</div>
-            <div className="text-2xl font-bold text-foreground">
-              {intelligenceSummary.radioLogTotal}
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                entries{intelligenceSummary.radioLogSignificant > 0 ? ` · ${intelligenceSummary.radioLogSignificant} significant` : ""}
-              </span>
-            </div>
+          <div className="rounded-lg border border-border bg-card p-5">
+            <StatTile
+              label="Radio log"
+              value={intelligenceSummary.radioLogTotal}
+              caption={`entries${intelligenceSummary.radioLogSignificant > 0 ? ` · ${intelligenceSummary.radioLogSignificant} significant` : ""}`}
+            />
           </div>
         ) : null}
         {intelligenceSummary.observationsTotal > 0 || intelligenceSummary.investigationsLinked > 0 ? (
@@ -237,8 +210,7 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
             ) : null}
             {intelligenceSummary.investigationsLinked > 0 ? (
               <div className="rounded-lg border border-border bg-card p-4">
-                <div className="section-label mb-1">Investigations touching this event</div>
-                <div className="text-2xl font-bold text-foreground">{intelligenceSummary.investigationsLinked}</div>
+                <StatTile label="Investigations touching this event" value={intelligenceSummary.investigationsLinked} />
               </div>
             ) : null}
           </div>
@@ -247,20 +219,11 @@ export default async function PostEventReportPage({ params }: PageProps<"/events
 
       <section className="space-y-3">
         <h2 className="section-label">Event Control roster</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Duty sessions</div>
-            <div className="text-2xl font-bold text-foreground">{controlSessions.length}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">People on duty</div>
-            <div className="text-2xl font-bold text-foreground">{uniqueControllers.size}</div>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4">
-            <div className="section-label mb-1">Total duty time</div>
-            <div className="text-2xl font-bold text-foreground">{formatDuration(totalDutyMs)}</div>
-          </div>
-        </div>
+        <StatTileGroup columns={3}>
+          <StatTile label="Duty sessions" value={controlSessions.length} />
+          <StatTile label="People on duty" value={uniqueControllers.size} />
+          <StatTile label="Total duty time" value={formatDuration(totalDutyMs)} />
+        </StatTileGroup>
         {closedSessions.length < controlSessions.length ? (
           <p className="text-xs text-muted-foreground">
             {controlSessions.length - closedSessions.length} session(s) still signed on — excluded from total duty time.

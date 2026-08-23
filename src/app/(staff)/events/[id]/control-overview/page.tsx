@@ -11,6 +11,7 @@ import { IncidentBoard } from "@/components/incidents/incident-board";
 import { LocationStatusBoard } from "@/components/events/location-status-board";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { EventPhaseBadge } from "@/components/status-badges";
+import { StatTile, StatTileGroup } from "@/components/ui/stat-tile";
 
 function personName(p: { first_name: string | null; surname: string | null; email: string } | null) {
   if (!p) return "Unknown";
@@ -78,30 +79,15 @@ export default async function ControlOverviewPage({ params }: PageProps<"/events
         </div>
       ) : null}
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Open incidents</div>
-          <div className="text-3xl font-bold text-foreground">{openIncidents.length}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">P1 / P2</div>
-          <div className={urgentCount > 0 ? "text-3xl font-bold text-destructive" : "text-3xl font-bold text-foreground"}>
-            {urgentCount}
-          </div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">On duty</div>
-          <div className="text-3xl font-bold text-foreground">{onDuty.length}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Major incidents</div>
-          <div
-            className={majorIncidents.length > 0 ? "text-3xl font-bold text-destructive" : "text-3xl font-bold text-foreground"}
-          >
-            {majorIncidents.length}
-          </div>
-        </div>
-      </section>
+      <StatTileGroup>
+        <StatTile label="Open incidents" value={openIncidents.length} />
+        <StatTile label="P1 / P2" value={<span className={urgentCount > 0 ? "text-destructive" : undefined}>{urgentCount}</span>} />
+        <StatTile label="On duty" value={onDuty.length} />
+        <StatTile
+          label="Major incidents"
+          value={<span className={majorIncidents.length > 0 ? "text-destructive" : undefined}>{majorIncidents.length}</span>}
+        />
+      </StatTileGroup>
 
       <section className="space-y-3">
         <h2 className="section-label">Locations</h2>

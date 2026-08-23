@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getPortalEvent, getPortalIncidentSummary, listPortalDocuments } from "@/lib/domain/portal-service";
 import { LifecycleStageBadge } from "@/components/status-badges";
 import { PortalDocumentList } from "@/components/portal/portal-document-list";
+import { StatTile, StatTileGroup } from "@/components/ui/stat-tile";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -33,24 +34,12 @@ export default async function PortalEventDetailPage({ params }: PageProps<"/port
         </p>
       </div>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Total incidents</div>
-          <div className="text-2xl font-bold text-foreground">{incidentSummary?.total_incidents ?? 0}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Open</div>
-          <div className="text-2xl font-bold text-foreground">{incidentSummary?.open_incidents ?? 0}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Resolved</div>
-          <div className="text-2xl font-bold text-foreground">{incidentSummary?.resolved_incidents ?? 0}</div>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-4">
-          <div className="section-label mb-1">Closed</div>
-          <div className="text-2xl font-bold text-foreground">{incidentSummary?.closed_incidents ?? 0}</div>
-        </div>
-      </section>
+      <StatTileGroup>
+        <StatTile label="Total incidents" value={incidentSummary?.total_incidents ?? 0} />
+        <StatTile label="Open" value={incidentSummary?.open_incidents ?? 0} />
+        <StatTile label="Resolved" value={incidentSummary?.resolved_incidents ?? 0} />
+        <StatTile label="Closed" value={incidentSummary?.closed_incidents ?? 0} />
+      </StatTileGroup>
 
       <div className="space-y-3">
         <h2 className="section-label">Documents</h2>
