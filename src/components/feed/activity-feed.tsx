@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { EntityCard } from "@/components/ui/entity-card";
 import type { FeedItem } from "@/lib/domain/feed-service";
 
 const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
@@ -56,20 +56,16 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
           </div>
         ) : (
           filtered.map((item) => (
-            <Link key={item.id} href={item.href} className="block rounded-lg border border-border bg-card p-5 hover:border-primary/40">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <span className="font-bold text-foreground">{item.title}</span>{" "}
-                  <span className="font-bold text-primary">{item.reference}</span>{" "}
-                  <span className="text-xs font-normal text-muted-foreground">{relativeTime(item.timestamp)}</span>
-                </div>
-                <span className="shrink-0 text-lg font-bold text-foreground capitalize">{item.value}</span>
-              </div>
-              <div className="mt-1 flex items-baseline justify-between gap-3">
-                {item.subtitle ? <p className="truncate text-sm text-muted-foreground">{item.subtitle}</p> : <span />}
-                <p className="shrink-0 text-xs text-muted-foreground">{exactDate(item.timestamp)}</p>
-              </div>
-
+            <EntityCard
+              key={item.id}
+              href={item.href}
+              title={item.title}
+              reference={item.reference}
+              meta={relativeTime(item.timestamp)}
+              value={item.value}
+              subtitle={item.subtitle}
+              subtitleRight={exactDate(item.timestamp)}
+            >
               {item.activity ? (
                 <div className="mt-3 flex items-start gap-3 border-t border-border pt-3">
                   <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -80,7 +76,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
                   </p>
                 </div>
               ) : null}
-            </Link>
+            </EntityCard>
           ))
         )}
       </div>

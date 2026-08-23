@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile, hasPermission } from "@/lib/domain/auth-service";
 import { listAuditSubmissions, listAuditTemplates } from "@/lib/domain/audit-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { EntityCard } from "@/components/ui/entity-card";
 import { StartAuditForm } from "@/components/audits/start-audit-form";
 
 function scoreColor(score: number | null) {
@@ -39,25 +39,28 @@ export default async function AuditsPage() {
         {submissions.length === 0 ? (
           <EmptyState message="No audits recorded yet" />
         ) : (
-          <div className="divide-y divide-border rounded-lg border border-border bg-card">
+          <div className="space-y-3">
             {submissions.map((s) => (
-              <Link key={s.id} href={`/audits/${s.id}`} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50">
-                <div>
-                  <p className="font-medium text-foreground">{s.audit_templates?.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {[s.submitted_by_profile?.first_name, s.submitted_by_profile?.surname].filter(Boolean).join(" ")}
-                    {s.events?.name ? ` · ${s.events.name}` : ""} ·{" "}
-                    {new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                  </p>
-                </div>
-                {s.status === "submitted" ? (
-                  <Badge variant="secondary" className={scoreColor(s.score)}>
-                    {s.score !== null ? `${s.score}%` : "N/A"}
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary">Draft</Badge>
-                )}
-              </Link>
+              <EntityCard
+                key={s.id}
+                href={`/audits/${s.id}`}
+                title={s.audit_templates?.name ?? "Audit"}
+                value={
+                  s.status === "submitted" ? (
+                    <Badge variant="secondary" className={scoreColor(s.score)}>
+                      {s.score !== null ? `${s.score}%` : "N/A"}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">Draft</Badge>
+                  )
+                }
+                subtitle={
+                  [[s.submitted_by_profile?.first_name, s.submitted_by_profile?.surname].filter(Boolean).join(" "), s.events?.name]
+                    .filter(Boolean)
+                    .join(" · ") || undefined
+                }
+                subtitleRight={new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+              />
             ))}
           </div>
         )}

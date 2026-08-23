@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPersonProfile } from "@/lib/domain/link-analysis-service";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
+import { EntityCard } from "@/components/ui/entity-card";
+import { EmptyState } from "@/components/empty-state";
 import { ConnectionsDiagram, type ConnectionNode } from "@/components/link-analysis/connections-diagram";
 
 function personName(p: { first_name: string | null; surname: string | null }, fallback: string) {
@@ -68,16 +69,9 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
             Other records sharing a surname or date of birth. Matching only — nothing is merged automatically; confirm and
             link manually if these are the same person.
           </p>
-          <div className="divide-y divide-border rounded-lg border border-border bg-card">
+          <div className="space-y-3">
             {possibleMatches.map((match) => (
-              <Link
-                key={match.id}
-                href={`/people/${match.id}`}
-                className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50"
-              >
-                <p className="font-medium text-foreground">{personName(match, match.reference)}</p>
-                <p className="text-xs text-muted-foreground">{match.reference}</p>
-              </Link>
+              <EntityCard key={match.id} href={`/people/${match.id}`} title={personName(match, match.reference)} reference={match.reference} />
             ))}
           </div>
         </div>
@@ -85,50 +79,41 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
 
       <div className="space-y-3">
         <h2 className="section-label">Incidents</h2>
-        <div className="divide-y divide-border rounded-lg border border-border bg-card">
-          {incidentLinks.length === 0 ? (
-            <div className="px-4 py-6 text-center text-sm text-muted-foreground">No incidents linked</div>
-          ) : (
-            incidentLinks.map((link) => (
-              <Link
+        {incidentLinks.length === 0 ? (
+          <EmptyState message="No incidents linked" />
+        ) : (
+          <div className="space-y-3">
+            {incidentLinks.map((link) => (
+              <EntityCard
                 key={link.id}
                 href={`/incidents/${link.incidents?.id}`}
-                className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{link.incidents?.summary}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {link.incidents?.reference} · {link.incidents?.events?.name}
-                  </p>
-                </div>
-                <Badge variant="secondary">{link.role_code}</Badge>
-              </Link>
-            ))
-          )}
-        </div>
+                title={link.incidents?.summary ?? ""}
+                reference={link.incidents?.reference}
+                value={<Badge variant="secondary">{link.role_code}</Badge>}
+                subtitle={link.incidents?.events?.name ?? undefined}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
         <h2 className="section-label">Investigations</h2>
-        <div className="divide-y divide-border rounded-lg border border-border bg-card">
-          {investigationLinks.length === 0 ? (
-            <div className="px-4 py-6 text-center text-sm text-muted-foreground">No investigations linked</div>
-          ) : (
-            investigationLinks.map((link) => (
-              <Link
+        {investigationLinks.length === 0 ? (
+          <EmptyState message="No investigations linked" />
+        ) : (
+          <div className="space-y-3">
+            {investigationLinks.map((link) => (
+              <EntityCard
                 key={link.id}
                 href={`/investigations/${link.investigations?.id}`}
-                className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{link.investigations?.title}</p>
-                  <p className="text-xs text-muted-foreground">{link.investigations?.reference}</p>
-                </div>
-                <Badge variant="secondary">{link.role_code}</Badge>
-              </Link>
-            ))
-          )}
-        </div>
+                title={link.investigations?.title ?? ""}
+                reference={link.investigations?.reference}
+                value={<Badge variant="secondary">{link.role_code}</Badge>}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

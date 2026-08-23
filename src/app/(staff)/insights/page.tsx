@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile, hasPermission } from "@/lib/domain/auth-service";
 import { getInsightsSummary } from "@/lib/domain/insights-service";
 import { listIncidentCategories } from "@/lib/domain/incident-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { EntityCard } from "@/components/ui/entity-card";
 
 function personLabel(p: { first_name: string | null; surname: string | null; reference: string }) {
   return [p.first_name, p.surname].filter(Boolean).join(" ") || p.reference;
@@ -94,19 +94,15 @@ export default async function InsightsPage() {
           {summary.topPeople.length === 0 ? (
             <EmptyState message="No people linked to incidents yet" />
           ) : (
-            <div className="divide-y divide-border rounded-lg border border-border bg-card">
+            <div className="space-y-3">
               {summary.topPeople.map(({ item, count }) => (
-                <Link
+                <EntityCard
                   key={item.id}
                   href={`/people/${item.id}`}
-                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-accent/50"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{personLabel(item)}</p>
-                    <p className="text-xs text-muted-foreground">{item.reference}</p>
-                  </div>
-                  <span className="data-value">{count} incident{count === 1 ? "" : "s"}</span>
-                </Link>
+                  title={personLabel(item)}
+                  reference={item.reference}
+                  value={`${count} incident${count === 1 ? "" : "s"}`}
+                />
               ))}
             </div>
           )}
@@ -117,19 +113,15 @@ export default async function InsightsPage() {
           {summary.topVehicles.length === 0 ? (
             <EmptyState message="No vehicles linked to incidents yet" />
           ) : (
-            <div className="divide-y divide-border rounded-lg border border-border bg-card">
+            <div className="space-y-3">
               {summary.topVehicles.map(({ item, count }) => (
-                <Link
+                <EntityCard
                   key={item.id}
                   href={`/vehicles/${item.id}`}
-                  className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-accent/50"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{vehicleLabel(item)}</p>
-                    <p className="text-xs text-muted-foreground">{item.reference}</p>
-                  </div>
-                  <span className="data-value">{count} incident{count === 1 ? "" : "s"}</span>
-                </Link>
+                  title={vehicleLabel(item)}
+                  reference={item.reference}
+                  value={`${count} incident${count === 1 ? "" : "s"}`}
+                />
               ))}
             </div>
           )}
