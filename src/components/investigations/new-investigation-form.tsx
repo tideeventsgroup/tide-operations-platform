@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function NewInvestigationForm({ organisationId }: { organisationId: string }) {
-  const [open, setOpen] = useState(false);
+export function NewInvestigationForm({ organisationId, initialOpen = false }: { organisationId: string; initialOpen?: boolean }) {
+  const [open, setOpen] = useState(initialOpen);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [pending, startTransition] = useTransition();

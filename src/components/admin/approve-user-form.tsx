@@ -6,19 +6,19 @@ import { approveUser } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/lib/supabase/types";
 
-type EventOption = Pick<Tables<"events">, "id" | "name" | "reference">;
+type OperationOption = Pick<Tables<"operations">, "id" | "name" | "reference">;
 
 export function ApproveUserForm({
   userId,
   roles,
-  events,
+  operations,
 }: {
   userId: string;
   roles: Tables<"roles">[];
-  events: EventOption[];
+  operations: OperationOption[];
 }) {
   const [roleId, setRoleId] = useState(roles[0]?.id ?? "");
-  const [eventId, setEventId] = useState(events[0]?.id ?? "");
+  const [operationId, setEventId] = useState(operations[0]?.id ?? "");
   const [pending, startTransition] = useTransition();
 
   const selectedRole = roles.find((r) => r.id === roleId);
@@ -40,26 +40,26 @@ export function ApproveUserForm({
       {needsEvent ? (
         <select
           className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-          value={eventId}
+          value={operationId}
           onChange={(e) => setEventId(e.target.value)}
         >
-          {events.length === 0 ? <option value="">No events</option> : null}
-          {events.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.reference} — {event.name}
+          {operations.length === 0 ? <option value="">No operations</option> : null}
+          {operations.map((operation) => (
+            <option key={operation.id} value={operation.id}>
+              {operation.reference} — {operation.name}
             </option>
           ))}
         </select>
       ) : null}
       <Button
         size="sm"
-        disabled={pending || !roleId || (needsEvent && !eventId)}
+        disabled={pending || !roleId || (needsEvent && !operationId)}
         onClick={() => {
           startTransition(async () => {
             const formData = new FormData();
             formData.set("userId", userId);
             formData.set("roleId", roleId);
-            if (needsEvent) formData.set("eventId", eventId);
+            if (needsEvent) formData.set("operationId", operationId);
             const result = await approveUser(formData);
             if (result.error) toast.error(result.error);
             else toast.success("Account approved");

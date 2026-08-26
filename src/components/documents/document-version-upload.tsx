@@ -6,14 +6,14 @@ import { uploadDocumentVersionAction } from "@/lib/actions/documents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function DocumentVersionUpload({ documentId, eventId }: { documentId: string; eventId: string }) {
+export function DocumentVersionUpload({ documentId, operationId }: { documentId: string; operationId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
 
   function submit(formData: FormData) {
     startTransition(async () => {
-      const result = await uploadDocumentVersionAction(documentId, eventId, formData);
+      const result = await uploadDocumentVersionAction(documentId, operationId, formData);
       if (result.error) toast.error(result.error);
       else {
         toast.success("Version uploaded");

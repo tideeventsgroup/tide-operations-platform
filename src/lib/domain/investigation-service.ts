@@ -1,16 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-
-export async function listInvestigations(organisationId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("investigations")
-    .select("*, lead_investigator:lead_investigator_id(first_name, surname, email)")
-    .eq("organisation_id", organisationId)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data;
-}
+import { sanitizeFilterTerm } from "@/lib/domain/postgrest-filter";
 
 export async function getInvestigation(id: string) {
   const supabase = await createClient();
@@ -28,8 +18,8 @@ export async function getInvestigation(id: string) {
 export async function listInvestigationIncidents(investigationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("investigation_incidents")
-    .select("*, incidents(id, reference, summary, status, event_id)")
+    .from("investigation_events")
+    .select("*, events(id, reference, summary, status, operation_id)")
     .eq("investigation_id", investigationId)
     .order("linked_at", { ascending: false });
   if (error) throw error;
@@ -69,17 +59,13 @@ export async function listInvestigationEvidence(investigationId: string) {
   return data;
 }
 
-function sanitizeFilterTerm(query: string) {
-  return query.replace(/[,()*]/g, "").trim();
-}
-
 // RLS is the authorisation boundary — this just narrows the candidate set.
 export async function searchIncidents(organisationId: string, query: string) {
   const term = sanitizeFilterTerm(query);
   if (term.length < 2) return [];
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("incidents")
+    .from("events")
     .select("id, reference, summary, status")
     .eq("organisation_id", organisationId)
     .or(`reference.ilike.%${term}%,summary.ilike.%${term}%`)

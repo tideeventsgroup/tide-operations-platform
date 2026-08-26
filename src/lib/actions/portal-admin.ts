@@ -2,24 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ActionResult } from "@/lib/actions/incidents";
+import type { ActionResult } from "@/lib/actions/events";
 
-export async function setEventPortalEnabledAction(eventId: string, enabled: boolean): Promise<ActionResult> {
+export async function setOperationPortalEnabledAction(operationId: string, enabled: boolean): Promise<ActionResult> {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_event_portal_enabled", { p_event_id: eventId, p_enabled: enabled });
+  const { error } = await supabase.rpc("set_operation_portal_enabled", { p_operation_id: operationId, p_enabled: enabled });
   if (error) return { error: error.message };
-  revalidatePath(`/events/${eventId}`);
+  revalidatePath(`/operations/${operationId}`);
   return { success: true };
 }
 
-export async function grantEventPortalAccessAction(eventId: string, email: string, roleId: string): Promise<ActionResult> {
+export async function grantOperationPortalAccessAction(operationId: string, email: string, roleId: string): Promise<ActionResult> {
   const supabase = await createClient();
-  const { error } = await supabase.rpc("grant_event_portal_access", {
-    p_event_id: eventId,
+  const { error } = await supabase.rpc("grant_operation_portal_access", {
+    p_operation_id: operationId,
     p_email: email,
     p_role_id: roleId,
   });
   if (error) return { error: error.message };
-  revalidatePath(`/events/${eventId}`);
+  revalidatePath(`/operations/${operationId}`);
   return { success: true };
 }

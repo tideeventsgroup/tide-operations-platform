@@ -1,3 +1,4 @@
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Matched against Auror's "Footage requests" table: a bordered white card
@@ -23,6 +24,29 @@ export function DataTableHead({ children }: { children: React.ReactNode }) {
 
 export function DataTableHeadCell({ children, className }: { children: React.ReactNode; className?: string }) {
   return <th className={cn("px-4 py-2.5 text-left text-xs font-medium text-muted-foreground", className)}>{children}</th>;
+}
+
+export function DataTableSortableHeadCell({
+  children,
+  active,
+  direction,
+  onClick,
+  className,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  direction: "asc" | "desc";
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <th className={cn("px-4 py-2.5 text-left text-xs font-medium text-muted-foreground", className)}>
+      <button type="button" onClick={onClick} className="flex items-center gap-1 hover:text-foreground">
+        {children}
+        {active ? direction === "asc" ? <ChevronUpIcon className="size-3" /> : <ChevronDownIcon className="size-3" /> : null}
+      </button>
+    </th>
+  );
 }
 
 export function DataTableBody({ children }: { children: React.ReactNode }) {

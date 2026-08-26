@@ -8,10 +8,12 @@ import {
 } from "@/lib/domain/client-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
-import { LifecycleStageBadge } from "@/components/status-badges";
+import { LifecycleStageBadge, ClientStatusBadge } from "@/components/status-badges";
 import { AddContactForm } from "@/components/clients/add-contact-form";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { EntityCard } from "@/components/ui/entity-card";
+import { CalendarDays } from "lucide-react";
 
 export default async function ClientDetailPage({ params }: PageProps<"/clients/[id]">) {
   const { id } = await params;
@@ -33,7 +35,10 @@ export default async function ClientDetailPage({ params }: PageProps<"/clients/[
     <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
       <div className="space-y-1">
         <div className="font-mono text-xs text-muted-foreground">{client.reference}</div>
-        <PageHeader title={client.trading_name || client.legal_name} />
+        <div className="flex flex-wrap items-center gap-2">
+          <PageHeader title={client.trading_name || client.legal_name} />
+          <ClientStatusBadge status={client.status} />
+        </div>
         {client.trading_name && <p className="text-sm text-muted-foreground">{client.legal_name}</p>}
       </div>
 
@@ -76,7 +81,7 @@ export default async function ClientDetailPage({ params }: PageProps<"/clients/[
             <div className="flex items-center justify-between">
               <h2 className="section-label">Events ({events.length})</h2>
               <Button
-                render={<Link href={`/events/new?client=${id}`} />}
+                render={<Link href={`/operations/new?client=${id}`} />}
                 nativeButton={false}
                 size="sm"
                 variant="outline"
@@ -87,19 +92,17 @@ export default async function ClientDetailPage({ params }: PageProps<"/clients/[
             {events.length === 0 ? (
               <EmptyState message="No events yet" />
             ) : (
-              <div className="divide-y divide-border rounded-lg border border-border bg-card">
+              <div className="space-y-3">
                 {events.map((event) => (
-                  <Link
+                  <EntityCard
                     key={event.id}
-                    href={`/events/${event.id}`}
-                    className="row-interactive flex items-center justify-between px-4 py-3"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-foreground">{event.name}</div>
-                      <div className="font-mono text-xs text-muted-foreground">{event.reference}</div>
-                    </div>
-                    <LifecycleStageBadge stage={event.lifecycle_stage} />
-                  </Link>
+                    href={`/operations/${event.id}`}
+                    icon={<CalendarDays className="size-5" />}
+                    title={event.name}
+                    reference={event.reference}
+                    subtitle={event.start_date ? new Date(event.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : undefined}
+                    value={<LifecycleStageBadge stage={event.lifecycle_stage} />}
+                  />
                 ))}
               </div>
             )}

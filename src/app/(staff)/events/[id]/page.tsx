@@ -1,226 +1,148 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  getActiveMajorIncidentActivation,
   getEvent,
-  listControlRoles,
-  listControlSessions,
-  listEventLocations,
-  listEventStageHistory,
+  getEventRestrictedNarrative,
+  listEventActions,
+  listEventAgencies,
+  listEventCategories,
+  listEventDecisions,
+  listEventPeople,
+  listEventPriorities,
+  listEventResources,
+  listEventTimeline,
+  listEventVehicles,
+  listEvents,
+  listMethaneVersions,
 } from "@/lib/domain/event-service";
-import { listAssignableRoles, listEventPortalGrants } from "@/lib/domain/user-admin-service";
-import { PageHeader } from "@/components/page-header";
-import { EmptyState } from "@/components/empty-state";
-import { LifecycleStageBadge, EventPhaseBadge, LocationStatusBadge } from "@/components/status-badges";
-import { EventLifecycleControls } from "@/components/events/event-lifecycle-controls";
-import { AddLocationForm } from "@/components/events/add-location-form";
-import { ControlRosterPanel } from "@/components/events/control-roster-panel";
-import { PortalAccessPanel } from "@/components/events/portal-access-panel";
-import { Button } from "@/components/ui/button";
+import { listEvidenceItems } from "@/lib/domain/evidence-service";
+import { hasPermission } from "@/lib/domain/auth-service";
+import { EventCommandHeader } from "@/components/events/event-command-header";
+import { EventQuickActions } from "@/components/events/event-quick-actions";
+import { EventTimeline } from "@/components/events/event-timeline";
+import { EventActionsPanel } from "@/components/events/event-actions-panel";
+import { EventDecisionsPanel } from "@/components/events/event-decisions-panel";
+import { EventResourcesPanel } from "@/components/events/event-resources-panel";
+import { EventAgenciesPanel } from "@/components/events/event-agencies-panel";
+import { EventIntelligencePanel } from "@/components/events/event-intelligence-panel";
+import { EventEvidencePanel } from "@/components/events/event-evidence-panel";
+import { EventRestrictedPanel } from "@/components/events/event-restricted-panel";
+import { MethanePanel } from "@/components/events/methane-panel";
+import { MajorIncidentBanner } from "@/components/events/major-incident-banner";
+import { EventContextRail } from "@/components/events/event-context-rail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function formatDateTime(value: string | null) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
-}
-
-export default async function EventDetailPage({ params }: PageProps<"/events/[id]">) {
+export default async function IncidentDetailPage({ params }: PageProps<"/events/[id]">) {
   const { id } = await params;
 
-  let event;
+  let incident;
   try {
-    event = await getEvent(id);
+    incident = await getEvent(id);
   } catch {
     notFound();
   }
 
-  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants] = await Promise.all([
-    listEventLocations(id),
-    listEventStageHistory(id),
-    listControlRoles(event.organisation_id),
-    listControlSessions(id),
-    listAssignableRoles(),
-    listEventPortalGrants(id),
+  const [
+    timeline,
+    actions,
+    decisions,
+    resources,
+    agencies,
+    people,
+    vehicles,
+    evidence,
+    methane,
+    majorIncidentActivation,
+    categories,
+    priorities,
+    eventIncidents,
+    canViewRestricted,
+  ] = await Promise.all([
+    listEventTimeline(id),
+    listEventActions(id),
+    listEventDecisions(id),
+    listEventResources(id),
+    listEventAgencies(id),
+    listEventPeople(id),
+    listEventVehicles(id),
+    listEvidenceItems(id),
+    listMethaneVersions(id),
+    getActiveMajorIncidentActivation(id),
+    listEventCategories(),
+    listEventPriorities(incident.organisation_id),
+    listEvents(incident.operation_id),
+    hasPermission("event.view_restricted", { organisationId: incident.organisation_id, operationId: incident.operation_id }),
   ]);
-  const externalRoles = assignableRoles.filter((r) => r.is_external);
+
+  const restrictedNarrative = canViewRestricted ? await getEventRestrictedNarrative(id) : null;
+
+  const category = categories.find((c) => c.code === incident.category_code);
+  const priority = priorities.find((p) => p.code === incident.priority_code);
+  const otherOpenIncidents = eventIncidents.filter(
+    (i) => i.id !== incident.id && i.status !== "closed" && i.status !== "resolved",
+  );
+  const outstandingActions = actions.filter((a) => a.status === "open" || a.status === "in_progress").length;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-          {event.reference}
-          <span>·</span>
-          <Link href={`/clients/${event.clients?.id}`} className="hover:underline">
-            {event.clients?.trading_name || event.clients?.legal_name}
-          </Link>
+    <div className="mx-auto max-w-[1400px] px-8 py-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="min-w-0 space-y-6">
+          <EventCommandHeader incident={incident} categoryName={category?.name ?? incident.category_code} priority={priority} />
+          <MajorIncidentBanner eventId={id} activation={majorIncidentActivation} />
+          <EventQuickActions incident={incident} priorities={priorities} />
+
+          <Tabs defaultValue="timeline">
+            <TabsList variant="line" className="w-full justify-start border-b border-border">
+              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              <TabsTrigger value="actions">
+                Actions{outstandingActions > 0 ? ` (${outstandingActions})` : ""}
+              </TabsTrigger>
+              <TabsTrigger value="decisions">Decisions</TabsTrigger>
+              <TabsTrigger value="resources">Resources</TabsTrigger>
+              <TabsTrigger value="agencies">Agencies</TabsTrigger>
+              <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
+              <TabsTrigger value="evidence">Evidence</TabsTrigger>
+              {canViewRestricted ? <TabsTrigger value="restricted">Restricted</TabsTrigger> : null}
+              <TabsTrigger value="methane">METHANE</TabsTrigger>
+            </TabsList>
+            <TabsContent value="timeline" className="pt-4">
+              <EventTimeline eventId={id} entries={timeline} />
+            </TabsContent>
+            <TabsContent value="actions" className="pt-4">
+              <EventActionsPanel eventId={id} actions={actions} />
+            </TabsContent>
+            <TabsContent value="decisions" className="pt-4">
+              <EventDecisionsPanel eventId={id} decisions={decisions} />
+            </TabsContent>
+            <TabsContent value="resources" className="pt-4">
+              <EventResourcesPanel eventId={id} resources={resources} />
+            </TabsContent>
+            <TabsContent value="agencies" className="pt-4">
+              <EventAgenciesPanel eventId={id} agencies={agencies} />
+            </TabsContent>
+            <TabsContent value="intelligence" className="pt-4">
+              <EventIntelligencePanel
+                eventId={id}
+                organisationId={incident.organisation_id}
+                people={people}
+                vehicles={vehicles}
+              />
+            </TabsContent>
+            <TabsContent value="evidence" className="pt-4">
+              <EventEvidencePanel eventId={id} operationId={incident.operation_id} items={evidence} />
+            </TabsContent>
+            {canViewRestricted ? (
+              <TabsContent value="restricted" className="pt-4">
+                <EventRestrictedPanel eventId={id} classification={incident.classification} narrative={restrictedNarrative} />
+              </TabsContent>
+            ) : null}
+            <TabsContent value="methane" className="pt-4">
+              <MethanePanel eventId={id} data={methane} />
+            </TabsContent>
+          </Tabs>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <PageHeader title={event.name} />
-            <LifecycleStageBadge stage={event.lifecycle_stage} />
-            {event.current_phase ? <EventPhaseBadge phase={event.current_phase} /> : null}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button render={<Link href={`/events/${event.id}/control-overview`} />} nativeButton={false} size="lg" variant="outline">
-              Control Overview
-            </Button>
-            <Button
-              render={<Link href={`/events/${event.id}/incidents`} />}
-              nativeButton={false}
-              size="lg"
-              className="bg-destructive text-base text-destructive-foreground hover:bg-destructive/90"
-            >
-              Incident Control
-            </Button>
-          </div>
-        </div>
-        <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <Link href={`/events/${event.id}/observations`} className="hover:text-foreground hover:underline">
-            Observations
-          </Link>
-          <Link href={`/events/${event.id}/radio-log`} className="hover:text-foreground hover:underline">
-            Radio Log
-          </Link>
-          <Link href={`/events/${event.id}/documents`} className="hover:text-foreground hover:underline">
-            Documents
-          </Link>
-          <Link href={`/events/${event.id}/risk`} className="hover:text-foreground hover:underline">
-            Risk &amp; Readiness
-          </Link>
-          <Link href={`/events/${event.id}/post-event-report`} className="hover:text-foreground hover:underline">
-            Post-event Report
-          </Link>
-        </nav>
+        <EventContextRail incident={incident} otherOpenIncidents={otherOpenIncidents} />
       </div>
-
-      <EventLifecycleControls eventId={event.id} stage={event.lifecycle_stage} eventControlManagerName={undefined} />
-
-      <Tabs defaultValue="overview">
-        <TabsList variant="line" className="w-full justify-start border-b border-border">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="roster">Duty Roster{controlSessions.filter((s) => !s.ended_at).length > 0 ? ` (${controlSessions.filter((s) => !s.ended_at).length})` : ""}</TabsTrigger>
-          <TabsTrigger value="portal">Portal Access</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6 pt-4">
-          <section className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg border border-border bg-card p-4">
-              <div className="section-label mb-2">Dates</div>
-              <dl className="space-y-1">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Start</dt>
-                  <dd className="data-value">{formatDate(event.start_date)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">End</dt>
-                  <dd className="data-value">{formatDate(event.end_date)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Doors</dt>
-                  <dd className="data-value">{formatDateTime(event.doors_at)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Closes</dt>
-                  <dd className="data-value">{formatDateTime(event.closes_at)}</dd>
-                </div>
-              </dl>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-4">
-              <div className="section-label mb-2">Attendance</div>
-              <dl className="space-y-1">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Expected</dt>
-                  <dd className="data-value">{event.expected_attendance ?? "—"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Licensed capacity</dt>
-                  <dd className="data-value">{event.licensed_capacity ?? "—"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Actual peak</dt>
-                  <dd className="data-value">{event.actual_peak ?? "—"}</dd>
-                </div>
-              </dl>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-4 sm:col-span-2 lg:col-span-1">
-              <div className="section-label mb-2">Event</div>
-              <dl className="space-y-1">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Category</dt>
-                  <dd className="data-value">{event.category ?? "—"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Local authority</dt>
-                  <dd className="data-value">{event.local_authority ?? "—"}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Jurisdiction</dt>
-                  <dd className="data-value">{event.jurisdiction}</dd>
-                </div>
-              </dl>
-            </div>
-          </section>
-
-          <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="space-y-3">
-              <h2 className="section-label">Site locations ({locations.length})</h2>
-              {locations.length === 0 ? (
-                <EmptyState message="No locations defined yet" />
-              ) : (
-                <div className="divide-y divide-border rounded-lg border border-border bg-card">
-                  {locations.map((loc) => (
-                    <div key={loc.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="section-label !text-[10px]">{loc.type}</span>
-                        <span className="font-medium text-foreground">{loc.name}</span>
-                      </div>
-                      <LocationStatusBadge status={loc.status} />
-                    </div>
-                  ))}
-                </div>
-              )}
-              <AddLocationForm eventId={id} locations={locations} />
-            </div>
-
-            <div className="space-y-3">
-              <h2 className="section-label">Lifecycle history</h2>
-              {stageHistory.length === 0 ? (
-                <EmptyState message="No stage changes recorded" />
-              ) : (
-                <div className="divide-y divide-border rounded-lg border border-border bg-card">
-                  {stageHistory.map((h) => (
-                    <div key={h.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">{h.from_stage ?? "—"} → </span>
-                        <span className="font-medium text-foreground">{h.to_stage}</span>
-                        {h.reason ? <span className="text-muted-foreground"> · {h.reason}</span> : null}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{formatDateTime(h.created_at)}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        </TabsContent>
-
-        <TabsContent value="roster" className="pt-4">
-          <ControlRosterPanel eventId={id} roles={controlRoles} sessions={controlSessions} />
-        </TabsContent>
-
-        <TabsContent value="portal" className="pt-4">
-          <PortalAccessPanel
-            eventId={id}
-            portalEnabled={event.portal_enabled}
-            externalRoles={externalRoles}
-            grants={portalGrants}
-          />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

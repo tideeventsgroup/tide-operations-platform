@@ -1,14 +1,11 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
-export async function listAuditTemplates(organisationId: string) {
+export async function listAuditTemplates(organisationId: string, { includeInactive = false }: { includeInactive?: boolean } = {}) {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("audit_templates")
-    .select("*")
-    .eq("organisation_id", organisationId)
-    .eq("is_active", true)
-    .order("name");
+  let query = supabase.from("audit_templates").select("*").eq("organisation_id", organisationId);
+  if (!includeInactive) query = query.eq("is_active", true);
+  const { data, error } = await query.order("name");
   if (error) throw error;
   return data;
 }
@@ -24,22 +21,11 @@ export async function getAuditTemplate(id: string) {
   return { template, questions: questions ?? [] };
 }
 
-export async function listAuditSubmissions(organisationId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("audit_submissions")
-    .select("*, audit_templates(name), submitted_by_profile:submitted_by(first_name, surname, email), events(name)")
-    .eq("organisation_id", organisationId)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data;
-}
-
 export async function getAuditSubmission(id: string) {
   const supabase = await createClient();
   const { data: submission, error } = await supabase
     .from("audit_submissions")
-    .select("*, audit_templates(id, name, description), submitted_by_profile:submitted_by(first_name, surname, email), events(name)")
+    .select("*, audit_templates(id, name, description), submitted_by_profile:submitted_by(first_name, surname, email), operations(name)")
     .eq("id", id)
     .single();
   if (error) throw error;

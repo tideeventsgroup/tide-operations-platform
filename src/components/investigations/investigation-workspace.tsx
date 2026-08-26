@@ -6,14 +6,14 @@ import { toast } from "sonner";
 import {
   addInvestigationNoteAction,
   linkEvidenceToInvestigationAction,
-  linkIncidentToInvestigationAction,
+  linkEventToInvestigationAction,
   linkPersonToInvestigationAction,
   linkVehicleToInvestigationAction,
   searchEvidenceItemsAction,
   searchIncidentsAction,
   updateInvestigationStatusAction,
 } from "@/lib/actions/investigations";
-import { searchPeopleAction, searchVehiclesAction } from "@/lib/actions/incident-intelligence";
+import { searchPeopleAction, searchVehiclesAction } from "@/lib/actions/event-intelligence";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -153,9 +153,9 @@ function IncidentsSection({ investigationId, organisationId, incidents }: { inve
     });
   }
 
-  function link(incidentId: string) {
+  function link(eventId: string) {
     startTransition(async () => {
-      const result = await linkIncidentToInvestigationAction(investigationId, incidentId);
+      const result = await linkEventToInvestigationAction(investigationId, eventId);
       if (result.error) toast.error(result.error);
       else {
         setQuery("");
@@ -189,12 +189,12 @@ function IncidentsSection({ investigationId, organisationId, incidents }: { inve
           <div className="px-4 py-6 text-center text-sm text-muted-foreground">No incidents linked</div>
         ) : (
           incidents.map((link) => (
-            <Link key={link.id} href={`/incidents/${link.incidents?.id}`} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50">
+            <Link key={link.id} href={`/events/${link.events?.id}`} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm hover:bg-accent/50">
               <div>
-                <p className="font-medium text-foreground">{link.incidents?.summary}</p>
-                <p className="text-xs text-muted-foreground">{link.incidents?.reference}</p>
+                <p className="font-medium text-foreground">{link.events?.summary}</p>
+                <p className="text-xs text-muted-foreground">{link.events?.reference}</p>
               </div>
-              <Badge variant="secondary">{link.incidents?.status}</Badge>
+              <Badge variant="secondary">{link.events?.status}</Badge>
             </Link>
           ))
         )}

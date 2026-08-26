@@ -5,7 +5,7 @@ const STORE = "pending_incidents";
 export type PendingIncident = {
   localId: string;
   createdAt: string;
-  event_id: string;
+  operation_id: string;
   category_code: string;
   summary: string;
   location_id?: string;

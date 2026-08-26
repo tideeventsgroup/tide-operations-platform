@@ -65,8 +65,8 @@ export type Database = {
           created_at: string
           entity_id: string | null
           entity_type: string
-          event_id: string | null
           id: string
+          operation_id: string | null
           organisation_id: string | null
           reason: string | null
           session_meta: Json | null
@@ -79,8 +79,8 @@ export type Database = {
           created_at?: string
           entity_id?: string | null
           entity_type: string
-          event_id?: string | null
           id?: string
+          operation_id?: string | null
           organisation_id?: string | null
           reason?: string | null
           session_meta?: Json | null
@@ -93,8 +93,8 @@ export type Database = {
           created_at?: string
           entity_id?: string | null
           entity_type?: string
-          event_id?: string | null
           id?: string
+          operation_id?: string | null
           organisation_id?: string | null
           reason?: string | null
           session_meta?: Json | null
@@ -119,9 +119,9 @@ export type Database = {
       audit_submissions: {
         Row: {
           created_at: string
-          event_id: string | null
           id: string
           location_id: string | null
+          operation_id: string | null
           organisation_id: string
           score: number | null
           status: Database["public"]["Enums"]["audit_submission_status"]
@@ -131,9 +131,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          event_id?: string | null
           id?: string
           location_id?: string | null
+          operation_id?: string | null
           organisation_id: string
           score?: number | null
           status?: Database["public"]["Enums"]["audit_submission_status"]
@@ -143,9 +143,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          event_id?: string | null
           id?: string
           location_id?: string | null
+          operation_id?: string | null
           organisation_id?: string
           score?: number | null
           status?: Database["public"]["Enums"]["audit_submission_status"]
@@ -156,9 +156,9 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "audit_submissions_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -277,15 +277,21 @@ export type Database = {
       characteristic_types: {
         Row: {
           code: string
+          is_system: boolean
           name: string
+          sort_order: number
         }
         Insert: {
           code: string
+          is_system?: boolean
           name: string
+          sort_order?: number
         }
         Update: {
           code?: string
+          is_system?: boolean
           name?: string
+          sort_order?: number
         }
         Relationships: []
       }
@@ -615,10 +621,10 @@ export type Database = {
           created_by: string | null
           current_version_id: string | null
           document_type_id: string
-          event_id: string
           id: string
           issued_at: string | null
           issued_by: string | null
+          operation_id: string
           organisation_id: string
           reference: string
           status: Database["public"]["Enums"]["document_status"]
@@ -632,10 +638,10 @@ export type Database = {
           created_by?: string | null
           current_version_id?: string | null
           document_type_id: string
-          event_id: string
           id?: string
           issued_at?: string | null
           issued_by?: string | null
+          operation_id: string
           organisation_id: string
           reference: string
           status?: Database["public"]["Enums"]["document_status"]
@@ -649,10 +655,10 @@ export type Database = {
           created_by?: string | null
           current_version_id?: string | null
           document_type_id?: string
-          event_id?: string
           id?: string
           issued_at?: string | null
           issued_by?: string | null
+          operation_id?: string
           organisation_id?: string
           reference?: string
           status?: Database["public"]["Enums"]["document_status"]
@@ -689,9 +695,9 @@ export type Database = {
           },
           {
             foreignKeyName: "documents_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -710,401 +716,710 @@ export type Database = {
           },
         ]
       }
-      event_characteristics: {
+      event_actions: {
         Row: {
-          characteristic_code: string
-          event_id: string
-        }
-        Insert: {
-          characteristic_code: string
-          event_id: string
-        }
-        Update: {
-          characteristic_code?: string
-          event_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_characteristics_characteristic_code_fkey"
-            columns: ["characteristic_code"]
-            isOneToOne: false
-            referencedRelation: "characteristic_types"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "event_characteristics_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_control_roles: {
-        Row: {
-          code: string
-          id: string
-          name: string
-          organisation_id: string
-          sort_order: number
-        }
-        Insert: {
-          code: string
-          id?: string
-          name: string
-          organisation_id: string
-          sort_order?: number
-        }
-        Update: {
-          code?: string
-          id?: string
-          name?: string
-          organisation_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_control_roles_organisation_id_fkey"
-            columns: ["organisation_id"]
-            isOneToOne: false
-            referencedRelation: "organisations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_control_sessions: {
-        Row: {
-          ended_at: string | null
-          ended_by: string | null
-          event_id: string
-          id: string
-          profile_id: string
-          role_id: string
-          started_at: string
-          started_by: string | null
-        }
-        Insert: {
-          ended_at?: string | null
-          ended_by?: string | null
-          event_id: string
-          id?: string
-          profile_id: string
-          role_id: string
-          started_at?: string
-          started_by?: string | null
-        }
-        Update: {
-          ended_at?: string | null
-          ended_by?: string | null
-          event_id?: string
-          id?: string
-          profile_id?: string
-          role_id?: string
-          started_at?: string
-          started_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_control_sessions_ended_by_fkey"
-            columns: ["ended_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_control_sessions_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_control_sessions_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_control_sessions_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "event_control_roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_control_sessions_started_by_fkey"
-            columns: ["started_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_id_counters: {
-        Row: {
-          entity_type: string
-          event_id: string
-          seq: number
-        }
-        Insert: {
-          entity_type: string
-          event_id: string
-          seq?: number
-        }
-        Update: {
-          entity_type?: string
-          event_id?: string
-          seq?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_id_counters_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_readiness_checks: {
-        Row: {
-          checklist_item_id: string
-          completed: boolean
+          assigned_to: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
           completed_at: string | null
           completed_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          due_at: string | null
           event_id: string
           id: string
-          notes: string | null
+          reference: string
+          status: Database["public"]["Enums"]["event_action_status"]
         }
         Insert: {
-          checklist_item_id: string
-          completed?: boolean
+          assigned_to?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           completed_at?: string | null
           completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          due_at?: string | null
           event_id: string
           id?: string
-          notes?: string | null
+          reference: string
+          status?: Database["public"]["Enums"]["event_action_status"]
         }
         Update: {
-          checklist_item_id?: string
-          completed?: boolean
+          assigned_to?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           completed_at?: string | null
           completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_at?: string | null
           event_id?: string
           id?: string
-          notes?: string | null
+          reference?: string
+          status?: Database["public"]["Enums"]["event_action_status"]
         }
         Relationships: [
           {
-            foreignKeyName: "event_readiness_checks_checklist_item_id_fkey"
-            columns: ["checklist_item_id"]
+            foreignKeyName: "incident_actions_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
-            referencedRelation: "readiness_checklist_items"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "event_readiness_checks_completed_by_fkey"
+            foreignKeyName: "incident_actions_completed_by_fkey"
             columns: ["completed_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "event_readiness_checks_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      event_stage_history: {
-        Row: {
-          changed_by: string | null
-          created_at: string
-          event_id: string
-          from_stage:
-            | Database["public"]["Enums"]["event_lifecycle_stage"]
-            | null
-          id: string
-          reason: string | null
-          to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
-        }
-        Insert: {
-          changed_by?: string | null
-          created_at?: string
-          event_id: string
-          from_stage?:
-            | Database["public"]["Enums"]["event_lifecycle_stage"]
-            | null
-          id?: string
-          reason?: string | null
-          to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
-        }
-        Update: {
-          changed_by?: string | null
-          created_at?: string
-          event_id?: string
-          from_stage?:
-            | Database["public"]["Enums"]["event_lifecycle_stage"]
-            | null
-          id?: string
-          reason?: string | null
-          to_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_stage_history_changed_by_fkey"
-            columns: ["changed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_stage_history_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      events: {
-        Row: {
-          actual_peak: number | null
-          breakdown_at: string | null
-          build_start_at: string | null
-          category: string | null
-          client_id: string
-          closes_at: string | null
-          contractor_count: number | null
-          created_at: string
-          created_by: string | null
-          current_phase: Database["public"]["Enums"]["event_phase"] | null
-          description: string | null
-          doors_at: string | null
-          end_date: string | null
-          expected_attendance: number | null
-          expected_peak: number | null
-          id: string
-          jurisdiction: string
-          licensed_capacity: number | null
-          lifecycle_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
-          load_in_at: string | null
-          load_out_at: string | null
-          local_authority: string | null
-          name: string
-          opens_at: string | null
-          organisation_id: string
-          performer_count: number | null
-          planned_public_capacity: number | null
-          planning_start_date: string | null
-          portal_enabled: boolean
-          reference: string
-          staff_call_at: string | null
-          staff_count: number | null
-          stand_down_at: string | null
-          start_date: string | null
-          timezone: string
-          year: number
-        }
-        Insert: {
-          actual_peak?: number | null
-          breakdown_at?: string | null
-          build_start_at?: string | null
-          category?: string | null
-          client_id: string
-          closes_at?: string | null
-          contractor_count?: number | null
-          created_at?: string
-          created_by?: string | null
-          current_phase?: Database["public"]["Enums"]["event_phase"] | null
-          description?: string | null
-          doors_at?: string | null
-          end_date?: string | null
-          expected_attendance?: number | null
-          expected_peak?: number | null
-          id?: string
-          jurisdiction?: string
-          licensed_capacity?: number | null
-          lifecycle_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
-          load_in_at?: string | null
-          load_out_at?: string | null
-          local_authority?: string | null
-          name: string
-          opens_at?: string | null
-          organisation_id: string
-          performer_count?: number | null
-          planned_public_capacity?: number | null
-          planning_start_date?: string | null
-          portal_enabled?: boolean
-          reference: string
-          staff_call_at?: string | null
-          staff_count?: number | null
-          stand_down_at?: string | null
-          start_date?: string | null
-          timezone?: string
-          year: number
-        }
-        Update: {
-          actual_peak?: number | null
-          breakdown_at?: string | null
-          build_start_at?: string | null
-          category?: string | null
-          client_id?: string
-          closes_at?: string | null
-          contractor_count?: number | null
-          created_at?: string
-          created_by?: string | null
-          current_phase?: Database["public"]["Enums"]["event_phase"] | null
-          description?: string | null
-          doors_at?: string | null
-          end_date?: string | null
-          expected_attendance?: number | null
-          expected_peak?: number | null
-          id?: string
-          jurisdiction?: string
-          licensed_capacity?: number | null
-          lifecycle_stage?: Database["public"]["Enums"]["event_lifecycle_stage"]
-          load_in_at?: string | null
-          load_out_at?: string | null
-          local_authority?: string | null
-          name?: string
-          opens_at?: string | null
-          organisation_id?: string
-          performer_count?: number | null
-          planned_public_capacity?: number | null
-          planning_start_date?: string | null
-          portal_enabled?: boolean
-          reference?: string
-          staff_call_at?: string | null
-          staff_count?: number | null
-          stand_down_at?: string | null
-          start_date?: string | null
-          timezone?: string
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "events_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_created_by_fkey"
+            foreignKeyName: "incident_actions_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "events_organisation_id_fkey"
+            foreignKeyName: "incident_actions_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_agencies: {
+        Row: {
+          agency_name: string
+          agency_type: string
+          arrived_at: string | null
+          attending_at: string | null
+          contact_name: string | null
+          contact_number: string | null
+          created_at: string
+          event_id: string
+          id: string
+          notified_at: string
+          notified_by: string | null
+          reference: string
+          status: Database["public"]["Enums"]["event_agency_status"]
+          stood_down_at: string | null
+        }
+        Insert: {
+          agency_name: string
+          agency_type: string
+          arrived_at?: string | null
+          attending_at?: string | null
+          contact_name?: string | null
+          contact_number?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          notified_at?: string
+          notified_by?: string | null
+          reference: string
+          status?: Database["public"]["Enums"]["event_agency_status"]
+          stood_down_at?: string | null
+        }
+        Update: {
+          agency_name?: string
+          agency_type?: string
+          arrived_at?: string | null
+          attending_at?: string | null
+          contact_name?: string | null
+          contact_number?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          notified_at?: string
+          notified_by?: string | null
+          reference?: string
+          status?: Database["public"]["Enums"]["event_agency_status"]
+          stood_down_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_agencies_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_agencies_notified_by_fkey"
+            columns: ["notified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_categories: {
+        Row: {
+          code: string
+          is_system: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          is_system?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          is_system?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      event_decisions: {
+        Row: {
+          created_at: string
+          decided_at: string
+          decided_by: string | null
+          decision: string
+          event_id: string
+          id: string
+          rationale: string | null
+          reference: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string
+          decided_by?: string | null
+          decision: string
+          event_id: string
+          id?: string
+          rationale?: string | null
+          reference: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string
+          decided_by?: string | null
+          decision?: string
+          event_id?: string
+          id?: string
+          rationale?: string | null
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_decisions_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_decisions_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_log_entries: {
+        Row: {
+          author_id: string | null
+          body: string
+          corrects_entry_id: string | null
+          created_at: string
+          entry_type: Database["public"]["Enums"]["event_log_entry_type"]
+          event_id: string
+          id: string
+          linked_record_id: string | null
+          linked_record_type: string | null
+          occurred_at: string
+          reported_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          corrects_entry_id?: string | null
+          created_at?: string
+          entry_type: Database["public"]["Enums"]["event_log_entry_type"]
+          event_id: string
+          id?: string
+          linked_record_id?: string | null
+          linked_record_type?: string | null
+          occurred_at?: string
+          reported_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          corrects_entry_id?: string | null
+          created_at?: string
+          entry_type?: Database["public"]["Enums"]["event_log_entry_type"]
+          event_id?: string
+          id?: string
+          linked_record_id?: string | null
+          linked_record_type?: string | null
+          occurred_at?: string
+          reported_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_log_entries_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_log_entries_corrects_entry_id_fkey"
+            columns: ["corrects_entry_id"]
+            isOneToOne: false
+            referencedRelation: "event_log_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_log_entries_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_people: {
+        Row: {
+          event_id: string
+          id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          person_id: string
+          role_code: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id: string
+          role_code: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          person_id?: string
+          role_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_people_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_people_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_people_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_priorities: {
+        Row: {
+          code: string
+          color_token: string
+          description: string
+          name: string
+          organisation_id: string
+          rank: number
+          target_ack_minutes: number | null
+          target_resolve_minutes: number | null
+        }
+        Insert: {
+          code: string
+          color_token?: string
+          description: string
+          name: string
+          organisation_id: string
+          rank: number
+          target_ack_minutes?: number | null
+          target_resolve_minutes?: number | null
+        }
+        Update: {
+          code?: string
+          color_token?: string
+          description?: string
+          name?: string
+          organisation_id?: string
+          rank?: number
+          target_ack_minutes?: number | null
+          target_resolve_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_priorities_organisation_id_fkey"
             columns: ["organisation_id"]
             isOneToOne: false
             referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_resources: {
+        Row: {
+          arrived_at: string | null
+          created_at: string
+          description: string | null
+          dispatched_at: string | null
+          event_id: string
+          id: string
+          reference: string
+          requested_at: string
+          requested_by: string | null
+          resource_type: string
+          status: Database["public"]["Enums"]["event_resource_status"]
+          stood_down_at: string | null
+        }
+        Insert: {
+          arrived_at?: string | null
+          created_at?: string
+          description?: string | null
+          dispatched_at?: string | null
+          event_id: string
+          id?: string
+          reference: string
+          requested_at?: string
+          requested_by?: string | null
+          resource_type: string
+          status?: Database["public"]["Enums"]["event_resource_status"]
+          stood_down_at?: string | null
+        }
+        Update: {
+          arrived_at?: string | null
+          created_at?: string
+          description?: string | null
+          dispatched_at?: string | null
+          event_id?: string
+          id?: string
+          reference?: string
+          requested_at?: string
+          requested_by?: string | null
+          resource_type?: string
+          status?: Database["public"]["Enums"]["event_resource_status"]
+          stood_down_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_resources_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_resources_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_restricted_narrative: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          event_id: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_restricted_narrative_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_restricted_narrative_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_restricted_narrative_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_vehicles: {
+        Row: {
+          event_id: string
+          id: string
+          linked_at: string
+          linked_by: string | null
+          notes: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code: string
+          vehicle_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          linked_at?: string
+          linked_by?: string | null
+          notes?: string | null
+          role_code?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_vehicles_incident_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_vehicles_linked_by_fkey"
+            columns: ["linked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_vehicles_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          acknowledged_at: string | null
+          category_code: string
+          classification: Database["public"]["Enums"]["classification_level"]
+          closed_at: string | null
+          closed_by: string | null
+          closure_summary: string | null
+          controller_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          location_id: string | null
+          merged_into_event_id: string | null
+          occurred_at: string
+          operation_id: string
+          operation_phase: Database["public"]["Enums"]["operation_phase"] | null
+          organisation_id: string
+          owner_id: string | null
+          priority_code: string | null
+          reference: string
+          report_source: Database["public"]["Enums"]["report_source"]
+          reported_at: string
+          reported_by_name: string | null
+          reported_by_profile_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["event_status"]
+          subtype: string | null
+          summary: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          category_code: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_summary?: string | null
+          controller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          merged_into_event_id?: string | null
+          occurred_at?: string
+          operation_id: string
+          operation_phase?:
+            | Database["public"]["Enums"]["operation_phase"]
+            | null
+          organisation_id: string
+          owner_id?: string | null
+          priority_code?: string | null
+          reference: string
+          report_source?: Database["public"]["Enums"]["report_source"]
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["event_status"]
+          subtype?: string | null
+          summary: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          category_code?: string
+          classification?: Database["public"]["Enums"]["classification_level"]
+          closed_at?: string | null
+          closed_by?: string | null
+          closure_summary?: string | null
+          controller_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          location_id?: string | null
+          merged_into_event_id?: string | null
+          occurred_at?: string
+          operation_id?: string
+          operation_phase?:
+            | Database["public"]["Enums"]["operation_phase"]
+            | null
+          organisation_id?: string
+          owner_id?: string | null
+          priority_code?: string | null
+          reference?: string
+          report_source?: Database["public"]["Enums"]["report_source"]
+          reported_at?: string
+          reported_by_name?: string | null
+          reported_by_profile_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["event_status"]
+          subtype?: string | null
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_category_code_fkey"
+            columns: ["category_code"]
+            isOneToOne: false
+            referencedRelation: "event_categories"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "incidents_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_controller_id_fkey"
+            columns: ["controller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "operational_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_merged_into_incident_id_fkey"
+            columns: ["merged_into_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_organisation_id_priority_code_fkey"
+            columns: ["organisation_id", "priority_code"]
+            isOneToOne: false
+            referencedRelation: "event_priorities"
+            referencedColumns: ["organisation_id", "code"]
+          },
+          {
+            foreignKeyName: "incidents_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incidents_reported_by_profile_id_fkey"
+            columns: ["reported_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1158,10 +1473,10 @@ export type Database = {
           collected_by_name: string | null
           created_at: string
           description: string
+          event_id: string
           file_name: string | null
           file_size: number | null
           id: string
-          incident_id: string
           item_type: string
           logged_by: string | null
           mime_type: string | null
@@ -1177,10 +1492,10 @@ export type Database = {
           collected_by_name?: string | null
           created_at?: string
           description: string
+          event_id: string
           file_name?: string | null
           file_size?: number | null
           id?: string
-          incident_id: string
           item_type: string
           logged_by?: string | null
           mime_type?: string | null
@@ -1196,10 +1511,10 @@ export type Database = {
           collected_by_name?: string | null
           created_at?: string
           description?: string
+          event_id?: string
           file_name?: string | null
           file_size?: number | null
           id?: string
-          incident_id?: string
           item_type?: string
           logged_by?: string | null
           mime_type?: string | null
@@ -1212,9 +1527,9 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "evidence_items_incident_id_fkey"
-            columns: ["incident_id"]
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "incidents"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -1262,704 +1577,46 @@ export type Database = {
           },
         ]
       }
-      incident_actions: {
+      investigation_events: {
         Row: {
-          assigned_to: string | null
-          cancellation_reason: string | null
-          cancelled_at: string | null
-          completed_at: string | null
-          completed_by: string | null
-          created_at: string
-          created_by: string | null
-          description: string
-          due_at: string | null
+          event_id: string
           id: string
-          incident_id: string
-          reference: string
-          status: Database["public"]["Enums"]["incident_action_status"]
-        }
-        Insert: {
-          assigned_to?: string | null
-          cancellation_reason?: string | null
-          cancelled_at?: string | null
-          completed_at?: string | null
-          completed_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          description: string
-          due_at?: string | null
-          id?: string
-          incident_id: string
-          reference: string
-          status?: Database["public"]["Enums"]["incident_action_status"]
-        }
-        Update: {
-          assigned_to?: string | null
-          cancellation_reason?: string | null
-          cancelled_at?: string | null
-          completed_at?: string | null
-          completed_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string
-          due_at?: string | null
-          id?: string
-          incident_id?: string
-          reference?: string
-          status?: Database["public"]["Enums"]["incident_action_status"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_actions_assigned_to_fkey"
-            columns: ["assigned_to"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_actions_completed_by_fkey"
-            columns: ["completed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_actions_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_actions_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_agencies: {
-        Row: {
-          agency_name: string
-          agency_type: string
-          arrived_at: string | null
-          attending_at: string | null
-          contact_name: string | null
-          contact_number: string | null
-          created_at: string
-          id: string
-          incident_id: string
-          notified_at: string
-          notified_by: string | null
-          reference: string
-          status: Database["public"]["Enums"]["incident_agency_status"]
-          stood_down_at: string | null
-        }
-        Insert: {
-          agency_name: string
-          agency_type: string
-          arrived_at?: string | null
-          attending_at?: string | null
-          contact_name?: string | null
-          contact_number?: string | null
-          created_at?: string
-          id?: string
-          incident_id: string
-          notified_at?: string
-          notified_by?: string | null
-          reference: string
-          status?: Database["public"]["Enums"]["incident_agency_status"]
-          stood_down_at?: string | null
-        }
-        Update: {
-          agency_name?: string
-          agency_type?: string
-          arrived_at?: string | null
-          attending_at?: string | null
-          contact_name?: string | null
-          contact_number?: string | null
-          created_at?: string
-          id?: string
-          incident_id?: string
-          notified_at?: string
-          notified_by?: string | null
-          reference?: string
-          status?: Database["public"]["Enums"]["incident_agency_status"]
-          stood_down_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_agencies_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_agencies_notified_by_fkey"
-            columns: ["notified_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_categories: {
-        Row: {
-          code: string
-          is_system: boolean
-          name: string
-          sort_order: number
-        }
-        Insert: {
-          code: string
-          is_system?: boolean
-          name: string
-          sort_order?: number
-        }
-        Update: {
-          code?: string
-          is_system?: boolean
-          name?: string
-          sort_order?: number
-        }
-        Relationships: []
-      }
-      incident_decisions: {
-        Row: {
-          created_at: string
-          decided_at: string
-          decided_by: string | null
-          decision: string
-          id: string
-          incident_id: string
-          rationale: string | null
-          reference: string
-        }
-        Insert: {
-          created_at?: string
-          decided_at?: string
-          decided_by?: string | null
-          decision: string
-          id?: string
-          incident_id: string
-          rationale?: string | null
-          reference: string
-        }
-        Update: {
-          created_at?: string
-          decided_at?: string
-          decided_by?: string | null
-          decision?: string
-          id?: string
-          incident_id?: string
-          rationale?: string | null
-          reference?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_decisions_decided_by_fkey"
-            columns: ["decided_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_decisions_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_log_entries: {
-        Row: {
-          author_id: string | null
-          body: string
-          corrects_entry_id: string | null
-          created_at: string
-          entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
-          id: string
-          incident_id: string
-          linked_record_id: string | null
-          linked_record_type: string | null
-          occurred_at: string
-          reported_at: string
-        }
-        Insert: {
-          author_id?: string | null
-          body: string
-          corrects_entry_id?: string | null
-          created_at?: string
-          entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
-          id?: string
-          incident_id: string
-          linked_record_id?: string | null
-          linked_record_type?: string | null
-          occurred_at?: string
-          reported_at?: string
-        }
-        Update: {
-          author_id?: string | null
-          body?: string
-          corrects_entry_id?: string | null
-          created_at?: string
-          entry_type?: Database["public"]["Enums"]["incident_log_entry_type"]
-          id?: string
-          incident_id?: string
-          linked_record_id?: string | null
-          linked_record_type?: string | null
-          occurred_at?: string
-          reported_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_log_entries_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_log_entries_corrects_entry_id_fkey"
-            columns: ["corrects_entry_id"]
-            isOneToOne: false
-            referencedRelation: "incident_log_entries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_log_entries_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_people: {
-        Row: {
-          id: string
-          incident_id: string
+          investigation_id: string
           linked_at: string
           linked_by: string | null
-          notes: string | null
-          person_id: string
-          role_code: string
         }
         Insert: {
-          id?: string
-          incident_id: string
-          linked_at?: string
-          linked_by?: string | null
-          notes?: string | null
-          person_id: string
-          role_code: string
-        }
-        Update: {
-          id?: string
-          incident_id?: string
-          linked_at?: string
-          linked_by?: string | null
-          notes?: string | null
-          person_id?: string
-          role_code?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_people_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_people_linked_by_fkey"
-            columns: ["linked_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_people_person_id_fkey"
-            columns: ["person_id"]
-            isOneToOne: false
-            referencedRelation: "people"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_priorities: {
-        Row: {
-          code: string
-          color_token: string
-          description: string
-          name: string
-          organisation_id: string
-          rank: number
-          target_ack_minutes: number | null
-          target_resolve_minutes: number | null
-        }
-        Insert: {
-          code: string
-          color_token?: string
-          description: string
-          name: string
-          organisation_id: string
-          rank: number
-          target_ack_minutes?: number | null
-          target_resolve_minutes?: number | null
-        }
-        Update: {
-          code?: string
-          color_token?: string
-          description?: string
-          name?: string
-          organisation_id?: string
-          rank?: number
-          target_ack_minutes?: number | null
-          target_resolve_minutes?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_priorities_organisation_id_fkey"
-            columns: ["organisation_id"]
-            isOneToOne: false
-            referencedRelation: "organisations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_resources: {
-        Row: {
-          arrived_at: string | null
-          created_at: string
-          description: string | null
-          dispatched_at: string | null
-          id: string
-          incident_id: string
-          reference: string
-          requested_at: string
-          requested_by: string | null
-          resource_type: string
-          status: Database["public"]["Enums"]["incident_resource_status"]
-          stood_down_at: string | null
-        }
-        Insert: {
-          arrived_at?: string | null
-          created_at?: string
-          description?: string | null
-          dispatched_at?: string | null
-          id?: string
-          incident_id: string
-          reference: string
-          requested_at?: string
-          requested_by?: string | null
-          resource_type: string
-          status?: Database["public"]["Enums"]["incident_resource_status"]
-          stood_down_at?: string | null
-        }
-        Update: {
-          arrived_at?: string | null
-          created_at?: string
-          description?: string | null
-          dispatched_at?: string | null
-          id?: string
-          incident_id?: string
-          reference?: string
-          requested_at?: string
-          requested_by?: string | null
-          resource_type?: string
-          status?: Database["public"]["Enums"]["incident_resource_status"]
-          stood_down_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_resources_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_resources_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_restricted_narrative: {
-        Row: {
-          body: string
-          created_at: string
-          created_by: string | null
-          incident_id: string
-          updated_at: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          body: string
-          created_at?: string
-          created_by?: string | null
-          incident_id: string
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          body?: string
-          created_at?: string
-          created_by?: string | null
-          incident_id?: string
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_restricted_narrative_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_restricted_narrative_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: true
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_restricted_narrative_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incident_vehicles: {
-        Row: {
-          id: string
-          incident_id: string
-          linked_at: string
-          linked_by: string | null
-          notes: string | null
-          role_code: string
-          vehicle_id: string
-        }
-        Insert: {
-          id?: string
-          incident_id: string
-          linked_at?: string
-          linked_by?: string | null
-          notes?: string | null
-          role_code: string
-          vehicle_id: string
-        }
-        Update: {
-          id?: string
-          incident_id?: string
-          linked_at?: string
-          linked_by?: string | null
-          notes?: string | null
-          role_code?: string
-          vehicle_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "incident_vehicles_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_vehicles_linked_by_fkey"
-            columns: ["linked_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incident_vehicles_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      incidents: {
-        Row: {
-          acknowledged_at: string | null
-          category_code: string
-          classification: Database["public"]["Enums"]["classification_level"]
-          closed_at: string | null
-          closed_by: string | null
-          closure_summary: string | null
-          controller_id: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
           event_id: string
-          event_phase: Database["public"]["Enums"]["event_phase"] | null
-          id: string
-          location_id: string | null
-          merged_into_incident_id: string | null
-          occurred_at: string
-          organisation_id: string
-          owner_id: string | null
-          priority_code: string | null
-          reference: string
-          report_source: Database["public"]["Enums"]["report_source"]
-          reported_at: string
-          reported_by_name: string | null
-          reported_by_profile_id: string | null
-          resolution: string | null
-          resolved_at: string | null
-          status: Database["public"]["Enums"]["incident_status"]
-          subtype: string | null
-          summary: string
-        }
-        Insert: {
-          acknowledged_at?: string | null
-          category_code: string
-          classification?: Database["public"]["Enums"]["classification_level"]
-          closed_at?: string | null
-          closed_by?: string | null
-          closure_summary?: string | null
-          controller_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          event_id: string
-          event_phase?: Database["public"]["Enums"]["event_phase"] | null
           id?: string
-          location_id?: string | null
-          merged_into_incident_id?: string | null
-          occurred_at?: string
-          organisation_id: string
-          owner_id?: string | null
-          priority_code?: string | null
-          reference: string
-          report_source?: Database["public"]["Enums"]["report_source"]
-          reported_at?: string
-          reported_by_name?: string | null
-          reported_by_profile_id?: string | null
-          resolution?: string | null
-          resolved_at?: string | null
-          status?: Database["public"]["Enums"]["incident_status"]
-          subtype?: string | null
-          summary: string
+          investigation_id: string
+          linked_at?: string
+          linked_by?: string | null
         }
         Update: {
-          acknowledged_at?: string | null
-          category_code?: string
-          classification?: Database["public"]["Enums"]["classification_level"]
-          closed_at?: string | null
-          closed_by?: string | null
-          closure_summary?: string | null
-          controller_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
           event_id?: string
-          event_phase?: Database["public"]["Enums"]["event_phase"] | null
           id?: string
-          location_id?: string | null
-          merged_into_incident_id?: string | null
-          occurred_at?: string
-          organisation_id?: string
-          owner_id?: string | null
-          priority_code?: string | null
-          reference?: string
-          report_source?: Database["public"]["Enums"]["report_source"]
-          reported_at?: string
-          reported_by_name?: string | null
-          reported_by_profile_id?: string | null
-          resolution?: string | null
-          resolved_at?: string | null
-          status?: Database["public"]["Enums"]["incident_status"]
-          subtype?: string | null
-          summary?: string
+          investigation_id?: string
+          linked_at?: string
+          linked_by?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "incidents_category_code_fkey"
-            columns: ["category_code"]
-            isOneToOne: false
-            referencedRelation: "incident_categories"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "incidents_closed_by_fkey"
-            columns: ["closed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_controller_id_fkey"
-            columns: ["controller_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_event_id_fkey"
+            foreignKeyName: "investigation_incidents_incident_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "incidents_location_id_fkey"
-            columns: ["location_id"]
+            foreignKeyName: "investigation_incidents_investigation_id_fkey"
+            columns: ["investigation_id"]
             isOneToOne: false
-            referencedRelation: "operational_locations"
+            referencedRelation: "investigations"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "incidents_merged_into_incident_id_fkey"
-            columns: ["merged_into_incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_organisation_id_fkey"
-            columns: ["organisation_id"]
-            isOneToOne: false
-            referencedRelation: "organisations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_organisation_id_priority_code_fkey"
-            columns: ["organisation_id", "priority_code"]
-            isOneToOne: false
-            referencedRelation: "incident_priorities"
-            referencedColumns: ["organisation_id", "code"]
-          },
-          {
-            foreignKeyName: "incidents_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "incidents_reported_by_profile_id_fkey"
-            columns: ["reported_by_profile_id"]
+            foreignKeyName: "investigation_incidents_linked_by_fkey"
+            columns: ["linked_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2005,52 +1662,6 @@ export type Database = {
           },
           {
             foreignKeyName: "investigation_evidence_linked_by_fkey"
-            columns: ["linked_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      investigation_incidents: {
-        Row: {
-          id: string
-          incident_id: string
-          investigation_id: string
-          linked_at: string
-          linked_by: string | null
-        }
-        Insert: {
-          id?: string
-          incident_id: string
-          investigation_id: string
-          linked_at?: string
-          linked_by?: string | null
-        }
-        Update: {
-          id?: string
-          incident_id?: string
-          investigation_id?: string
-          linked_at?: string
-          linked_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "investigation_incidents_incident_id_fkey"
-            columns: ["incident_id"]
-            isOneToOne: false
-            referencedRelation: "incidents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "investigation_incidents_investigation_id_fkey"
-            columns: ["investigation_id"]
-            isOneToOne: false
-            referencedRelation: "investigations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "investigation_incidents_linked_by_fkey"
             columns: ["linked_by"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -2277,8 +1888,8 @@ export type Database = {
           activated_by: string | null
           deactivated_at: string | null
           deactivated_by: string | null
+          event_id: string
           id: string
-          incident_id: string
           reason: string
         }
         Insert: {
@@ -2286,8 +1897,8 @@ export type Database = {
           activated_by?: string | null
           deactivated_at?: string | null
           deactivated_by?: string | null
+          event_id: string
           id?: string
-          incident_id: string
           reason: string
         }
         Update: {
@@ -2295,8 +1906,8 @@ export type Database = {
           activated_by?: string | null
           deactivated_at?: string | null
           deactivated_by?: string | null
+          event_id?: string
           id?: string
-          incident_id?: string
           reason?: string
         }
         Relationships: [
@@ -2316,9 +1927,9 @@ export type Database = {
           },
           {
             foreignKeyName: "major_incident_activations_incident_id_fkey"
-            columns: ["incident_id"]
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "incidents"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -2387,22 +1998,22 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          event_id: string
           id: string
-          incident_id: string
           reference: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          event_id: string
           id?: string
-          incident_id: string
           reference: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          event_id?: string
           id?: string
-          incident_id?: string
           reference?: string
         }
         Relationships: [
@@ -2415,9 +2026,9 @@ export type Database = {
           },
           {
             foreignKeyName: "methane_messages_incident_id_fkey"
-            columns: ["incident_id"]
+            columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "incidents"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -2430,13 +2041,13 @@ export type Database = {
           created_by: string | null
           description: string | null
           dismissed_reason: string | null
-          event_id: string
-          event_phase: Database["public"]["Enums"]["event_phase"] | null
           id: string
           location_id: string | null
           occurred_at: string
+          operation_id: string
+          operation_phase: Database["public"]["Enums"]["operation_phase"] | null
           organisation_id: string
-          promoted_incident_id: string | null
+          promoted_event_id: string | null
           reference: string
           reported_at: string
           reported_by_name: string | null
@@ -2453,13 +2064,15 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           dismissed_reason?: string | null
-          event_id: string
-          event_phase?: Database["public"]["Enums"]["event_phase"] | null
           id?: string
           location_id?: string | null
           occurred_at?: string
+          operation_id: string
+          operation_phase?:
+            | Database["public"]["Enums"]["operation_phase"]
+            | null
           organisation_id: string
-          promoted_incident_id?: string | null
+          promoted_event_id?: string | null
           reference: string
           reported_at?: string
           reported_by_name?: string | null
@@ -2476,13 +2089,15 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           dismissed_reason?: string | null
-          event_id?: string
-          event_phase?: Database["public"]["Enums"]["event_phase"] | null
           id?: string
           location_id?: string | null
           occurred_at?: string
+          operation_id?: string
+          operation_phase?:
+            | Database["public"]["Enums"]["operation_phase"]
+            | null
           organisation_id?: string
-          promoted_incident_id?: string | null
+          promoted_event_id?: string | null
           reference?: string
           reported_at?: string
           reported_by_name?: string | null
@@ -2502,9 +2117,9 @@ export type Database = {
           },
           {
             foreignKeyName: "observations_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -2523,9 +2138,9 @@ export type Database = {
           },
           {
             foreignKeyName: "observations_promoted_incident_id_fkey"
-            columns: ["promoted_incident_id"]
+            columns: ["promoted_event_id"]
             isOneToOne: false
-            referencedRelation: "incidents"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -2544,14 +2159,274 @@ export type Database = {
           },
         ]
       }
+      operation_characteristics: {
+        Row: {
+          characteristic_code: string
+          operation_id: string
+        }
+        Insert: {
+          characteristic_code: string
+          operation_id: string
+        }
+        Update: {
+          characteristic_code?: string
+          operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_characteristics_characteristic_code_fkey"
+            columns: ["characteristic_code"]
+            isOneToOne: false
+            referencedRelation: "characteristic_types"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "event_characteristics_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_control_roles: {
+        Row: {
+          code: string
+          id: string
+          name: string
+          organisation_id: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          id?: string
+          name: string
+          organisation_id: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          id?: string
+          name?: string
+          organisation_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_control_roles_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_control_sessions: {
+        Row: {
+          ended_at: string | null
+          ended_by: string | null
+          id: string
+          operation_id: string
+          profile_id: string
+          role_id: string
+          started_at: string
+          started_by: string | null
+        }
+        Insert: {
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          operation_id: string
+          profile_id: string
+          role_id: string
+          started_at?: string
+          started_by?: string | null
+        }
+        Update: {
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          operation_id?: string
+          profile_id?: string
+          role_id?: string
+          started_at?: string
+          started_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_control_sessions_ended_by_fkey"
+            columns: ["ended_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "operation_control_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_control_sessions_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_id_counters: {
+        Row: {
+          entity_type: string
+          operation_id: string
+          seq: number
+        }
+        Insert: {
+          entity_type: string
+          operation_id: string
+          seq?: number
+        }
+        Update: {
+          entity_type?: string
+          operation_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_id_counters_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_readiness_checks: {
+        Row: {
+          checklist_item_id: string
+          completed: boolean
+          completed_at: string | null
+          completed_by: string | null
+          id: string
+          notes: string | null
+          operation_id: string
+        }
+        Insert: {
+          checklist_item_id: string
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          id?: string
+          notes?: string | null
+          operation_id: string
+        }
+        Update: {
+          checklist_item_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          id?: string
+          notes?: string | null
+          operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_readiness_checks_checklist_item_id_fkey"
+            columns: ["checklist_item_id"]
+            isOneToOne: false
+            referencedRelation: "readiness_checklist_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_readiness_checks_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_readiness_checks_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operation_stage_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_stage:
+            | Database["public"]["Enums"]["operation_lifecycle_stage"]
+            | null
+          id: string
+          operation_id: string
+          reason: string | null
+          to_stage: Database["public"]["Enums"]["operation_lifecycle_stage"]
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_stage?:
+            | Database["public"]["Enums"]["operation_lifecycle_stage"]
+            | null
+          id?: string
+          operation_id: string
+          reason?: string | null
+          to_stage: Database["public"]["Enums"]["operation_lifecycle_stage"]
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_stage?:
+            | Database["public"]["Enums"]["operation_lifecycle_stage"]
+            | null
+          id?: string
+          operation_id?: string
+          reason?: string | null
+          to_stage?: Database["public"]["Enums"]["operation_lifecycle_stage"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_stage_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stage_history_event_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operational_locations: {
         Row: {
           code: string | null
           created_at: string
           description: string | null
-          event_id: string
           id: string
           name: string
+          operation_id: string
           parent_id: string | null
           status: Database["public"]["Enums"]["operational_location_status"]
           status_changed_at: string | null
@@ -2562,9 +2437,9 @@ export type Database = {
           code?: string | null
           created_at?: string
           description?: string | null
-          event_id: string
           id?: string
           name: string
+          operation_id: string
           parent_id?: string | null
           status?: Database["public"]["Enums"]["operational_location_status"]
           status_changed_at?: string | null
@@ -2575,9 +2450,9 @@ export type Database = {
           code?: string | null
           created_at?: string
           description?: string | null
-          event_id?: string
           id?: string
           name?: string
+          operation_id?: string
           parent_id?: string | null
           status?: Database["public"]["Enums"]["operational_location_status"]
           status_changed_at?: string | null
@@ -2587,9 +2462,9 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "operational_locations_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -2604,6 +2479,145 @@ export type Database = {
             columns: ["status_changed_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operations: {
+        Row: {
+          actual_peak: number | null
+          breakdown_at: string | null
+          build_start_at: string | null
+          category: string | null
+          client_id: string
+          closes_at: string | null
+          contractor_count: number | null
+          created_at: string
+          created_by: string | null
+          current_phase: Database["public"]["Enums"]["operation_phase"] | null
+          description: string | null
+          doors_at: string | null
+          end_date: string | null
+          expected_attendance: number | null
+          expected_peak: number | null
+          id: string
+          jurisdiction: string
+          licensed_capacity: number | null
+          lifecycle_stage: Database["public"]["Enums"]["operation_lifecycle_stage"]
+          load_in_at: string | null
+          load_out_at: string | null
+          local_authority: string | null
+          name: string
+          opens_at: string | null
+          organisation_id: string
+          performer_count: number | null
+          planned_public_capacity: number | null
+          planning_start_date: string | null
+          portal_enabled: boolean
+          reference: string
+          staff_call_at: string | null
+          staff_count: number | null
+          stand_down_at: string | null
+          start_date: string | null
+          timezone: string
+          year: number
+        }
+        Insert: {
+          actual_peak?: number | null
+          breakdown_at?: string | null
+          build_start_at?: string | null
+          category?: string | null
+          client_id: string
+          closes_at?: string | null
+          contractor_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: Database["public"]["Enums"]["operation_phase"] | null
+          description?: string | null
+          doors_at?: string | null
+          end_date?: string | null
+          expected_attendance?: number | null
+          expected_peak?: number | null
+          id?: string
+          jurisdiction?: string
+          licensed_capacity?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["operation_lifecycle_stage"]
+          load_in_at?: string | null
+          load_out_at?: string | null
+          local_authority?: string | null
+          name: string
+          opens_at?: string | null
+          organisation_id: string
+          performer_count?: number | null
+          planned_public_capacity?: number | null
+          planning_start_date?: string | null
+          portal_enabled?: boolean
+          reference: string
+          staff_call_at?: string | null
+          staff_count?: number | null
+          stand_down_at?: string | null
+          start_date?: string | null
+          timezone?: string
+          year: number
+        }
+        Update: {
+          actual_peak?: number | null
+          breakdown_at?: string | null
+          build_start_at?: string | null
+          category?: string | null
+          client_id?: string
+          closes_at?: string | null
+          contractor_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: Database["public"]["Enums"]["operation_phase"] | null
+          description?: string | null
+          doors_at?: string | null
+          end_date?: string | null
+          expected_attendance?: number | null
+          expected_peak?: number | null
+          id?: string
+          jurisdiction?: string
+          licensed_capacity?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["operation_lifecycle_stage"]
+          load_in_at?: string | null
+          load_out_at?: string | null
+          local_authority?: string | null
+          name?: string
+          opens_at?: string | null
+          organisation_id?: string
+          performer_count?: number | null
+          planned_public_capacity?: number | null
+          planning_start_date?: string | null
+          portal_enabled?: boolean
+          reference?: string
+          staff_call_at?: string | null
+          staff_count?: number | null
+          stand_down_at?: string | null
+          start_date?: string | null
+          timezone?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
             referencedColumns: ["id"]
           },
         ]
@@ -2808,13 +2822,13 @@ export type Database = {
         Row: {
           channel: string | null
           created_at: string
-          event_id: string
           from_callsign: string | null
           id: string
-          linked_incident_id: string | null
+          linked_event_id: string | null
           logged_by: string | null
           message: string
           occurred_at: string
+          operation_id: string
           organisation_id: string
           reference: string
           significant: boolean
@@ -2823,13 +2837,13 @@ export type Database = {
         Insert: {
           channel?: string | null
           created_at?: string
-          event_id: string
           from_callsign?: string | null
           id?: string
-          linked_incident_id?: string | null
+          linked_event_id?: string | null
           logged_by?: string | null
           message: string
           occurred_at?: string
+          operation_id: string
           organisation_id: string
           reference: string
           significant?: boolean
@@ -2838,13 +2852,13 @@ export type Database = {
         Update: {
           channel?: string | null
           created_at?: string
-          event_id?: string
           from_callsign?: string | null
           id?: string
-          linked_incident_id?: string | null
+          linked_event_id?: string | null
           logged_by?: string | null
           message?: string
           occurred_at?: string
+          operation_id?: string
           organisation_id?: string
           reference?: string
           significant?: boolean
@@ -2853,16 +2867,16 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "radio_log_entries_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "radio_log_entries_linked_incident_id_fkey"
-            columns: ["linked_incident_id"]
+            columns: ["linked_event_id"]
             isOneToOne: false
-            referencedRelation: "incidents"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -2924,11 +2938,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
-          event_id: string
           id: string
           impact: number
           likelihood: number
           mitigation: string | null
+          operation_id: string
           organisation_id: string
           owner_id: string | null
           reference: string
@@ -2943,11 +2957,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          event_id: string
           id?: string
           impact: number
           likelihood: number
           mitigation?: string | null
+          operation_id: string
           organisation_id: string
           owner_id?: string | null
           reference: string
@@ -2962,11 +2976,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          event_id?: string
           id?: string
           impact?: number
           likelihood?: number
           mitigation?: string | null
+          operation_id?: string
           organisation_id?: string
           owner_id?: string | null
           reference?: string
@@ -2991,9 +3005,9 @@ export type Database = {
           },
           {
             foreignKeyName: "risks_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -3086,10 +3100,10 @@ export type Database = {
       user_roles: {
         Row: {
           client_id: string | null
-          event_id: string | null
           granted_at: string
           granted_by: string | null
           id: string
+          operation_id: string | null
           organisation_id: string
           revoked_at: string | null
           revoked_by: string | null
@@ -3098,10 +3112,10 @@ export type Database = {
         }
         Insert: {
           client_id?: string | null
-          event_id?: string | null
           granted_at?: string
           granted_by?: string | null
           id?: string
+          operation_id?: string | null
           organisation_id: string
           revoked_at?: string | null
           revoked_by?: string | null
@@ -3110,10 +3124,10 @@ export type Database = {
         }
         Update: {
           client_id?: string | null
-          event_id?: string | null
           granted_at?: string
           granted_by?: string | null
           id?: string
+          operation_id?: string | null
           organisation_id?: string
           revoked_at?: string | null
           revoked_by?: string | null
@@ -3130,9 +3144,9 @@ export type Database = {
           },
           {
             foreignKeyName: "user_roles_event_id_fkey"
-            columns: ["event_id"]
+            columns: ["operation_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "operations"
             referencedColumns: ["id"]
           },
           {
@@ -3240,21 +3254,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      acknowledge_incident: {
-        Args: { p_incident_id: string }
-        Returns: undefined
+      acknowledge_event: { Args: { p_event_id: string }; Returns: undefined }
+      activate_major_incident: {
+        Args: { p_event_id: string; p_reason: string }
+        Returns: string
       }
-      activate_event: {
+      activate_operation: {
         Args: {
           p_acknowledged_warnings?: string[]
           p_comments?: string
-          p_event_id: string
+          p_operation_id: string
         }
         Returns: undefined
-      }
-      activate_major_incident: {
-        Args: { p_incident_id: string; p_reason: string }
-        Returns: string
       }
       add_audit_template_question: {
         Args: {
@@ -3266,11 +3277,11 @@ export type Database = {
         }
         Returns: string
       }
-      add_incident_correction: {
+      add_event_correction: {
         Args: {
           p_body: string
           p_corrects_entry_id: string
-          p_incident_id: string
+          p_event_id: string
         }
         Returns: string
       }
@@ -3287,11 +3298,11 @@ export type Database = {
         }
         Returns: string
       }
-      append_incident_log_entry: {
+      append_event_log_entry: {
         Args: {
           p_body: string
-          p_entry_type: Database["public"]["Enums"]["incident_log_entry_type"]
-          p_incident_id: string
+          p_entry_type: Database["public"]["Enums"]["event_log_entry_type"]
+          p_event_id: string
           p_linked_record_id?: string
           p_linked_record_type?: string
           p_occurred_at?: string
@@ -3306,54 +3317,54 @@ export type Database = {
         Args: { p_document_id: string; p_reason: string }
         Returns: undefined
       }
-      assign_incident_controller: {
-        Args: { p_controller_id?: string; p_incident_id: string }
+      assign_event_controller: {
+        Args: { p_controller_id?: string; p_event_id: string }
         Returns: undefined
       }
-      assign_incident_owner: {
-        Args: { p_incident_id: string; p_owner_id: string }
+      assign_event_owner: {
+        Args: { p_event_id: string; p_owner_id: string }
         Returns: undefined
       }
-      cancel_incident_action: {
+      cancel_event_action: {
         Args: { p_action_id: string; p_reason: string }
         Returns: undefined
       }
-      change_event_phase: {
+      change_event_priority: {
         Args: {
           p_event_id: string
-          p_phase: Database["public"]["Enums"]["event_phase"]
-        }
-        Returns: undefined
-      }
-      change_event_stage: {
-        Args: {
-          p_event_id: string
-          p_reason?: string
-          p_to_stage: Database["public"]["Enums"]["event_lifecycle_stage"]
-        }
-        Returns: undefined
-      }
-      change_incident_priority: {
-        Args: {
-          p_incident_id: string
           p_new_priority_code: string
           p_reason?: string
         }
         Returns: undefined
       }
-      close_incident: {
-        Args: { p_closure_summary: string; p_incident_id: string }
+      change_operation_phase: {
+        Args: {
+          p_operation_id: string
+          p_phase: Database["public"]["Enums"]["operation_phase"]
+        }
         Returns: undefined
       }
-      complete_incident_action: {
+      change_operation_stage: {
+        Args: {
+          p_operation_id: string
+          p_reason?: string
+          p_to_stage: Database["public"]["Enums"]["operation_lifecycle_stage"]
+        }
+        Returns: undefined
+      }
+      close_event: {
+        Args: { p_closure_summary: string; p_event_id: string }
+        Returns: undefined
+      }
+      complete_event_action: {
         Args: { p_action_id: string; p_note?: string }
         Returns: undefined
       }
       complete_readiness_check: {
         Args: {
           p_checklist_item_id: string
-          p_event_id: string
           p_notes?: string
+          p_operation_id: string
         }
         Returns: undefined
       }
@@ -3365,22 +3376,45 @@ export type Database = {
         }
         Returns: string
       }
+      create_characteristic_type: {
+        Args: { p_code: string; p_name: string; p_sort_order?: number }
+        Returns: string
+      }
+      create_control_role: {
+        Args: {
+          p_code: string
+          p_name: string
+          p_organisation_id: string
+          p_sort_order?: number
+        }
+        Returns: string
+      }
       create_document: {
         Args: {
           p_classification?: Database["public"]["Enums"]["classification_level"]
           p_document_type_id: string
-          p_event_id: string
+          p_operation_id: string
           p_title: string
         }
         Returns: string
       }
-      create_incident: {
+      create_document_type: {
+        Args: {
+          p_code: string
+          p_description?: string
+          p_name: string
+          p_organisation_id: string
+          p_sort_order?: number
+        }
+        Returns: string
+      }
+      create_event: {
         Args: {
           p_category_code: string
           p_description?: string
-          p_event_id: string
           p_location_id?: string
           p_occurred_at?: string
+          p_operation_id: string
           p_priority_code?: string
           p_report_source?: Database["public"]["Enums"]["report_source"]
           p_reported_by_name?: string
@@ -3388,12 +3422,29 @@ export type Database = {
         }
         Returns: string
       }
-      create_incident_action: {
+      create_event_action: {
         Args: {
           p_assigned_to?: string
           p_description: string
           p_due_at?: string
-          p_incident_id: string
+          p_event_id: string
+        }
+        Returns: string
+      }
+      create_event_category: {
+        Args: { p_code: string; p_name: string; p_sort_order?: number }
+        Returns: string
+      }
+      create_event_priority: {
+        Args: {
+          p_code: string
+          p_color_token?: string
+          p_description: string
+          p_name: string
+          p_organisation_id: string
+          p_rank: number
+          p_target_ack_minutes?: number
+          p_target_resolve_minutes?: number
         }
         Returns: string
       }
@@ -3412,9 +3463,9 @@ export type Database = {
           p_access_and_egress?: string
           p_casualties?: string
           p_emergency_services?: string
+          p_event_id: string
           p_exact_location: string
           p_hazards?: string
-          p_incident_id: string
           p_incident_type: string
           p_major_incident_declared: boolean
         }
@@ -3425,9 +3476,9 @@ export type Database = {
           p_category: string
           p_classification?: Database["public"]["Enums"]["classification_level"]
           p_description?: string
-          p_event_id: string
           p_location_id?: string
           p_occurred_at?: string
+          p_operation_id: string
           p_reported_by_name?: string
           p_summary: string
         }
@@ -3438,8 +3489,8 @@ export type Database = {
           p_classification?: Database["public"]["Enums"]["classification_level"]
           p_date_of_birth?: string
           p_description?: string
+          p_event_id: string
           p_first_name?: string
-          p_incident_id: string
           p_notes?: string
           p_purpose: string
           p_role_code: string
@@ -3451,12 +3502,22 @@ export type Database = {
         Args: {
           p_category?: string
           p_description?: string
-          p_event_id: string
           p_impact: number
           p_likelihood: number
           p_mitigation?: string
+          p_operation_id: string
           p_owner_id?: string
           p_title: string
+        }
+        Returns: string
+      }
+      create_role: {
+        Args: {
+          p_code: string
+          p_description?: string
+          p_is_external?: boolean
+          p_name: string
+          p_organisation_id: string
         }
         Returns: string
       }
@@ -3465,7 +3526,7 @@ export type Database = {
           p_classification?: Database["public"]["Enums"]["classification_level"]
           p_colour?: string
           p_description?: string
-          p_incident_id: string
+          p_event_id: string
           p_make?: string
           p_model?: string
           p_notes?: string
@@ -3478,25 +3539,49 @@ export type Database = {
       current_organisation_id: { Args: never; Returns: string }
       current_profile_id: { Args: never; Returns: string }
       deactivate_major_incident: {
-        Args: { p_incident_id: string; p_reason?: string }
+        Args: { p_event_id: string; p_reason?: string }
         Returns: undefined
       }
+      delete_audit_template: {
+        Args: { p_template_id: string }
+        Returns: undefined
+      }
+      delete_audit_template_question: {
+        Args: { p_question_id: string }
+        Returns: undefined
+      }
+      delete_characteristic_type: {
+        Args: { p_code: string }
+        Returns: undefined
+      }
+      delete_control_role: { Args: { p_id: string }; Returns: undefined }
+      delete_document_type: { Args: { p_id: string }; Returns: undefined }
+      delete_event_category: { Args: { p_code: string }; Returns: undefined }
+      delete_event_priority: {
+        Args: { p_code: string; p_organisation_id: string }
+        Returns: undefined
+      }
+      delete_role: { Args: { p_role_id: string }; Returns: undefined }
       end_control_session: {
         Args: { p_session_id: string }
         Returns: undefined
       }
-      get_portal_incident_summary: {
-        Args: { p_event_id: string }
+      get_portal_event_summary: {
+        Args: { p_operation_id: string }
         Returns: {
-          closed_incidents: number
-          open_incidents: number
-          resolved_incidents: number
-          total_incidents: number
+          closed_events: number
+          open_events: number
+          resolved_events: number
+          total_events: number
         }[]
       }
-      grant_event_portal_access: {
-        Args: { p_email: string; p_event_id: string; p_role_id: string }
+      grant_operation_portal_access: {
+        Args: { p_email: string; p_operation_id: string; p_role_id: string }
         Returns: string
+      }
+      grant_role_permission: {
+        Args: { p_permission_id: string; p_role_id: string }
+        Returns: undefined
       }
       has_permission: {
         Args: {
@@ -3510,30 +3595,30 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       issue_document: { Args: { p_document_id: string }; Returns: undefined }
+      link_event_to_investigation: {
+        Args: { p_event_id: string; p_investigation_id: string }
+        Returns: string
+      }
       link_evidence_to_investigation: {
         Args: { p_evidence_item_id: string; p_investigation_id: string }
         Returns: string
       }
-      link_existing_person_to_incident: {
+      link_existing_person_to_event: {
         Args: {
-          p_incident_id: string
+          p_event_id: string
           p_notes?: string
           p_person_id: string
           p_role_code: string
         }
         Returns: string
       }
-      link_existing_vehicle_to_incident: {
+      link_existing_vehicle_to_event: {
         Args: {
-          p_incident_id: string
+          p_event_id: string
           p_notes?: string
           p_role_code: string
           p_vehicle_id: string
         }
-        Returns: string
-      }
-      link_incident_to_investigation: {
-        Args: { p_incident_id: string; p_investigation_id: string }
         Returns: string
       }
       link_person_to_investigation: {
@@ -3560,9 +3645,9 @@ export type Database = {
           p_collected_at?: string
           p_collected_by_name?: string
           p_description: string
+          p_event_id: string
           p_file_name?: string
           p_file_size?: number
-          p_incident_id: string
           p_item_type: string
           p_mime_type?: string
           p_sha256_hash?: string
@@ -3573,20 +3658,20 @@ export type Database = {
       log_radio_entry: {
         Args: {
           p_channel?: string
-          p_event_id: string
           p_from_callsign?: string
-          p_linked_incident_id?: string
+          p_linked_event_id?: string
           p_message: string
           p_occurred_at?: string
+          p_operation_id: string
           p_significant?: boolean
           p_to_callsign?: string
         }
         Returns: string
       }
-      next_event_reference: {
+      next_operation_reference: {
         Args: {
           p_entity_type: string
-          p_event_id: string
+          p_operation_id: string
           p_suffix_width?: number
         }
         Returns: string
@@ -3608,17 +3693,21 @@ export type Database = {
         }
         Returns: string
       }
-      notify_incident_agency: {
+      notify_event_agency: {
         Args: {
           p_agency_name: string
           p_agency_type: string
           p_contact_name?: string
           p_contact_number?: string
-          p_incident_id: string
+          p_event_id: string
         }
         Returns: string
       }
-      promote_observation_to_incident: {
+      org_has_other_administrator: {
+        Args: { p_excluding_role_id: string; p_organisation_id: string }
+        Returns: boolean
+      }
+      promote_observation_to_event: {
         Args: {
           p_category_code: string
           p_observation_id: string
@@ -3633,23 +3722,19 @@ export type Database = {
           p_before_state?: Json
           p_entity_id: string
           p_entity_type: string
-          p_event_id?: string
+          p_operation_id?: string
           p_organisation_id?: string
           p_reason?: string
         }
         Returns: string
       }
+      record_event_decision: {
+        Args: { p_decision: string; p_event_id: string; p_rationale?: string }
+        Returns: string
+      }
       record_evidence_access: {
         Args: { p_action?: string; p_evidence_item_id: string }
         Returns: undefined
-      }
-      record_incident_decision: {
-        Args: {
-          p_decision: string
-          p_incident_id: string
-          p_rationale?: string
-        }
-        Returns: string
       }
       register_document_version: {
         Args: {
@@ -3662,47 +3747,59 @@ export type Database = {
         }
         Returns: string
       }
-      reopen_incident: {
-        Args: { p_incident_id: string; p_reason: string }
+      reopen_event: {
+        Args: { p_event_id: string; p_reason: string }
         Returns: undefined
       }
-      request_incident_resource: {
+      request_event_resource: {
         Args: {
           p_description?: string
-          p_incident_id: string
+          p_event_id: string
           p_resource_type: string
         }
         Returns: string
       }
-      resolve_incident: {
-        Args: { p_incident_id: string; p_resolution: string }
+      resolve_event: {
+        Args: { p_event_id: string; p_resolution: string }
         Returns: undefined
       }
-      set_event_portal_enabled: {
-        Args: { p_enabled: boolean; p_event_id: string }
+      revoke_role_permission: {
+        Args: { p_permission_id: string; p_role_id: string }
         Returns: undefined
       }
-      set_incident_classification: {
+      set_audit_template_active: {
+        Args: { p_is_active: boolean; p_template_id: string }
+        Returns: undefined
+      }
+      set_event_classification: {
         Args: {
           p_classification: Database["public"]["Enums"]["classification_level"]
-          p_incident_id: string
+          p_event_id: string
         }
         Returns: undefined
       }
-      set_incident_restricted_narrative: {
-        Args: { p_body: string; p_incident_id: string }
+      set_event_restricted_narrative: {
+        Args: { p_body: string; p_event_id: string }
+        Returns: undefined
+      }
+      set_operation_portal_enabled: {
+        Args: { p_enabled: boolean; p_operation_id: string }
         Returns: undefined
       }
       start_audit_submission: {
         Args: {
-          p_event_id?: string
           p_location_id?: string
+          p_operation_id?: string
           p_template_id: string
         }
         Returns: string
       }
       start_control_session: {
-        Args: { p_event_id: string; p_profile_id?: string; p_role_id: string }
+        Args: {
+          p_operation_id: string
+          p_profile_id?: string
+          p_role_id: string
+        }
         Returns: string
       }
       submit_audit: { Args: { p_submission_id: string }; Returns: number }
@@ -3711,7 +3808,69 @@ export type Database = {
         Returns: undefined
       }
       uncomplete_readiness_check: {
-        Args: { p_checklist_item_id: string; p_event_id: string }
+        Args: { p_checklist_item_id: string; p_operation_id: string }
+        Returns: undefined
+      }
+      update_audit_template: {
+        Args: { p_description: string; p_name: string; p_template_id: string }
+        Returns: undefined
+      }
+      update_audit_template_question: {
+        Args: {
+          p_question_id: string
+          p_question_text: string
+          p_section: string
+          p_sort_order: number
+          p_weight: number
+        }
+        Returns: undefined
+      }
+      update_characteristic_type: {
+        Args: { p_code: string; p_name: string; p_sort_order: number }
+        Returns: undefined
+      }
+      update_control_role: {
+        Args: { p_id: string; p_name: string; p_sort_order: number }
+        Returns: undefined
+      }
+      update_document_type: {
+        Args: {
+          p_description: string
+          p_id: string
+          p_name: string
+          p_sort_order: number
+        }
+        Returns: undefined
+      }
+      update_event_agency_status: {
+        Args: {
+          p_agency_id: string
+          p_status: Database["public"]["Enums"]["event_agency_status"]
+        }
+        Returns: undefined
+      }
+      update_event_category: {
+        Args: { p_code: string; p_name: string; p_sort_order: number }
+        Returns: undefined
+      }
+      update_event_priority: {
+        Args: {
+          p_code: string
+          p_color_token: string
+          p_description: string
+          p_name: string
+          p_organisation_id: string
+          p_rank: number
+          p_target_ack_minutes: number
+          p_target_resolve_minutes: number
+        }
+        Returns: undefined
+      }
+      update_event_resource_status: {
+        Args: {
+          p_resource_id: string
+          p_status: Database["public"]["Enums"]["event_resource_status"]
+        }
         Returns: undefined
       }
       update_evidence_status: {
@@ -3719,20 +3878,6 @@ export type Database = {
           p_evidence_item_id: string
           p_notes?: string
           p_status: Database["public"]["Enums"]["evidence_status"]
-        }
-        Returns: undefined
-      }
-      update_incident_agency_status: {
-        Args: {
-          p_agency_id: string
-          p_status: Database["public"]["Enums"]["incident_agency_status"]
-        }
-        Returns: undefined
-      }
-      update_incident_resource_status: {
-        Args: {
-          p_resource_id: string
-          p_status: Database["public"]["Enums"]["incident_resource_status"]
         }
         Returns: undefined
       }
@@ -3749,6 +3894,15 @@ export type Database = {
           p_dismissed_reason?: string
           p_observation_id: string
           p_status: Database["public"]["Enums"]["observation_status"]
+        }
+        Returns: undefined
+      }
+      update_organisation: {
+        Args: {
+          p_legal_name: string
+          p_name: string
+          p_organisation_id: string
+          p_status: string
         }
         Returns: undefined
       }
@@ -3769,6 +3923,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_role: {
+        Args: { p_description: string; p_name: string; p_role_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_type: "pending" | "staff" | "client" | "contractor"
@@ -3787,38 +3945,9 @@ export type Database = {
         | "issued"
         | "superseded"
         | "archived"
-      event_lifecycle_stage:
-        | "enquiry"
-        | "proposal"
-        | "confirmed"
-        | "planning"
-        | "documentation"
-        | "client_review"
-        | "readiness_review"
-        | "operational_ready"
-        | "live"
-        | "stand_down"
-        | "post_event_review"
-        | "closed"
-        | "archived"
-      event_phase:
-        | "build"
-        | "pre_open"
-        | "ingress"
-        | "live"
-        | "peak"
-        | "egress"
-        | "closed_to_public"
-        | "breakdown"
-        | "stand_down"
-      evidence_status: "logged" | "reviewed" | "released" | "disposed"
-      incident_action_status: "open" | "in_progress" | "complete" | "cancelled"
-      incident_agency_status:
-        | "notified"
-        | "attending"
-        | "on_scene"
-        | "stood_down"
-      incident_log_entry_type:
+      event_action_status: "open" | "in_progress" | "complete" | "cancelled"
+      event_agency_status: "notified" | "attending" | "on_scene" | "stood_down"
+      event_log_entry_type:
         | "report"
         | "update"
         | "status"
@@ -3833,12 +3962,12 @@ export type Database = {
         | "system"
         | "correction"
         | "intelligence"
-      incident_resource_status:
+      event_resource_status:
         | "requested"
         | "dispatched"
         | "on_scene"
         | "stood_down"
-      incident_status:
+      event_status:
         | "reported"
         | "acknowledged"
         | "active"
@@ -3848,9 +3977,34 @@ export type Database = {
         | "suspended"
         | "resolved"
         | "closed"
+      evidence_status: "logged" | "reviewed" | "released" | "disposed"
       intelligence_record_status: "active" | "archived"
       investigation_status: "open" | "active" | "closed" | "archived"
       observation_status: "open" | "reviewed" | "promoted" | "dismissed"
+      operation_lifecycle_stage:
+        | "enquiry"
+        | "proposal"
+        | "confirmed"
+        | "planning"
+        | "documentation"
+        | "client_review"
+        | "readiness_review"
+        | "operational_ready"
+        | "live"
+        | "stand_down"
+        | "post_event_review"
+        | "closed"
+        | "archived"
+      operation_phase:
+        | "build"
+        | "pre_open"
+        | "ingress"
+        | "live"
+        | "peak"
+        | "egress"
+        | "closed_to_public"
+        | "breakdown"
+        | "stand_down"
       operational_location_status:
         | "normal"
         | "monitoring"
@@ -4018,41 +4172,9 @@ export const Constants = {
         "superseded",
         "archived",
       ],
-      event_lifecycle_stage: [
-        "enquiry",
-        "proposal",
-        "confirmed",
-        "planning",
-        "documentation",
-        "client_review",
-        "readiness_review",
-        "operational_ready",
-        "live",
-        "stand_down",
-        "post_event_review",
-        "closed",
-        "archived",
-      ],
-      event_phase: [
-        "build",
-        "pre_open",
-        "ingress",
-        "live",
-        "peak",
-        "egress",
-        "closed_to_public",
-        "breakdown",
-        "stand_down",
-      ],
-      evidence_status: ["logged", "reviewed", "released", "disposed"],
-      incident_action_status: ["open", "in_progress", "complete", "cancelled"],
-      incident_agency_status: [
-        "notified",
-        "attending",
-        "on_scene",
-        "stood_down",
-      ],
-      incident_log_entry_type: [
+      event_action_status: ["open", "in_progress", "complete", "cancelled"],
+      event_agency_status: ["notified", "attending", "on_scene", "stood_down"],
+      event_log_entry_type: [
         "report",
         "update",
         "status",
@@ -4068,13 +4190,13 @@ export const Constants = {
         "correction",
         "intelligence",
       ],
-      incident_resource_status: [
+      event_resource_status: [
         "requested",
         "dispatched",
         "on_scene",
         "stood_down",
       ],
-      incident_status: [
+      event_status: [
         "reported",
         "acknowledged",
         "active",
@@ -4085,9 +4207,36 @@ export const Constants = {
         "resolved",
         "closed",
       ],
+      evidence_status: ["logged", "reviewed", "released", "disposed"],
       intelligence_record_status: ["active", "archived"],
       investigation_status: ["open", "active", "closed", "archived"],
       observation_status: ["open", "reviewed", "promoted", "dismissed"],
+      operation_lifecycle_stage: [
+        "enquiry",
+        "proposal",
+        "confirmed",
+        "planning",
+        "documentation",
+        "client_review",
+        "readiness_review",
+        "operational_ready",
+        "live",
+        "stand_down",
+        "post_event_review",
+        "closed",
+        "archived",
+      ],
+      operation_phase: [
+        "build",
+        "pre_open",
+        "ingress",
+        "live",
+        "peak",
+        "egress",
+        "closed_to_public",
+        "breakdown",
+        "stand_down",
+      ],
       operational_location_status: [
         "normal",
         "monitoring",

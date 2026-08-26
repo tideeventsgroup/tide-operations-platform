@@ -23,20 +23,20 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
 
   const [incidentsResult, observationsResult, auditsResult, investigationsResult] = await Promise.all([
     supabase
-      .from("incidents")
-      .select("id, reference, summary, category_code, priority_code, status, created_at, events(name), operational_locations(name)")
+      .from("events")
+      .select("id, reference, summary, category_code, priority_code, status, created_at, operations(name), operational_locations(name)")
       .eq("organisation_id", organisationId)
       .order("created_at", { ascending: false })
       .limit(30),
     supabase
       .from("observations")
-      .select("id, reference, summary, category, status, created_at, event_id, events(name)")
+      .select("id, reference, summary, category, status, created_at, operation_id, operations(name)")
       .eq("organisation_id", organisationId)
       .order("created_at", { ascending: false })
       .limit(30),
     supabase
       .from("audit_submissions")
-      .select("id, score, status, submitted_at, created_at, audit_templates(name), events(name)")
+      .select("id, score, status, submitted_at, created_at, audit_templates(name), operations(name)")
       .eq("organisation_id", organisationId)
       .eq("status", "submitted")
       .order("submitted_at", { ascending: false })
@@ -58,17 +58,17 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
   const latestActivityByIncident = new Map<string, { author: string; body: string }>();
   if (incidents.length > 0) {
     const { data: entries } = await supabase
-      .from("incident_log_entries")
-      .select("incident_id, body, created_at, profiles(first_name, surname, email)")
+      .from("event_log_entries")
+      .select("event_id, body, created_at, profiles(first_name, surname, email)")
       .in(
-        "incident_id",
+        "event_id",
         incidents.map((i) => i.id),
       )
       .order("created_at", { ascending: false });
     for (const entry of entries ?? []) {
-      if (latestActivityByIncident.has(entry.incident_id)) continue;
+      if (latestActivityByIncident.has(entry.event_id)) continue;
       const author = entry.profiles ? [entry.profiles.first_name, entry.profiles.surname].filter(Boolean).join(" ") || entry.profiles.email : "System";
-      latestActivityByIncident.set(entry.incident_id, { author, body: entry.body });
+      latestActivityByIncident.set(entry.event_id, { author, body: entry.body });
     }
   }
 
@@ -81,8 +81,8 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       timestamp: i.created_at,
       title: i.summary,
       reference: i.reference,
-      subtitle: [i.events?.name, i.operational_locations?.name].filter(Boolean).join(" · "),
-      href: `/incidents/${i.id}`,
+      subtitle: [i.operations?.name, i.operational_locations?.name].filter(Boolean).join(" · "),
+      href: `/events/${i.id}`,
       value: i.priority_code ?? i.category_code,
       isOpen: i.status !== "resolved" && i.status !== "closed",
       activity: latestActivityByIncident.get(i.id),
@@ -96,8 +96,8 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       timestamp: o.created_at,
       title: o.summary,
       reference: o.reference,
-      subtitle: [o.events?.name, o.category].filter(Boolean).join(" · "),
-      href: `/events/${o.event_id}/observations`,
+      subtitle: [o.operations?.name, o.category].filter(Boolean).join(" · "),
+      href: `/operations/${o.operation_id}/observations`,
       value: o.status,
       isOpen: o.status === "open",
     });
@@ -110,7 +110,7 @@ export async function getActivityFeed(organisationId: string): Promise<FeedItem[
       timestamp: a.submitted_at ?? a.created_at,
       title: a.audit_templates?.name ?? "Audit submitted",
       reference: a.id.slice(0, 8),
-      subtitle: a.events?.name ?? "",
+      subtitle: a.operations?.name ?? "",
       href: `/audits/${a.id}`,
       value: a.score !== null ? `${a.score}%` : "N/A",
       isOpen: false,

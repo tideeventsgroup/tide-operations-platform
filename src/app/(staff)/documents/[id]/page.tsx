@@ -33,8 +33,8 @@ export default async function DocumentDetailPage({ params }: PageProps<"/documen
         <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
           {document.reference}
           <span>·</span>
-          <Link href={`/events/${document.events?.id}/documents`} className="hover:underline">
-            {document.events?.name}
+          <Link href={`/operations/${document.operations?.id}/documents`} className="hover:underline">
+            {document.operations?.name}
           </Link>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -61,7 +61,7 @@ export default async function DocumentDetailPage({ params }: PageProps<"/documen
       <div className="space-y-3">
         <div className="flex items-baseline justify-between">
           <h2 className="section-label">Versions</h2>
-          <DocumentVersionUpload documentId={id} eventId={document.event_id} />
+          <DocumentVersionUpload documentId={id} operationId={document.operation_id} />
         </div>
         <DocumentVersionList versions={versions} currentVersionId={document.current_version_id} />
       </div>

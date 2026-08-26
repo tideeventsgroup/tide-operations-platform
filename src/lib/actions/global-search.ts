@@ -1,7 +1,9 @@
 "use server";
 
-import { globalSearch } from "@/lib/domain/global-search-service";
+import { searchAll } from "@/lib/domain/search-service";
+import { getSearchScopes } from "@/lib/domain/search-scopes";
 
 export async function globalSearchAction(organisationId: string, query: string) {
-  return globalSearch(organisationId, query);
+  const scopes = await getSearchScopes(organisationId);
+  return searchAll(organisationId, query, scopes);
 }

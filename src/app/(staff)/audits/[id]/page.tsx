@@ -32,7 +32,7 @@ export default async function AuditSubmissionPage({ params }: PageProps<"/audits
           <span>
             {[submission.submitted_by_profile?.first_name, submission.submitted_by_profile?.surname].filter(Boolean).join(" ")}
           </span>
-          {submission.events?.name ? <span>· {submission.events.name}</span> : null}
+          {submission.operations?.name ? <span>· {submission.operations.name}</span> : null}
           {isDraft ? (
             <Badge variant="secondary">In progress</Badge>
           ) : (

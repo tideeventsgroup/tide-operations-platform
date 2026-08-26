@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Tables, Enums } from "@/lib/supabase/types";
 
-export function NewDocumentForm({ eventId, documentTypes }: { eventId: string; documentTypes: Tables<"document_types">[] }) {
+export function NewDocumentForm({ operationId, documentTypes }: { operationId: string; documentTypes: Tables<"document_types">[] }) {
   const [open, setOpen] = useState(false);
   const [documentTypeId, setDocumentTypeId] = useState(documentTypes[0]?.id ?? "");
   const [title, setTitle] = useState("");
@@ -17,7 +17,7 @@ export function NewDocumentForm({ eventId, documentTypes }: { eventId: string; d
   function submit() {
     if (!documentTypeId || !title.trim()) return;
     startTransition(async () => {
-      const result = await createDocumentAction(eventId, documentTypeId, title.trim(), classification);
+      const result = await createDocumentAction(operationId, documentTypeId, title.trim(), classification);
       if (result?.error) toast.error(result.error);
     });
   }

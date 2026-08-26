@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { ClipboardCheck, Eye, FileSearch, MessageCircle, Siren } from "lucide-react";
 import { EntityCard } from "@/components/ui/entity-card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/empty-state";
 import type { FeedItem } from "@/lib/domain/feed-service";
 
 const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
@@ -58,9 +60,7 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_240px]">
       <div className="min-w-0 space-y-3">
         {filtered.length === 0 ? (
-          <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-            Nothing to show for the selected filters
-          </div>
+          <EmptyState message="Nothing to show for the selected filters" />
         ) : (
           filtered.map((item) => {
             const Icon = KIND_ICON[item.kind];
@@ -92,21 +92,21 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
         )}
       </div>
 
-      <div className="space-y-5">
-        <h2 className="text-lg font-bold text-foreground">Show me</h2>
-        <div className="space-y-2">
-          <p className="text-sm font-bold text-foreground">Type</p>
+      <div className="h-fit space-y-5 rounded-lg border border-border bg-card p-4">
+        <h2 className="text-sm font-bold text-foreground">Show me</h2>
+        <div className="space-y-2.5">
+          <p className="section-label">Type</p>
           {KINDS.map((kind) => (
             <label key={kind} className="flex items-center gap-2 text-sm text-foreground">
-              <input type="checkbox" checked={visibleKinds.has(kind)} onChange={() => toggleKind(kind)} />
+              <Checkbox checked={visibleKinds.has(kind)} onCheckedChange={() => toggleKind(kind)} />
               {KIND_FILTER_LABEL[kind]}
             </label>
           ))}
         </div>
-        <div className="space-y-2">
-          <p className="text-sm font-bold text-foreground">Status</p>
+        <div className="space-y-2.5 border-t border-border pt-4">
+          <p className="section-label">Status</p>
           <label className="flex items-center gap-2 text-sm text-foreground">
-            <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} />
+            <Checkbox checked={openOnly} onCheckedChange={(checked) => setOpenOnly(checked === true)} />
             Open only
           </label>
         </div>

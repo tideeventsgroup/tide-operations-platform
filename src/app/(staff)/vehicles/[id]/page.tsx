@@ -24,12 +24,12 @@ export default async function VehicleProfilePage({ params }: PageProps<"/vehicle
 
   const nodes: ConnectionNode[] = [
     ...incidentLinks
-      .filter((link) => link.incidents)
+      .filter((link) => link.events)
       .map((link) => ({
-        id: `incident-${link.incidents!.id}`,
-        label: link.incidents!.reference,
+        id: `incident-${link.events!.id}`,
+        label: link.events!.reference,
         sublabel: link.role_code,
-        href: `/incidents/${link.incidents!.id}`,
+        href: `/events/${link.events!.id}`,
         kind: "incident" as const,
       })),
     ...investigationLinks
@@ -78,19 +78,19 @@ export default async function VehicleProfilePage({ params }: PageProps<"/vehicle
       ) : null}
 
       <div className="space-y-3">
-        <h2 className="section-label">Incidents</h2>
+        <h2 className="section-label">Events</h2>
         {incidentLinks.length === 0 ? (
-          <EmptyState message="No incidents linked" />
+          <EmptyState message="No events linked" />
         ) : (
           <div className="space-y-3">
             {incidentLinks.map((link) => (
               <EntityCard
                 key={link.id}
-                href={`/incidents/${link.incidents?.id}`}
-                title={link.incidents?.summary ?? ""}
-                reference={link.incidents?.reference}
+                href={`/events/${link.events?.id}`}
+                title={link.events?.summary ?? ""}
+                reference={link.events?.reference}
                 value={<Badge variant="secondary">{link.role_code}</Badge>}
-                subtitle={link.incidents?.events?.name ?? undefined}
+                subtitle={link.events?.operations?.name ?? undefined}
               />
             ))}
           </div>

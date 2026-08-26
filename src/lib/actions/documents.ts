@@ -4,37 +4,37 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { Enums } from "@/lib/supabase/types";
-import type { ActionResult } from "@/lib/actions/incidents";
+import type { ActionResult } from "@/lib/actions/events";
 
 export async function createDocumentAction(
-  eventId: string,
+  operationId: string,
   documentTypeId: string,
   title: string,
   classification: Enums<"classification_level">,
 ): Promise<ActionResult> {
   const supabase = await createClient();
   const { data: documentId, error } = await supabase.rpc("create_document", {
-    p_event_id: eventId,
+    p_operation_id: operationId,
     p_document_type_id: documentTypeId,
     p_title: title,
     p_classification: classification,
   });
   if (error) return { error: error.message };
 
-  revalidatePath(`/events/${eventId}/documents`);
+  revalidatePath(`/operations/${operationId}/documents`);
   redirect(`/documents/${documentId}`);
 }
 
 export async function uploadDocumentVersionAction(
   documentId: string,
-  eventId: string,
+  operationId: string,
   formData: FormData,
 ): Promise<ActionResult> {
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) return { error: "Select a file to upload." };
 
   const supabase = await createClient();
-  const storagePath = `documents/${eventId}/${documentId}/${Date.now()}-${file.name}`;
+  const storagePath = `documents/${operationId}/${documentId}/${Date.now()}-${file.name}`;
 
   const { error: uploadError } = await supabase.storage.from("event-files").upload(storagePath, file, {
     contentType: file.type || undefined,

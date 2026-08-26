@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/domain/auth-service";
-import { listEvents } from "@/lib/domain/event-service";
+import { listOperations } from "@/lib/domain/operation-service";
 import { getActivityFeed } from "@/lib/domain/feed-service";
 import { ActivityFeed } from "@/components/feed/activity-feed";
 import { EntityCard } from "@/components/ui/entity-card";
+import { PageHeader } from "@/components/page-header";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   if (!profile) redirect("/sign-in");
   if (!profile.organisation_id) redirect("/sign-in");
 
-  const events = await listEvents();
+  const events = await listOperations();
 
   const upcomingEvents = events
     .filter((e) => e.lifecycle_stage !== "live" && e.lifecycle_stage !== "closed" && e.lifecycle_stage !== "archived")
@@ -27,11 +28,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-8 py-8">
-      <div>
-        <h1 className="text-[28px] leading-none font-bold text-foreground">
-          Welcome{profile.first_name ? `, ${profile.first_name}` : ""}
-        </h1>
-      </div>
+      <PageHeader title={`Welcome${profile.first_name ? `, ${profile.first_name}` : ""}`} />
 
       {upcomingEvents.length > 0 ? (
         <section className="space-y-3">
@@ -40,7 +37,7 @@ export default async function DashboardPage() {
             {upcomingEvents.map((event) => (
               <EntityCard
                 key={event.id}
-                href={`/events/${event.id}`}
+                href={`/operations/${event.id}`}
                 title={event.name}
                 value={formatDate(event.start_date)}
                 subtitle={event.clients?.trading_name || event.clients?.legal_name || undefined}

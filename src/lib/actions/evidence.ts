@@ -5,15 +5,15 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { listEvidenceCustodyLog } from "@/lib/domain/evidence-service";
 import type { Enums } from "@/lib/supabase/types";
-import type { ActionResult } from "@/lib/actions/incidents";
+import type { ActionResult } from "@/lib/actions/events";
 
 export async function listEvidenceCustodyLogAction(evidenceItemId: string) {
   return listEvidenceCustodyLog(evidenceItemId);
 }
 
 export async function logEvidenceItemAction(
-  incidentId: string,
   eventId: string,
+  operationId: string,
   itemType: string,
   description: string,
   fields: { classification?: Enums<"classification_level">; collectedByName?: string },
@@ -31,7 +31,7 @@ export async function logEvidenceItemAction(
   if (file instanceof File && file.size > 0) {
     const buffer = Buffer.from(await file.arrayBuffer());
     sha256Hash = createHash("sha256").update(buffer).digest("hex");
-    storagePath = `${eventId}/${incidentId}/${Date.now()}-${file.name}`;
+    storagePath = `${operationId}/${eventId}/${Date.now()}-${file.name}`;
 
     const { error: uploadError } = await supabase.storage.from("evidence-files").upload(storagePath, buffer, {
       contentType: file.type || undefined,
@@ -44,7 +44,7 @@ export async function logEvidenceItemAction(
   }
 
   const { error } = await supabase.rpc("log_evidence_item", {
-    p_incident_id: incidentId,
+    p_event_id: eventId,
     p_item_type: itemType,
     p_description: description,
     p_storage_path: storagePath,
@@ -60,7 +60,7 @@ export async function logEvidenceItemAction(
     return { error: error.message };
   }
 
-  revalidatePath(`/incidents/${incidentId}`);
+  revalidatePath(`/events/${eventId}`);
   return { success: true };
 }
 
@@ -81,7 +81,7 @@ export async function getEvidenceDownloadUrlAction(
 }
 
 export async function updateEvidenceStatusAction(
-  incidentId: string,
+  eventId: string,
   evidenceItemId: string,
   status: Enums<"evidence_status">,
   notes?: string,
@@ -93,6 +93,6 @@ export async function updateEvidenceStatusAction(
     p_notes: notes || undefined,
   });
   if (error) return { error: error.message };
-  revalidatePath(`/incidents/${incidentId}`);
+  revalidatePath(`/events/${eventId}`);
   return { success: true };
 }

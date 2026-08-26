@@ -25,12 +25,12 @@ export async function listAssignableRoles() {
   return data;
 }
 
-export async function listEventPortalGrants(eventId: string) {
+export async function listOperationPortalGrants(operationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("user_roles")
     .select("*, roles(name, is_external), profiles!user_id(first_name, surname, email)")
-    .eq("event_id", eventId)
+    .eq("operation_id", operationId)
     .is("revoked_at", null);
 
   if (error) throw error;

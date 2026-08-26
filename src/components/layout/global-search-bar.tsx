@@ -5,10 +5,23 @@ import { useRouter } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import { globalSearchAction } from "@/lib/actions/global-search";
 import { Button } from "@/components/ui/button";
+import type { SearchEntityType, SearchHit } from "@/lib/domain/search-service";
 
 type Results = Awaited<ReturnType<typeof globalSearchAction>>;
 
-const EMPTY: Results = { events: [], clients: [], incidents: [] };
+const EMPTY: Results = { operations: [], clients: [], events: [], people: [], vehicles: [], investigations: [], audits: [] };
+
+const GROUP_LABEL: Record<SearchEntityType, string> = {
+  operations: "Operations",
+  clients: "Clients",
+  events: "Events",
+  people: "People",
+  vehicles: "Vehicles",
+  investigations: "Investigations",
+  audits: "Audits",
+};
+
+const GROUP_ORDER: SearchEntityType[] = ["operations", "events", "clients", "people", "vehicles", "investigations", "audits"];
 
 export function GlobalSearchBar({ organisationId }: { organisationId: string }) {
   const router = useRouter();
@@ -50,7 +63,11 @@ export function GlobalSearchBar({ organisationId }: { organisationId: string }) 
     router.push(href);
   }
 
-  const hasResults = results.events.length > 0 || results.clients.length > 0 || results.incidents.length > 0;
+  function seeAll() {
+    go(`/search?q=${encodeURIComponent(query)}`);
+  }
+
+  const hasResults = GROUP_ORDER.some((t) => results[t].length > 0);
 
   return (
     <div ref={containerRef} className="relative flex w-full max-w-2xl items-center gap-2 rounded-full border border-border bg-background pr-2 pl-4 shadow-sm">
@@ -59,7 +76,10 @@ export function GlobalSearchBar({ organisationId }: { organisationId: string }) 
         value={query}
         onChange={(e) => runSearch(e.target.value)}
         onFocus={() => query.trim().length >= 2 && setOpen(true)}
-        placeholder="Find a person, vehicle, event or incident"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && query.trim().length >= 2) seeAll();
+        }}
+        placeholder="Search operations, clients, events, people, vehicles…"
         className="h-12 min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
       />
       <Button
@@ -79,34 +99,26 @@ export function GlobalSearchBar({ organisationId }: { organisationId: string }) 
             <p className="px-2 py-3 text-sm text-muted-foreground">No matches for &ldquo;{query}&rdquo;</p>
           ) : (
             <div className="max-h-96 space-y-3 overflow-y-auto">
-              {results.events.length > 0 ? (
-                <ResultGroup label="Events">
-                  {results.events.map((e) => (
-                    <ResultRow key={e.id} title={e.name} subtitle={e.reference} onClick={() => go(`/events/${e.id}`)} />
-                  ))}
-                </ResultGroup>
-              ) : null}
-              {results.incidents.length > 0 ? (
-                <ResultGroup label="Incidents">
-                  {results.incidents.map((i) => (
-                    <ResultRow key={i.id} title={i.summary} subtitle={i.reference} onClick={() => go(`/incidents/${i.id}`)} />
-                  ))}
-                </ResultGroup>
-              ) : null}
-              {results.clients.length > 0 ? (
-                <ResultGroup label="Clients">
-                  {results.clients.map((c) => (
-                    <ResultRow
-                      key={c.id}
-                      title={c.trading_name || c.legal_name}
-                      subtitle={c.reference}
-                      onClick={() => go(`/clients/${c.id}`)}
-                    />
-                  ))}
-                </ResultGroup>
-              ) : null}
+              {GROUP_ORDER.map((type) =>
+                results[type].length > 0 ? (
+                  <ResultGroup key={type} label={GROUP_LABEL[type]}>
+                    {results[type].map((hit) => (
+                      <ResultRow key={hit.id} hit={hit} onClick={() => go(hit.href)} />
+                    ))}
+                  </ResultGroup>
+                ) : null,
+              )}
             </div>
           )}
+          {hasResults ? (
+            <button
+              type="button"
+              onClick={seeAll}
+              className="mt-1 block w-full rounded-md px-2 py-2 text-left text-sm font-medium text-primary hover:bg-accent"
+            >
+              See all results for &ldquo;{query}&rdquo; →
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -122,15 +134,17 @@ function ResultGroup({ label, children }: { label: string; children: React.React
   );
 }
 
-function ResultRow({ title, subtitle, onClick }: { title: string; subtitle: string; onClick: () => void }) {
+function ResultRow({ hit, onClick }: { hit: SearchHit; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className="flex w-full flex-col items-start rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
     >
-      <span className="font-medium text-foreground">{title}</span>
-      <span className="text-xs text-muted-foreground">{subtitle}</span>
+      <span className="font-medium text-foreground">{hit.title}</span>
+      {hit.subtitle || hit.reference ? (
+        <span className="text-xs text-muted-foreground">{[hit.reference, hit.subtitle].filter(Boolean).join(" · ")}</span>
+      ) : null}
     </button>
   );
 }

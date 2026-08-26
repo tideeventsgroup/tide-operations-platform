@@ -25,12 +25,12 @@ const NEXT_ACTIONS: Partial<Record<Enums<"risk_status">, { status: Enums<"risk_s
   accepted: [{ status: "closed", label: "Close" }],
 };
 
-export function RiskRegisterTable({ eventId, risks }: { eventId: string; risks: Risk[] }) {
+export function RiskRegisterTable({ operationId, risks }: { operationId: string; risks: Risk[] }) {
   const [pending, startTransition] = useTransition();
 
   function transition(riskId: string, status: Enums<"risk_status">) {
     startTransition(async () => {
-      const result = await updateRiskStatusAction(riskId, eventId, status);
+      const result = await updateRiskStatusAction(riskId, operationId, status);
       if (result.error) toast.error(result.error);
     });
   }

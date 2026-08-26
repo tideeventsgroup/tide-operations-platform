@@ -12,12 +12,12 @@ export async function listDocumentTypes(organisationId: string) {
   return data;
 }
 
-export async function listDocuments(eventId: string) {
+export async function listDocuments(operationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("documents")
     .select("*, document_types(name), created_by_profile:created_by(first_name, surname, email)")
-    .eq("event_id", eventId)
+    .eq("operation_id", operationId)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data;
@@ -28,7 +28,7 @@ export async function getDocument(id: string) {
   const { data, error } = await supabase
     .from("documents")
     .select(
-      "*, events(id, reference, name), document_types(name), created_by_profile:created_by(first_name, surname, email), approved_by_profile:approved_by(first_name, surname, email), issued_by_profile:issued_by(first_name, surname, email)",
+      "*, operations(id, reference, name), document_types(name), created_by_profile:created_by(first_name, surname, email), approved_by_profile:approved_by(first_name, surname, email), issued_by_profile:issued_by(first_name, surname, email)",
     )
     .eq("id", id)
     .single();

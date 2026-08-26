@@ -1,42 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-
-// Directory listings for the dedicated Find-a-Person/Find-a-Vehicle
-// pages (Auror's own top-nav has a standalone "Find a vehicle"). RLS
-// (intelligence.view, organisation-wide) is the real access boundary.
-export async function listPeople(organisationId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("people")
-    .select("id, reference, first_name, surname, description, classification")
-    .eq("organisation_id", organisationId)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) throw error;
-  return data ?? [];
-}
-
-export async function listVehicles(organisationId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("id, reference, registration, make, model, colour, classification")
-    .eq("organisation_id", organisationId)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) throw error;
-  return data ?? [];
-}
-
-// Surname/registration/etc. are free text on the source record (set via
-// create_person/create_vehicle with no character restrictions), so they
-// need the same PostgREST filter-syntax sanitization as user-supplied
-// search terms before going into a `.or()` string.
-function sanitizeFilterTerm(value: string) {
-  return value.replace(/[,()*]/g, "").trim();
-}
+import { sanitizeFilterTerm } from "@/lib/domain/postgrest-filter";
 
 // Rule-based "possible match" surfacing — the safe version of Auror's
 // AI-powered Connect the Dots. Matches on shared structured attributes
@@ -106,8 +70,8 @@ export async function getPersonProfile(id: string) {
 
   const [{ data: incidentLinks, error: incErr }, { data: investigationLinks, error: invErr }, possibleMatches] = await Promise.all([
     supabase
-      .from("incident_people")
-      .select("*, incidents(id, reference, summary, status, event_id, events(name))")
+      .from("event_people")
+      .select("*, events(id, reference, summary, status, operation_id, operations(name))")
       .eq("person_id", id)
       .order("linked_at", { ascending: false }),
     supabase
@@ -130,8 +94,8 @@ export async function getVehicleProfile(id: string) {
 
   const [{ data: incidentLinks, error: incErr }, { data: investigationLinks, error: invErr }, possibleMatches] = await Promise.all([
     supabase
-      .from("incident_vehicles")
-      .select("*, incidents(id, reference, summary, status, event_id, events(name))")
+      .from("event_vehicles")
+      .select("*, events(id, reference, summary, status, operation_id, operations(name))")
       .eq("vehicle_id", id)
       .order("linked_at", { ascending: false }),
     supabase

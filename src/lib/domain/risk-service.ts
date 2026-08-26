@@ -1,12 +1,12 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
-export async function listRisks(eventId: string) {
+export async function listRisks(operationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("risks")
     .select("*, owner:owner_id(first_name, surname, email)")
-    .eq("event_id", eventId)
+    .eq("operation_id", operationId)
     .order("risk_score", { ascending: false });
   if (error) throw error;
   return data;
@@ -23,12 +23,12 @@ export async function listReadinessChecklist(organisationId: string) {
   return data;
 }
 
-export async function listEventReadinessChecks(eventId: string) {
+export async function listOperationReadinessChecks(operationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("event_readiness_checks")
+    .from("operation_readiness_checks")
     .select("*, profiles(first_name, surname, email)")
-    .eq("event_id", eventId);
+    .eq("operation_id", operationId);
   if (error) throw error;
   return data;
 }

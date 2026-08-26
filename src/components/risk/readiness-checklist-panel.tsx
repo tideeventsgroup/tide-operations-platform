@@ -3,10 +3,10 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { completeReadinessCheckAction, uncompleteReadinessCheckAction } from "@/lib/actions/risks";
-import type { listEventReadinessChecks, listReadinessChecklist } from "@/lib/domain/risk-service";
+import type { listOperationReadinessChecks, listReadinessChecklist } from "@/lib/domain/risk-service";
 
 type ChecklistItem = Awaited<ReturnType<typeof listReadinessChecklist>>[number];
-type Check = Awaited<ReturnType<typeof listEventReadinessChecks>>[number];
+type Check = Awaited<ReturnType<typeof listOperationReadinessChecks>>[number];
 
 function personName(p: { first_name: string | null; surname: string | null; email: string } | null) {
   if (!p) return "";
@@ -14,11 +14,11 @@ function personName(p: { first_name: string | null; surname: string | null; emai
 }
 
 export function ReadinessChecklistPanel({
-  eventId,
+  operationId,
   items,
   checks,
 }: {
-  eventId: string;
+  operationId: string;
   items: ChecklistItem[];
   checks: Check[];
 }) {
@@ -29,8 +29,8 @@ export function ReadinessChecklistPanel({
   function toggle(itemId: string, currentlyComplete: boolean) {
     startTransition(async () => {
       const result = currentlyComplete
-        ? await uncompleteReadinessCheckAction(eventId, itemId)
-        : await completeReadinessCheckAction(eventId, itemId);
+        ? await uncompleteReadinessCheckAction(operationId, itemId)
+        : await completeReadinessCheckAction(operationId, itemId);
       if (result.error) toast.error(result.error);
     });
   }

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { searchEvidenceItems, searchIncidents } from "@/lib/domain/investigation-service";
 import type { Enums } from "@/lib/supabase/types";
-import type { ActionResult } from "@/lib/actions/incidents";
+import type { ActionResult } from "@/lib/actions/events";
 
 export async function searchIncidentsAction(organisationId: string, query: string) {
   return searchIncidents(organisationId, query);
@@ -35,7 +35,7 @@ export async function createInvestigationAction(
 
 async function callRpc(
   fn:
-    | "link_incident_to_investigation"
+    | "link_event_to_investigation"
     | "link_person_to_investigation"
     | "link_vehicle_to_investigation"
     | "link_evidence_to_investigation"
@@ -52,8 +52,8 @@ async function callRpc(
   return { success: true };
 }
 
-export async function linkIncidentToInvestigationAction(investigationId: string, incidentId: string): Promise<ActionResult> {
-  return callRpc("link_incident_to_investigation", { p_investigation_id: investigationId, p_incident_id: incidentId }, investigationId);
+export async function linkEventToInvestigationAction(investigationId: string, eventId: string): Promise<ActionResult> {
+  return callRpc("link_event_to_investigation", { p_investigation_id: investigationId, p_event_id: eventId }, investigationId);
 }
 
 export async function linkPersonToInvestigationAction(

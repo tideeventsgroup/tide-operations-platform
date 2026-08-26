@@ -16,19 +16,19 @@ export async function getInsightsSummary(organisationId: string) {
 
   const [peopleLinksResult, vehicleLinksResult, incidentsResult, investigationsResult, evidenceResult] = await Promise.all([
     supabase
-      .from("incident_people")
-      .select("person_id, role_code, people(id, reference, first_name, surname), incidents!inner(organisation_id)")
-      .eq("incidents.organisation_id", organisationId),
+      .from("event_people")
+      .select("person_id, role_code, people(id, reference, first_name, surname), events!inner(organisation_id)")
+      .eq("events.organisation_id", organisationId),
     supabase
-      .from("incident_vehicles")
-      .select("vehicle_id, role_code, vehicles(id, reference, registration, make, model, colour), incidents!inner(organisation_id)")
-      .eq("incidents.organisation_id", organisationId),
-    supabase.from("incidents").select("category_code, priority_code, status").eq("organisation_id", organisationId),
+      .from("event_vehicles")
+      .select("vehicle_id, role_code, vehicles(id, reference, registration, make, model, colour), events!inner(organisation_id)")
+      .eq("events.organisation_id", organisationId),
+    supabase.from("events").select("category_code, priority_code, status").eq("organisation_id", organisationId),
     supabase.from("investigations").select("id, status").eq("organisation_id", organisationId),
     supabase
       .from("evidence_items")
-      .select("id, incidents!inner(organisation_id)", { count: "exact", head: true })
-      .eq("incidents.organisation_id", organisationId),
+      .select("id, events!inner(organisation_id)", { count: "exact", head: true })
+      .eq("events.organisation_id", organisationId),
   ]);
 
   type PeopleLink = NonNullable<typeof peopleLinksResult.data>[number];

@@ -36,14 +36,17 @@ export async function isAdmin(): Promise<boolean> {
 
 export async function hasPermission(
   code: string,
-  scope?: { organisationId?: string; clientId?: string; eventId?: string },
+  scope?: { organisationId?: string; clientId?: string; operationId?: string },
 ): Promise<boolean> {
   const supabase = await createClient();
   const { data } = await supabase.rpc("has_permission", {
     p_permission_code: code,
     p_organisation_id: scope?.organisationId,
     p_client_id: scope?.clientId,
-    p_event_id: scope?.eventId,
+    // The RPC's 4th parameter is still named p_event_id in the database — renaming it
+    // would cascade into dropping and recreating 50+ RLS policies that depend on
+    // has_permission(), so it stays as legacy internal naming. It scopes by Operation.
+    p_event_id: scope?.operationId,
   });
   return data ?? false;
 }

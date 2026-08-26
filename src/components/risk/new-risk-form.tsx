@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function NewRiskForm({ eventId }: { eventId: string }) {
+export function NewRiskForm({ operationId }: { operationId: string }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -19,7 +19,7 @@ export function NewRiskForm({ eventId }: { eventId: string }) {
   function submit() {
     if (!title.trim()) return;
     startTransition(async () => {
-      const result = await createRiskAction(eventId, title.trim(), likelihood, impact, description.trim() || undefined, category.trim() || undefined);
+      const result = await createRiskAction(operationId, title.trim(), likelihood, impact, description.trim() || undefined, category.trim() || undefined);
       if (result.error) toast.error(result.error);
       else {
         toast.success("Risk added");

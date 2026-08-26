@@ -31,15 +31,15 @@ const STATUS_LABEL: Record<ObservationStatus, string> = {
 const SUGGESTED_CATEGORIES = ["Crowd", "Security", "Welfare", "Situational", "Traffic", "Other"];
 
 export function ObservationsPanel({
-  eventId,
+  operationId,
   observations,
   locations,
   categories,
 }: {
-  eventId: string;
+  operationId: string;
   observations: Observation[];
   locations: Tables<"operational_locations">[];
-  categories: Tables<"incident_categories">[];
+  categories: Tables<"event_categories">[];
 }) {
   const [category, setCategory] = useState("");
   const [summary, setSummary] = useState("");
@@ -50,7 +50,7 @@ export function ObservationsPanel({
   function submit() {
     if (!category.trim() || !summary.trim()) return;
     startTransition(async () => {
-      const result = await createObservationAction(eventId, category.trim(), summary.trim(), {
+      const result = await createObservationAction(operationId, category.trim(), summary.trim(), {
         description: description.trim() || undefined,
         locationId: locationId || undefined,
       });
@@ -126,7 +126,7 @@ export function ObservationsPanel({
           <div className="px-4 py-6 text-center text-sm text-muted-foreground">No observations logged</div>
         ) : (
           observations.map((o) => (
-            <ObservationRow key={o.id} eventId={eventId} observation={o} categories={categories} />
+            <ObservationRow key={o.id} operationId={operationId} observation={o} categories={categories} />
           ))
         )}
       </div>
@@ -135,13 +135,13 @@ export function ObservationsPanel({
 }
 
 function ObservationRow({
-  eventId,
+  operationId,
   observation,
   categories,
 }: {
-  eventId: string;
+  operationId: string;
   observation: Observation;
-  categories: Tables<"incident_categories">[];
+  categories: Tables<"event_categories">[];
 }) {
   const [promoting, setPromoting] = useState(false);
   const [promoteCategory, setPromoteCategory] = useState(categories[0]?.code ?? "");
@@ -149,7 +149,7 @@ function ObservationRow({
 
   function setStatus(status: ObservationStatus) {
     startTransition(async () => {
-      const result = await updateObservationStatusAction(eventId, observation.id, status);
+      const result = await updateObservationStatusAction(operationId, observation.id, status);
       if (result.error) toast.error(result.error);
     });
   }
@@ -157,7 +157,7 @@ function ObservationRow({
   function promote() {
     if (!promoteCategory) return;
     startTransition(async () => {
-      const result = await promoteObservationAction(eventId, observation.id, promoteCategory);
+      const result = await promoteObservationAction(operationId, observation.id, promoteCategory);
       if (result.error) toast.error(result.error);
       else setPromoting(false);
     });
@@ -174,7 +174,7 @@ function ObservationRow({
           <p className="mt-1 text-xs text-muted-foreground">
             {observation.reference}
             {observation.operational_locations ? ` · ${observation.operational_locations.name}` : ""}
-            {observation.promoted_incident ? ` · promoted to ${observation.promoted_incident.reference}` : ""}
+            {observation.promoted_event ? ` · promoted to ${observation.promoted_event.reference}` : ""}
           </p>
         </div>
         <Badge variant="secondary" className={cn("shrink-0 font-medium", STATUS_CLASS[observation.status])}>
@@ -194,7 +194,7 @@ function ObservationRow({
           </Button>
           {!promoting ? (
             <Button size="sm" disabled={pending} onClick={() => setPromoting(true)}>
-              Promote to incident
+              Promote to event
             </Button>
           ) : (
             <div className="flex items-center gap-2">

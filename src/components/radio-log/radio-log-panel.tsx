@@ -15,7 +15,7 @@ function formatTime(value: string) {
   return new Date(value).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function RadioLogPanel({ eventId, entries }: { eventId: string; entries: RadioLogEntry[] }) {
+export function RadioLogPanel({ operationId, entries }: { operationId: string; entries: RadioLogEntry[] }) {
   const [channel, setChannel] = useState("");
   const [fromCallsign, setFromCallsign] = useState("");
   const [toCallsign, setToCallsign] = useState("");
@@ -26,7 +26,7 @@ export function RadioLogPanel({ eventId, entries }: { eventId: string; entries: 
   function submit() {
     if (!message.trim()) return;
     startTransition(async () => {
-      const result = await logRadioEntryAction(eventId, message.trim(), {
+      const result = await logRadioEntryAction(operationId, message.trim(), {
         channel: channel.trim() || undefined,
         fromCallsign: fromCallsign.trim() || undefined,
         toCallsign: toCallsign.trim() || undefined,
@@ -74,7 +74,7 @@ export function RadioLogPanel({ eventId, entries }: { eventId: string; entries: 
                   {entry.from_callsign || entry.to_callsign
                     ? ` · ${[entry.from_callsign, entry.to_callsign].filter(Boolean).join(" → ")}`
                     : ""}
-                  {entry.linked_incident ? ` · linked to ${entry.linked_incident.reference}` : ""}
+                  {entry.linked_event ? ` · linked to ${entry.linked_event.reference}` : ""}
                 </p>
               </div>
               {entry.significant ? (

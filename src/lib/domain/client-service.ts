@@ -40,7 +40,7 @@ export async function listContactRoleTypes() {
 export async function listClientEvents(clientId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("events")
+    .from("operations")
     .select("id, reference, name, year, lifecycle_stage, start_date")
     .eq("client_id", clientId)
     .order("start_date", { ascending: false });

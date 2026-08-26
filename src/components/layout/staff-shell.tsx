@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MenuIcon } from "lucide-react";
+import { ChevronDownIcon, MenuIcon, PlusIcon } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { SentinelWordmark } from "@/components/sentinel-wordmark";
 import { GlobalSearchBar } from "@/components/layout/global-search-bar";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SyncStatusBadge } from "@/components/offline/sync-status-badge";
 import { cn } from "@/lib/utils";
@@ -17,8 +23,7 @@ type NavItem = { label: string; href: string };
 
 const NAV: NavItem[] = [
   { label: "Feed", href: "/dashboard" },
-  { label: "Events", href: "/events" },
-  { label: "Clients", href: "/clients" },
+  { label: "Search", href: "/search" },
 ];
 
 function navItemClass(active: boolean) {
@@ -33,7 +38,7 @@ export function StaffShell({
   isAdmin,
   canViewInvestigations,
   canViewInsights,
-  canViewAudits,
+  canSubmitAudits,
   organisationId,
   children,
 }: {
@@ -41,21 +46,25 @@ export function StaffShell({
   isAdmin: boolean;
   canViewInvestigations: boolean;
   canViewInsights: boolean;
-  canViewAudits: boolean;
+  canSubmitAudits: boolean;
   organisationId: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const name = [profile.first_name, profile.surname].filter(Boolean).join(" ") || profile.email;
+  const onSearchPage = pathname.startsWith("/search");
 
   const items = [
     ...NAV,
     ...(canViewInsights ? [{ label: "Insights", href: "/insights" }] : []),
-    ...(canViewInsights ? [{ label: "Find a person", href: "/people" }] : []),
-    ...(canViewInsights ? [{ label: "Find a vehicle", href: "/vehicles" }] : []),
-    ...(canViewAudits ? [{ label: "Audits", href: "/audits" }] : []),
-    ...(canViewInvestigations ? [{ label: "Investigations", href: "/investigations" }] : []),
-    ...(isAdmin ? [{ label: "Administration", href: "/admin" }] : []),
+    ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
+  ];
+
+  const createItems = [
+    { label: "New operation", href: "/operations/new" },
+    { label: "New client", href: "/clients/new" },
+    ...(canViewInvestigations ? [{ label: "New investigation", href: "/investigations/new" }] : []),
+    ...(canSubmitAudits ? [{ label: "Start an audit", href: "/audits/new" }] : []),
   ];
 
   return (
@@ -68,7 +77,7 @@ export function StaffShell({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="shrink-0 text-white/85 hover:bg-black/5 hover:text-white 2xl:hidden"
+                className="shrink-0 text-white/85 hover:bg-black/5 hover:text-white md:hidden"
                 aria-label="Open menu"
               />
             }
@@ -113,7 +122,7 @@ export function StaffShell({
           <SentinelWordmark variant="dark" height={16} />
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-2 2xl:flex">
+        <nav className="hidden flex-1 items-center gap-2 md:flex">
           {items.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -124,7 +133,35 @@ export function StaffShell({
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-3 2xl:flex-none">
+        <div className="flex flex-1 items-center justify-end gap-3 md:flex-none">
+          <Button
+            render={<Link href="/events/new" />}
+            nativeButton={false}
+            size="sm"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            <PlusIcon className="size-4" />
+            Report event
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="outline" size="sm" className="border-white/25 bg-transparent text-white/85 hover:bg-black/5 hover:text-white" />
+              }
+            >
+              Create
+              <ChevronDownIcon className="size-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {createItems.map((item) => (
+                <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <SyncStatusBadge />
           <ThemeToggle className="text-white/85 hover:bg-black/5 hover:text-white" />
           <span className="hidden text-sm text-white/90 sm:inline">{name}</span>
@@ -136,9 +173,11 @@ export function StaffShell({
         </div>
       </header>
 
-      <div className="flex h-20 shrink-0 items-center justify-center border-b border-border bg-card px-4 print:hidden">
-        <GlobalSearchBar organisationId={organisationId} />
-      </div>
+      {onSearchPage ? null : (
+        <div className="flex h-20 shrink-0 items-center justify-center border-b border-border bg-card px-4 print:hidden">
+          <GlobalSearchBar organisationId={organisationId} />
+        </div>
+      )}
 
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
