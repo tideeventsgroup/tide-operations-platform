@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -475,6 +475,24 @@ export type Database = {
         Update: {
           code?: string
           name?: string
+        }
+        Relationships: []
+      }
+      crime_classifications: {
+        Row: {
+          code: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          name?: string
+          sort_order?: number
         }
         Relationships: []
       }
@@ -1257,6 +1275,7 @@ export type Database = {
           controller_id: string | null
           created_at: string
           created_by: string | null
+          crime_classification_code: string | null
           description: string | null
           id: string
           location_id: string | null
@@ -1266,6 +1285,7 @@ export type Database = {
           operation_phase: Database["public"]["Enums"]["operation_phase"] | null
           organisation_id: string
           owner_id: string | null
+          police_reference: string | null
           priority_code: string | null
           reference: string
           report_source: Database["public"]["Enums"]["report_source"]
@@ -1288,6 +1308,7 @@ export type Database = {
           controller_id?: string | null
           created_at?: string
           created_by?: string | null
+          crime_classification_code?: string | null
           description?: string | null
           id?: string
           location_id?: string | null
@@ -1299,6 +1320,7 @@ export type Database = {
             | null
           organisation_id: string
           owner_id?: string | null
+          police_reference?: string | null
           priority_code?: string | null
           reference: string
           report_source?: Database["public"]["Enums"]["report_source"]
@@ -1321,6 +1343,7 @@ export type Database = {
           controller_id?: string | null
           created_at?: string
           created_by?: string | null
+          crime_classification_code?: string | null
           description?: string | null
           id?: string
           location_id?: string | null
@@ -1332,6 +1355,7 @@ export type Database = {
             | null
           organisation_id?: string
           owner_id?: string | null
+          police_reference?: string | null
           priority_code?: string | null
           reference?: string
           report_source?: Database["public"]["Enums"]["report_source"]
@@ -1345,6 +1369,13 @@ export type Database = {
           summary?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "events_crime_classification_code_fkey"
+            columns: ["crime_classification_code"]
+            isOneToOne: false
+            referencedRelation: "crime_classifications"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "incidents_category_code_fkey"
             columns: ["category_code"]
@@ -2677,12 +2708,18 @@ export type Database = {
       }
       people: {
         Row: {
+          age_group: Database["public"]["Enums"]["person_age_group"] | null
+          build: Database["public"]["Enums"]["person_build"] | null
           classification: Database["public"]["Enums"]["classification_level"]
+          clothing_description: string | null
           created_at: string
           created_by: string | null
           date_of_birth: string | null
           description: string | null
+          distinguishing_features: string | null
           first_name: string | null
+          gender: Database["public"]["Enums"]["person_gender"] | null
+          height_band: Database["public"]["Enums"]["person_height_band"] | null
           id: string
           organisation_id: string
           purpose: string
@@ -2691,12 +2728,18 @@ export type Database = {
           surname: string | null
         }
         Insert: {
+          age_group?: Database["public"]["Enums"]["person_age_group"] | null
+          build?: Database["public"]["Enums"]["person_build"] | null
           classification?: Database["public"]["Enums"]["classification_level"]
+          clothing_description?: string | null
           created_at?: string
           created_by?: string | null
           date_of_birth?: string | null
           description?: string | null
+          distinguishing_features?: string | null
           first_name?: string | null
+          gender?: Database["public"]["Enums"]["person_gender"] | null
+          height_band?: Database["public"]["Enums"]["person_height_band"] | null
           id?: string
           organisation_id: string
           purpose: string
@@ -2705,12 +2748,18 @@ export type Database = {
           surname?: string | null
         }
         Update: {
+          age_group?: Database["public"]["Enums"]["person_age_group"] | null
+          build?: Database["public"]["Enums"]["person_build"] | null
           classification?: Database["public"]["Enums"]["classification_level"]
+          clothing_description?: string | null
           created_at?: string
           created_by?: string | null
           date_of_birth?: string | null
           description?: string | null
+          distinguishing_features?: string | null
           first_name?: string | null
+          gender?: Database["public"]["Enums"]["person_gender"] | null
+          height_band?: Database["public"]["Enums"]["person_height_band"] | null
           id?: string
           organisation_id?: string
           purpose?: string
@@ -3853,6 +3902,14 @@ export type Database = {
         Args: { p_code: string; p_name: string; p_sort_order: number }
         Returns: undefined
       }
+      update_event_police_details: {
+        Args: {
+          p_crime_classification_code?: string
+          p_event_id: string
+          p_police_reference?: string
+        }
+        Returns: undefined
+      }
       update_event_priority: {
         Args: {
           p_code: string
@@ -3903,6 +3960,18 @@ export type Database = {
           p_name: string
           p_organisation_id: string
           p_status: string
+        }
+        Returns: undefined
+      }
+      update_person_description: {
+        Args: {
+          p_age_group?: Database["public"]["Enums"]["person_age_group"]
+          p_build?: Database["public"]["Enums"]["person_build"]
+          p_clothing_description?: string
+          p_distinguishing_features?: string
+          p_gender?: Database["public"]["Enums"]["person_gender"]
+          p_height_band?: Database["public"]["Enums"]["person_height_band"]
+          p_person_id: string
         }
         Returns: undefined
       }
@@ -4013,6 +4082,16 @@ export type Database = {
         | "unavailable"
         | "closed"
       operational_location_type: "site" | "zone" | "area" | "location"
+      person_age_group:
+        | "unknown"
+        | "under_18"
+        | "18_25"
+        | "26_35"
+        | "36_50"
+        | "over_50"
+      person_build: "unknown" | "slender" | "average" | "muscular" | "large"
+      person_gender: "male" | "female" | "unknown_other"
+      person_height_band: "unknown" | "short" | "average" | "tall" | "very_tall"
       profile_status: "active" | "disabled"
       report_source:
         | "radio"
@@ -4246,6 +4325,17 @@ export const Constants = {
         "closed",
       ],
       operational_location_type: ["site", "zone", "area", "location"],
+      person_age_group: [
+        "unknown",
+        "under_18",
+        "18_25",
+        "26_35",
+        "36_50",
+        "over_50",
+      ],
+      person_build: ["unknown", "slender", "average", "muscular", "large"],
+      person_gender: ["male", "female", "unknown_other"],
+      person_height_band: ["unknown", "short", "average", "tall", "very_tall"],
       profile_status: ["active", "disabled"],
       report_source: [
         "radio",

@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-sans);
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
   --font-heading: var(--font-sans);
   --color-tide-charcoal: var(--tide-charcoal);
   --color-tide-teal: var(--tide-teal);
@@ -108,6 +108,24 @@
   --info: #1a5ba6;
   --info-foreground: #ffffff;
   --info-bg: #e4f0ff;
+
+  /* Reserved priority ramp — used only to mark an event's priority
+     (P1–P4), never as decoration, status colour, or emphasis elsewhere.
+     Fixed absolute values: they read the same in light and dark. */
+  --priority-p1: oklch(0.55 0.2 25);
+  --priority-p2: oklch(0.68 0.16 62);
+  --priority-p3: oklch(0.6 0.09 235);
+  --priority-p4: #a8b0b3;
+  --priority-resolved: oklch(0.62 0.13 150);
+
+  /* Wall-display tokens — the dark, high-contrast mode for the
+     Control Overview when it's on a lit-room wall screen rather than
+     a desk. Distinct from the app's normal light/dark theme. */
+  --wall-bg: #0e1214;
+  --wall-panel: #171d20;
+  --wall-border: rgba(255, 255, 255, 0.09);
+  --wall-text: rgba(255, 255, 255, 0.92);
+  --wall-text-muted: rgba(255, 255, 255, 0.5);
 }
 
 .dark {
@@ -208,4 +226,13 @@
 @keyframes auth-blob-c {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
   50% { transform: translate(5%, -7%) rotate(10deg) scale(1.08); }
+}
+
+@keyframes welcome-logo {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes welcome-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

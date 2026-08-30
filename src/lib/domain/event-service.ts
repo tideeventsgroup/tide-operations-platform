@@ -132,6 +132,13 @@ export async function listEventCategories() {
   return data;
 }
 
+export async function listCrimeClassifications() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("crime_classifications").select("*").order("sort_order");
+  if (error) throw error;
+  return data;
+}
+
 export async function listEventPriorities(organisationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

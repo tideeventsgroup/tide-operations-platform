@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { EntityCard } from "@/components/ui/entity-card";
 import { EmptyState } from "@/components/empty-state";
 import { ConnectionsDiagram, type ConnectionNode } from "@/components/link-analysis/connections-diagram";
+import { PersonDescriptionPanel } from "@/components/people/person-description-panel";
 
 function personName(p: { first_name: string | null; surname: string | null }, fallback: string) {
   return [p.first_name, p.surname].filter(Boolean).join(" ") || fallback;
@@ -56,6 +57,16 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
         </div>
         <p className="text-sm text-muted-foreground">Purpose: {person.purpose}</p>
       </div>
+
+      <PersonDescriptionPanel
+        personId={person.id}
+        ageGroup={person.age_group}
+        gender={person.gender}
+        heightBand={person.height_band}
+        build={person.build}
+        distinguishingFeatures={person.distinguishing_features}
+        clothingDescription={person.clothing_description}
+      />
 
       <div className="space-y-3">
         <h2 className="section-label">Connections ({nodes.length})</h2>

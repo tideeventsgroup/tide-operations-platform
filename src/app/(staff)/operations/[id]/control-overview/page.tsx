@@ -59,9 +59,14 @@ export default async function ControlOverviewPage({ params }: PageProps<"/operat
             {event.current_phase ? <OperationPhaseBadge phase={event.current_phase} /> : null}
           </div>
         </div>
-        <Link href={`/operations/${id}/events`} className="text-sm text-primary hover:underline">
-          Full event board →
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href={`/operations/${id}/wall`} className="text-sm text-primary hover:underline">
+            Wall display →
+          </Link>
+          <Link href={`/operations/${id}/events`} className="text-sm text-primary hover:underline">
+            Full event board →
+          </Link>
+        </div>
       </div>
 
       {majorIncidents.length > 0 ? (

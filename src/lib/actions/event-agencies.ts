@@ -49,3 +49,19 @@ export async function updateEventAgencyStatusAction(
     `/events/${eventId}`,
   );
 }
+
+export async function updateEventPoliceDetailsAction(
+  eventId: string,
+  crimeClassificationCode: string | null,
+  policeReference: string | null,
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_event_police_details", {
+    p_event_id: eventId,
+    p_crime_classification_code: crimeClassificationCode || undefined,
+    p_police_reference: policeReference || undefined,
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/events/${eventId}`);
+  return { success: true };
+}

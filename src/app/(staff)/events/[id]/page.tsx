@@ -4,6 +4,7 @@ import {
   getEvent,
   getEventRestrictedNarrative,
   listEventActions,
+  listCrimeClassifications,
   listEventAgencies,
   listEventCategories,
   listEventDecisions,
@@ -24,6 +25,7 @@ import { EventActionsPanel } from "@/components/events/event-actions-panel";
 import { EventDecisionsPanel } from "@/components/events/event-decisions-panel";
 import { EventResourcesPanel } from "@/components/events/event-resources-panel";
 import { EventAgenciesPanel } from "@/components/events/event-agencies-panel";
+import { EventPoliceDetailsCard } from "@/components/events/event-police-details-card";
 import { EventIntelligencePanel } from "@/components/events/event-intelligence-panel";
 import { EventEvidencePanel } from "@/components/events/event-evidence-panel";
 import { EventRestrictedPanel } from "@/components/events/event-restricted-panel";
@@ -57,6 +59,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
     priorities,
     eventIncidents,
     canViewRestricted,
+    crimeClassifications,
   ] = await Promise.all([
     listEventTimeline(id),
     listEventActions(id),
@@ -72,6 +75,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
     listEventPriorities(incident.organisation_id),
     listEvents(incident.operation_id),
     hasPermission("event.view_restricted", { organisationId: incident.organisation_id, operationId: incident.operation_id }),
+    listCrimeClassifications(),
   ]);
 
   const restrictedNarrative = canViewRestricted ? await getEventRestrictedNarrative(id) : null;
@@ -117,7 +121,13 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
             <TabsContent value="resources" className="pt-4">
               <EventResourcesPanel eventId={id} resources={resources} />
             </TabsContent>
-            <TabsContent value="agencies" className="pt-4">
+            <TabsContent value="agencies" className="space-y-4 pt-4">
+              <EventPoliceDetailsCard
+                eventId={id}
+                classifications={crimeClassifications}
+                crimeClassificationCode={incident.crime_classification_code}
+                policeReference={incident.police_reference}
+              />
               <EventAgenciesPanel eventId={id} agencies={agencies} />
             </TabsContent>
             <TabsContent value="intelligence" className="pt-4">

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { PwaRegister } from "@/components/pwa-register";
@@ -7,6 +7,17 @@ import { PwaRegister } from "@/components/pwa-register";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// The evidential type — timestamps, references, callsigns, registrations,
+// IDs — so those values are never mistakable for ordinary body copy.
+// Wired to --font-mono in globals.css, which upgrades every existing
+// `font-mono` class site (event refs, IDs) at once.
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -41,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`h-full antialiased ${inter.variable}`}
+      className={`h-full antialiased ${inter.variable} ${plexMono.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

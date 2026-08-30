@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EventTypeTile } from "@/components/ui/event-type-tile";
+import { MobileReportEventForm } from "@/components/events/mobile-report-event-form";
 import { cn } from "@/lib/utils";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
@@ -301,8 +302,19 @@ export function ReportEventWizard({
     });
   }
 
+  // A fixed, known operation (arrived via ?operation=, not selected from a
+  // list) is the one situation the one-thumb mobile layout covers — the
+  // multi-step desktop wizard stays the only path when an operation still
+  // needs picking. Both trees render (no JS breakpoint check, so no
+  // hydration mismatch); Tailwind decides which one is visible.
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
+    <>
+      {initialOperation && operation ? (
+        <div className="sm:hidden">
+          <MobileReportEventForm operation={operation} categories={categories} priorities={priorities} locations={locations} categoryIcon={CATEGORY_ICON} />
+        </div>
+      ) : null}
+      <div className={cn("grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]", initialOperation ? "hidden sm:grid" : undefined)}>
       <div className="space-y-5 rounded-lg border border-border bg-card p-5">
         {error ? (
           <Alert variant="destructive">
@@ -599,6 +611,7 @@ export function ReportEventWizard({
           })}
         </ol>
       </aside>
-    </div>
+      </div>
+    </>
   );
 }

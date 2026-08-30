@@ -5,6 +5,7 @@ import { getActivityFeed } from "@/lib/domain/feed-service";
 import { ActivityFeed } from "@/components/feed/activity-feed";
 import { EntityCard } from "@/components/ui/entity-card";
 import { PageHeader } from "@/components/page-header";
+import { WelcomeIntro } from "@/components/welcome-intro";
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-8 py-8">
+      <WelcomeIntro name={profile.first_name || "back"} />
       <PageHeader title={`Welcome${profile.first_name ? `, ${profile.first_name}` : ""}`} />
 
       {upcomingEvents.length > 0 ? (

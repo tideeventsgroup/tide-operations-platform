@@ -106,6 +106,32 @@ export async function createVehicleAction(
   );
 }
 
+export async function updatePersonDescriptionAction(
+  personId: string,
+  fields: {
+    ageGroup?: Enums<"person_age_group">;
+    gender?: Enums<"person_gender">;
+    heightBand?: Enums<"person_height_band">;
+    build?: Enums<"person_build">;
+    distinguishingFeatures?: string;
+    clothingDescription?: string;
+  },
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_person_description", {
+    p_person_id: personId,
+    p_age_group: fields.ageGroup || undefined,
+    p_gender: fields.gender || undefined,
+    p_height_band: fields.heightBand || undefined,
+    p_build: fields.build || undefined,
+    p_distinguishing_features: fields.distinguishingFeatures || undefined,
+    p_clothing_description: fields.clothingDescription || undefined,
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/people/${personId}`);
+  return { success: true };
+}
+
 export async function linkExistingVehicleAction(
   eventId: string,
   vehicleId: string,

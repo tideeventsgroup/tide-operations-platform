@@ -16,6 +16,7 @@ export function EntityCard({
   value,
   subtitle,
   subtitleRight,
+  accentColor,
   className,
   children,
 }: {
@@ -27,12 +28,17 @@ export function EntityCard({
   value?: React.ReactNode;
   subtitle?: string;
   subtitleRight?: string;
+  /** Optional left-edge accent, e.g. a priority colour. Reserved for
+   *  meanings that are worth a permanent visual marker — most cards
+   *  should leave this unset. */
+  accentColor?: string;
   className?: string;
   children?: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
+      style={accentColor ? { borderLeftWidth: 3, borderLeftColor: accentColor } : undefined}
       className={cn(
         "block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md",
         className,
