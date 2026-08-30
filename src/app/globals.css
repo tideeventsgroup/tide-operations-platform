@@ -61,53 +61,70 @@
 }
 
 :root {
-  --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-instrument), "Helvetica Neue", Arial, sans-serif;
+  /* Tide Events Group's own brand marks — kept distinct from the SENTINEL
+     product's UI tokens below. Nothing in components reads these directly
+     any more; they're here for the wordmark/auth-splash treatment only. */
   --tide-charcoal: #373536;
   --tide-teal: #60b9c5;
   --tide-white: #ffffff;
 
-  --background: #f5f6f6;
-  --foreground: #373536;
-  --card: #ffffff;
-  --card-foreground: #373536;
-  --popover: #ffffff;
-  --popover-foreground: #373536;
-  --primary: #60b9c5;
-  --primary-foreground: #ffffff;
-  --secondary: #eef4f5;
-  --secondary-foreground: #373536;
-  --muted: #eef0f0;
-  --muted-foreground: #676566;
-  --accent: #e7f4f6;
-  --accent-foreground: #373536;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #dfe2e2;
-  --input: #cfd4d4;
-  --ring: #60b9c5;
-  --chart-1: #60b9c5;
-  --chart-2: #373536;
-  --chart-3: #8fd0d9;
-  --chart-4: #a6a5a6;
-  --chart-5: #3d8f99;
-  --radius: 0.625rem;
-  --sidebar: #373536;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #60b9c5;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #4a4748;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #4a4748;
-  --sidebar-ring: #60b9c5;
+  /* SENTINEL's design system: ink/muted/border neutrals, one reserved
+     accent blue for interactive elements, everything else warm grey. */
+  --ink: #14181a;
+  --muted-ink: #6b7479;
+  --hairline: #e4e6e5;
+  --accent-blue: oklch(0.52 0.13 245);
 
-  --success: #1b7a43;
+  --background: #f4f5f4;
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--accent-blue);
+  --primary-foreground: #ffffff;
+  --secondary: #f0f2f2;
+  --secondary-foreground: var(--ink);
+  --muted: #eef0ef;
+  --muted-foreground: var(--muted-ink);
+  --accent: #edf2f8;
+  --accent-foreground: oklch(0.42 0.12 245);
+  /* Same hue/chroma family as the reserved P1 red below — a destructive
+     action is its own kind of danger signal, kept as a separate token
+     rather than a literal alias so the two can diverge later. */
+  --destructive: oklch(0.55 0.21 25);
+  --border: var(--hairline);
+  --input: #d8dbda;
+  --ring: var(--accent-blue);
+  --chart-1: var(--accent-blue);
+  --chart-2: var(--ink);
+  --chart-3: oklch(0.6 0.09 235);
+  --chart-4: #a6a5a6;
+  --chart-5: oklch(0.68 0.16 62);
+  --radius: 0.4375rem;
+  --sidebar: var(--ink);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: var(--accent-blue);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #23292c;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--accent-blue);
+
+  /* These four map onto event_priorities.color_token — the same 5 slots
+     admins assign per-priority in Admin → Event Priorities — retuned to
+     the reserved ramp below so a configured priority reads as that ramp
+     everywhere, not just on the literal P1–P4 codes. */
+  --success: var(--priority-resolved);
   --success-foreground: #ffffff;
-  --success-bg: #e3f7ea;
-  --warning: #93690b;
+  --success-bg: color-mix(in oklab, var(--success) 16%, white);
+  --warning: var(--priority-p2);
   --warning-foreground: #ffffff;
-  --warning-bg: #fdf0d5;
-  --info: #1a5ba6;
+  --warning-bg: color-mix(in oklab, var(--warning) 18%, white);
+  --info: var(--priority-p3);
   --info-foreground: #ffffff;
-  --info-bg: #e4f0ff;
+  --info-bg: color-mix(in oklab, var(--info) 14%, white);
 
   /* Reserved priority ramp — used only to mark an event's priority
      (P1–P4), never as decoration, status colour, or emphasis elsewhere.
@@ -129,47 +146,47 @@
 }
 
 .dark {
-  --background: #262525;
-  --foreground: #ffffff;
-  --card: #373536;
-  --card-foreground: #ffffff;
-  --popover: #373536;
-  --popover-foreground: #ffffff;
-  --primary: #60b9c5;
-  --primary-foreground: #262525;
-  --secondary: #4a4748;
-  --secondary-foreground: #ffffff;
-  --muted: #3d3b3c;
-  --muted-foreground: #a6a5a6;
-  --accent: #3d8f99;
-  --accent-foreground: #ffffff;
-  --destructive: oklch(0.704 0.191 22.216);
+  --background: #14181a;
+  --foreground: #f4f5f5;
+  --card: #1c2226;
+  --card-foreground: #f4f5f5;
+  --popover: #1c2226;
+  --popover-foreground: #f4f5f5;
+  --primary: oklch(0.66 0.15 245);
+  --primary-foreground: #0e1214;
+  --secondary: #23292c;
+  --secondary-foreground: #f4f5f5;
+  --muted: #23292c;
+  --muted-foreground: #9aa3a7;
+  --accent: #1e2a38;
+  --accent-foreground: oklch(0.75 0.13 245);
+  --destructive: oklch(0.66 0.2 25);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #60b9c5;
-  --chart-1: #60b9c5;
-  --chart-2: #a6a5a6;
-  --chart-3: #8fd0d9;
+  --ring: oklch(0.66 0.15 245);
+  --chart-1: oklch(0.66 0.15 245);
+  --chart-2: #9aa3a7;
+  --chart-3: oklch(0.68 0.11 235);
   --chart-4: #4a4748;
-  --chart-5: #3d8f99;
-  --sidebar: #1f1e1e;
+  --chart-5: oklch(0.72 0.16 62);
+  --sidebar: #0e1214;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #60b9c5;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #373536;
+  --sidebar-primary: oklch(0.66 0.15 245);
+  --sidebar-primary-foreground: #0e1214;
+  --sidebar-accent: #171d20;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #373536;
-  --sidebar-ring: #60b9c5;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: oklch(0.66 0.15 245);
 
-  --success: #4ade80;
+  --success: oklch(0.68 0.14 150);
   --success-foreground: #0a2e17;
-  --success-bg: #123423;
-  --warning: #fbbf24;
+  --success-bg: color-mix(in oklab, var(--success) 18%, black);
+  --warning: oklch(0.72 0.16 62);
   --warning-foreground: #2e2205;
-  --warning-bg: #3a2e0d;
-  --info: #7db8f5;
+  --warning-bg: color-mix(in oklab, var(--warning) 18%, black);
+  --info: oklch(0.68 0.1 235);
   --info-foreground: #0b2745;
-  --info-bg: #142c47;
+  --info-bg: color-mix(in oklab, var(--info) 18%, black);
 }
 
 @layer base {
@@ -211,7 +228,7 @@
     @apply text-[11px] leading-4 font-bold tracking-[0.11em] text-muted-foreground uppercase;
   }
   .data-value {
-    @apply font-semibold tracking-[-0.015em] text-tide-charcoal tabular-nums;
+    @apply font-mono font-semibold tracking-[-0.015em] text-foreground tabular-nums;
   }
 }
 

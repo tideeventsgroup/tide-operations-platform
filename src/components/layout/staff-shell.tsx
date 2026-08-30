@@ -69,7 +69,7 @@ export function StaffShell({
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex h-[72px] shrink-0 items-center gap-4 bg-primary px-4 text-primary-foreground md:gap-6 print:hidden">
+      <header className="flex h-[72px] shrink-0 items-center gap-4 bg-sidebar px-4 text-sidebar-foreground md:gap-6 print:hidden">
         <Sheet>
           <SheetTrigger
             render={

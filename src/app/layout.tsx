@@ -1,12 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, IBM_Plex_Mono } from "next/font/google";
+import { Instrument_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { PwaRegister } from "@/components/pwa-register";
 
-const inter = Inter({
+// The language face — everything that isn't an evidential value. Wired to
+// --font-sans in globals.css.
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -52,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`h-full antialiased ${inter.variable} ${plexMono.variable}`}
+      className={`h-full antialiased ${instrumentSans.variable} ${plexMono.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

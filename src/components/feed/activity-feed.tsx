@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ClipboardCheck, Eye, FileSearch, LayoutList, MessageCircle, Rows3, Siren } from "lucide-react";
 import { EntityCard } from "@/components/ui/entity-card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/empty-state";
 import { FeedDenseTable } from "@/components/feed/feed-dense-table";
 import { priorityColor, isPriorityCode } from "@/lib/priority-colors";
@@ -13,21 +12,12 @@ import type { FeedItem } from "@/lib/domain/feed-service";
 type FeedView = "cards" | "dense";
 const VIEW_STORAGE_KEY = "sentinel-feed-view";
 
-const KIND_FILTER_LABEL: Record<FeedItem["kind"], string> = {
-  incident: "Incidents",
-  observation: "Observations",
-  audit: "Audits",
-  investigation: "Investigations",
-};
-
 const KIND_ICON: Record<FeedItem["kind"], React.ComponentType<{ className?: string }>> = {
   incident: Siren,
   observation: Eye,
   audit: ClipboardCheck,
   investigation: FileSearch,
 };
-
-const KINDS = Object.keys(KIND_FILTER_LABEL) as FeedItem["kind"][];
 
 function relativeTime(iso: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -45,8 +35,6 @@ function exactDate(iso: string) {
 }
 
 export function ActivityFeed({ items }: { items: FeedItem[] }) {
-  const [visibleKinds, setVisibleKinds] = useState<Set<FeedItem["kind"]>>(new Set(KINDS));
-  const [openOnly, setOpenOnly] = useState(false);
   const [view, setView] = useState<FeedView>("cards");
 
   // Read the remembered view after mount only, so server-rendered markup
@@ -62,121 +50,85 @@ export function ActivityFeed({ items }: { items: FeedItem[] }) {
     localStorage.setItem(VIEW_STORAGE_KEY, next);
   }
 
-  const filtered = useMemo(
-    () => items.filter((item) => visibleKinds.has(item.kind) && (!openOnly || item.isOpen)),
-    [items, visibleKinds, openOnly],
-  );
-
-  function toggleKind(kind: FeedItem["kind"]) {
-    setVisibleKinds((prev) => {
-      const next = new Set(prev);
-      if (next.has(kind)) next.delete(kind);
-      else next.add(kind);
-      return next;
-    });
-  }
-
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_240px]">
-      <div className="min-w-0 space-y-3">
-        <div className="flex justify-end">
-          <div className="inline-flex rounded-full border border-border bg-card p-0.5">
-            <button
-              type="button"
-              onClick={() => selectView("cards")}
-              aria-pressed={view === "cards"}
-              className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                view === "cards" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <LayoutList className="size-3.5" />
-              Cards
-            </button>
-            <button
-              type="button"
-              onClick={() => selectView("dense")}
-              aria-pressed={view === "dense"}
-              className={cn(
-                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                view === "dense" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <Rows3 className="size-3.5" />
-              Dense
-            </button>
-          </div>
-        </div>
-
-        {filtered.length === 0 ? (
-          <EmptyState message="Nothing to show for the selected filters" />
-        ) : view === "dense" ? (
-          <FeedDenseTable items={filtered} />
-        ) : (
-          <div className="space-y-3">
-            {filtered.map((item) => {
-              const Icon = KIND_ICON[item.kind];
-              const hasPriority = isPriorityCode(item.value);
-              return (
-                <EntityCard
-                  key={item.id}
-                  href={item.href}
-                  icon={<Icon className="size-5" />}
-                  title={item.title}
-                  reference={item.reference}
-                  meta={relativeTime(item.timestamp)}
-                  value={
-                    hasPriority ? (
-                      <span
-                        className="rounded px-1.5 py-0.5 font-mono text-xs font-semibold text-white"
-                        style={{ backgroundColor: priorityColor(item.value) }}
-                      >
-                        {item.value}
-                      </span>
-                    ) : (
-                      item.value
-                    )
-                  }
-                  subtitle={item.subtitle}
-                  subtitleRight={exactDate(item.timestamp)}
-                  accentColor={hasPriority ? priorityColor(item.value) : undefined}
-                >
-                  {item.activity ? (
-                    <div className="flex items-start gap-3">
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                        <MessageCircle className="size-4" />
-                      </span>
-                      <p className="min-w-0 text-sm text-foreground">
-                        <span className="font-bold">{item.activity.author}</span> {item.activity.body}
-                      </p>
-                    </div>
-                  ) : null}
-                </EntityCard>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="h-fit space-y-5 rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-bold text-foreground">Show me</h2>
-        <div className="space-y-2.5">
-          <p className="section-label">Type</p>
-          {KINDS.map((kind) => (
-            <label key={kind} className="flex items-center gap-2 text-sm text-foreground">
-              <Checkbox checked={visibleKinds.has(kind)} onCheckedChange={() => toggleKind(kind)} />
-              {KIND_FILTER_LABEL[kind]}
-            </label>
-          ))}
-        </div>
-        <div className="space-y-2.5 border-t border-border pt-4">
-          <p className="section-label">Status</p>
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <Checkbox checked={openOnly} onCheckedChange={(checked) => setOpenOnly(checked === true)} />
-            Open only
-          </label>
+    <div className="min-w-0 space-y-3">
+      <div className="flex justify-end">
+        <div className="inline-flex rounded-full border border-border bg-card p-0.5">
+          <button
+            type="button"
+            onClick={() => selectView("cards")}
+            aria-pressed={view === "cards"}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              view === "cards" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <LayoutList className="size-3.5" />
+            Cards
+          </button>
+          <button
+            type="button"
+            onClick={() => selectView("dense")}
+            aria-pressed={view === "dense"}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              view === "dense" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Rows3 className="size-3.5" />
+            Dense
+          </button>
         </div>
       </div>
+
+      {items.length === 0 ? (
+        <EmptyState message="Nothing to show" />
+      ) : view === "dense" ? (
+        <FeedDenseTable items={items} />
+      ) : (
+        <div className="space-y-3">
+          {items.map((item) => {
+            const Icon = KIND_ICON[item.kind];
+            const hasPriority = isPriorityCode(item.value);
+            return (
+              <EntityCard
+                key={item.id}
+                href={item.href}
+                icon={<Icon className="size-5" />}
+                title={item.title}
+                reference={item.reference}
+                meta={relativeTime(item.timestamp)}
+                value={
+                  hasPriority ? (
+                    <span
+                      className="rounded px-1.5 py-0.5 font-mono text-xs font-semibold text-white"
+                      style={{ backgroundColor: priorityColor(item.value) }}
+                    >
+                      {item.value}
+                    </span>
+                  ) : (
+                    item.value
+                  )
+                }
+                subtitle={item.subtitle}
+                subtitleRight={exactDate(item.timestamp)}
+                accentColor={hasPriority ? priorityColor(item.value) : undefined}
+              >
+                {item.activity ? (
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <MessageCircle className="size-4" />
+                    </span>
+                    <p className="min-w-0 text-sm text-foreground">
+                      <span className="font-bold">{item.activity.author}</span> {item.activity.body}
+                    </p>
+                  </div>
+                ) : null}
+              </EntityCard>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
