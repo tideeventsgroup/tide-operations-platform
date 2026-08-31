@@ -63,6 +63,20 @@ async function findSimilarVehicles(vehicle: {
   return data ?? [];
 }
 
+export async function listPeople() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("people").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function listVehicles() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("vehicles").select("*").order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function getPersonProfile(id: string) {
   const supabase = await createClient();
   const { data: person, error } = await supabase.from("people").select("*").eq("id", id).single();

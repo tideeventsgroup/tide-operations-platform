@@ -26,6 +26,13 @@ const NAV: NavItem[] = [
   { label: "Search", href: "/search" },
 ];
 
+const BROWSE: NavItem[] = [
+  { label: "Operations", href: "/operations" },
+  { label: "Clients", href: "/clients" },
+  { label: "People", href: "/people" },
+  { label: "Vehicles", href: "/vehicles" },
+];
+
 function navItemClass(active: boolean) {
   return cn(
     "rounded-md px-3.5 py-2 text-[15px] font-semibold whitespace-nowrap transition-colors",
@@ -52,13 +59,23 @@ export function StaffShell({
 }) {
   const pathname = usePathname();
   const name = [profile.first_name, profile.surname].filter(Boolean).join(" ") || profile.email;
+  const initials = ((profile.first_name?.[0] ?? profile.email[0]) + (profile.surname?.[0] ?? "")).toUpperCase();
   const onSearchPage = pathname.startsWith("/search");
 
-  const items = [
-    ...NAV,
+  const browseItems: NavItem[] = [
+    ...BROWSE,
+    ...(canViewInvestigations ? [{ label: "Investigations", href: "/investigations" }] : []),
+    ...(canSubmitAudits ? [{ label: "Audits", href: "/audits" }] : []),
+  ];
+
+  const tailItems: NavItem[] = [
     ...(canViewInsights ? [{ label: "Insights", href: "/insights" }] : []),
     ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
   ];
+
+  // Flat list for the mobile sheet — a vertical menu has room for every
+  // page; the desktop bar keeps Browse as its own dropdown instead.
+  const items = [NAV[0], ...browseItems, NAV[1], ...tailItems];
 
   const createItems = [
     { label: "New operation", href: "/operations/new" },
@@ -123,7 +140,43 @@ export function StaffShell({
         </Link>
 
         <nav className="hidden flex-1 items-center gap-2 md:flex">
-          {items.map((item) => {
+          {NAV.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link key={item.href} href={item.href} className={navItemClass(active)}>
+                {item.label}
+              </Link>
+            );
+          })}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "gap-1 text-[15px] font-semibold",
+                    browseItems.some((i) => pathname === i.href || pathname.startsWith(i.href + "/"))
+                      ? "bg-black/10 text-white"
+                      : "text-white/85 hover:bg-black/5 hover:text-white",
+                  )}
+                />
+              }
+            >
+              Browse
+              <ChevronDownIcon className="size-3.5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {browseItems.map((item) => (
+                <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {tailItems.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link key={item.href} href={item.href} className={navItemClass(active)}>
@@ -174,7 +227,12 @@ export function StaffShell({
           >
             <SettingsIcon />
           </Button>
-          <span className="hidden text-sm text-white/90 sm:inline">{name}</span>
+          <div className="flex items-center gap-2.5">
+            <span className="hidden text-[12.5px] text-white/78 sm:inline">{name}</span>
+            <div className="flex size-[27px] shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold text-white" style={{ background: "oklch(0.5 0.1 245)" }}>
+              {initials}
+            </div>
+          </div>
           <form action={signOut}>
             <Button type="submit" variant="ghost" size="sm" className="text-white/85 hover:bg-black/5 hover:text-white">
               Sign out
