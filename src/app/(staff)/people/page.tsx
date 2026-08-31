@@ -5,6 +5,7 @@ import { listPeople } from "@/lib/domain/link-analysis-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DataTable, DataTableBody, DataTableHead, DataTableHeadCell, DataTableRow } from "@/components/ui/data-table";
 
 function personName(p: { first_name: string | null; surname: string | null; reference: string }) {
@@ -20,7 +21,15 @@ export default async function PeopleListPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-8 py-8">
-      <PageHeader title="People" description="Intelligence records — linked to events, observations, and investigations." />
+      <PageHeader
+        title="People"
+        description="Intelligence records — linked to events, observations, and investigations."
+        actions={
+          <Button render={<Link href="/people/new" />} nativeButton={false}>
+            New person
+          </Button>
+        }
+      />
 
       {people.length === 0 ? (
         <EmptyState message="No people recorded yet" />

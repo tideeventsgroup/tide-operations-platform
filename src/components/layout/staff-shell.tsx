@@ -80,6 +80,8 @@ export function StaffShell({
   const createItems = [
     { label: "New operation", href: "/operations/new" },
     { label: "New client", href: "/clients/new" },
+    { label: "New person", href: "/people/new" },
+    { label: "New vehicle", href: "/vehicles/new" },
     ...(canViewInvestigations ? [{ label: "New investigation", href: "/investigations/new" }] : []),
     ...(canSubmitAudits ? [{ label: "Start an audit", href: "/audits/new" }] : []),
   ];

@@ -34,8 +34,12 @@ import { MajorIncidentBanner } from "@/components/events/major-incident-banner";
 import { EventContextRail } from "@/components/events/event-context-rail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function IncidentDetailPage({ params }: PageProps<"/events/[id]">) {
+const VALID_TABS = new Set(["timeline", "actions", "decisions", "resources", "agencies", "intelligence", "evidence", "restricted", "methane"]);
+
+export default async function IncidentDetailPage({ params, searchParams }: PageProps<"/events/[id]">) {
   const { id } = await params;
+  const { tab } = await searchParams;
+  const defaultTab = typeof tab === "string" && VALID_TABS.has(tab) ? tab : "timeline";
 
   let incident;
   try {
@@ -95,7 +99,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
           <MajorIncidentBanner eventId={id} activation={majorIncidentActivation} />
           <EventQuickActions incident={incident} priorities={priorities} />
 
-          <Tabs defaultValue="timeline">
+          <Tabs defaultValue={defaultTab}>
             <TabsList variant="line" className="w-full justify-start border-b border-border">
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="actions">

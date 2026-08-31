@@ -5,6 +5,7 @@ import { listVehicles } from "@/lib/domain/link-analysis-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DataTable, DataTableBody, DataTableHead, DataTableHeadCell, DataTableRow } from "@/components/ui/data-table";
 
 function vehicleName(v: { registration: string | null; make: string | null; model: string | null; colour: string | null; reference: string }) {
@@ -20,7 +21,15 @@ export default async function VehiclesListPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-8 py-8">
-      <PageHeader title="Vehicles" description="Intelligence records — linked to events, observations, and investigations." />
+      <PageHeader
+        title="Vehicles"
+        description="Intelligence records — linked to events, observations, and investigations."
+        actions={
+          <Button render={<Link href="/vehicles/new" />} nativeButton={false}>
+            New vehicle
+          </Button>
+        }
+      />
 
       {vehicles.length === 0 ? (
         <EmptyState message="No vehicles recorded yet" />
