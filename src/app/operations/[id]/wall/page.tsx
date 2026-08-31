@@ -6,6 +6,7 @@ import { listActiveMajorIncidentsForOperation, listEventCategories, listEvents }
 import { listRadioLogEntries } from "@/lib/domain/radio-log-service";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { WallClock } from "@/components/operations/wall-clock";
+import { LocationActivityPanel } from "@/components/operations/location-activity-panel";
 import { priorityColor, isPriorityCode } from "@/lib/priority-colors";
 
 function personName(p: { first_name: string | null; surname: string | null; email: string } | null) {
@@ -100,7 +101,6 @@ export default async function OperationWallDisplayPage({ params }: PageProps<"/o
     .filter((l) => l.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 6);
-  const maxLocationCount = Math.max(1, ...locationActivity.map((l) => l.count));
 
   const untilClose = untilLabel(operation.closes_at);
   const capacityBase = operation.licensed_capacity ?? operation.planned_public_capacity;
@@ -249,29 +249,7 @@ export default async function OperationWallDisplayPage({ params }: PageProps<"/o
             </>
           ) : null}
 
-          <div className="mb-3 font-mono text-[11px] tracking-[0.12em]" style={{ color: "var(--wall-text-muted)" }}>
-            OPEN EVENTS BY LOCATION
-          </div>
-          <div className="mb-5 flex flex-col gap-2">
-            {locationActivity.length === 0 ? (
-              <p className="text-sm" style={{ color: "var(--wall-text-muted)" }}>
-                No open events tied to a specific location.
-              </p>
-            ) : (
-              locationActivity.map((loc) => (
-                <div key={loc.name} className="flex items-center gap-3">
-                  <span className="w-28 shrink-0 truncate text-[12.5px] text-white/75">{loc.name}</span>
-                  <div className="h-5 flex-1 overflow-hidden rounded bg-white/[.06]">
-                    <div
-                      className="h-full"
-                      style={{ width: `${(loc.count / maxLocationCount) * 100}%`, background: "oklch(0.55 0.11 235)" }}
-                    />
-                  </div>
-                  <span className="w-6 text-right font-mono text-xs font-medium text-white">{loc.count}</span>
-                </div>
-              ))
-            )}
-          </div>
+          <LocationActivityPanel locations={locationActivity} />
 
           <div className="mb-3 font-mono text-[11px] tracking-[0.12em]" style={{ color: "var(--wall-text-muted)" }}>
             ROSTER · {onDuty.length} ON DUTY

@@ -20,7 +20,7 @@ export async function getEvent(id: string) {
   const { data, error } = await supabase
     .from("events")
     .select(
-      "*, operations(id, reference, name, current_phase), controller:controller_id(first_name, surname, email), owner:owner_id(first_name, surname, email), operational_locations(name), closed_by_profile:closed_by(first_name, surname, email)",
+      "*, operations(id, reference, name, current_phase, clients(legal_name, trading_name)), controller:controller_id(first_name, surname, email), owner:owner_id(first_name, surname, email), operational_locations(name), closed_by_profile:closed_by(first_name, surname, email), reported_by_profile:reported_by_profile_id(first_name, surname, email)",
     )
     .eq("id", id)
     .single();

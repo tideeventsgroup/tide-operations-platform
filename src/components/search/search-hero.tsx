@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 
-export function SearchHero({ initialQuery }: { initialQuery: string }) {
+export function SearchHero({ initialQuery, resultCount }: { initialQuery: string; resultCount?: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,23 +32,22 @@ export function SearchHero({ initialQuery }: { initialQuery: string }) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <h1 className="mb-3 text-2xl font-bold text-foreground">Search SENTINEL</h1>
-      <form onSubmit={handleSubmit} className="relative flex items-center">
-        <SearchIcon className="pointer-events-none absolute left-3 size-5 text-muted-foreground" />
+    <div className="rounded-xl bg-sidebar p-4">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2.5 rounded-md border border-white/20 bg-white/10 px-3.5 h-11">
+        <SearchIcon className="size-4 shrink-0 text-white/55" />
         <input
           value={value}
           onChange={(e) => update(e.target.value)}
-          placeholder="Find an operation, client, event, person, or vehicle"
+          placeholder="Search operations, events, people, vehicles…"
           autoFocus
-          className="h-12 w-full rounded-lg border border-input bg-transparent pr-24 pl-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/40"
         />
-        <button
-          type="submit"
-          className="absolute right-2 rounded-md px-3 py-1.5 text-sm font-semibold text-primary hover:bg-accent"
-        >
-          Search
-        </button>
+        {value ? <span className="h-5 w-px shrink-0 bg-primary" /> : null}
+        {typeof resultCount === "number" ? (
+          <span className="shrink-0 font-mono text-[11.5px] text-white/45">
+            {resultCount} {resultCount === 1 ? "RESULT" : "RESULTS"}
+          </span>
+        ) : null}
       </form>
     </div>
   );

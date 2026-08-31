@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getPersonProfile } from "@/lib/domain/link-analysis-service";
-import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EntityCard } from "@/components/ui/entity-card";
 import { EmptyState } from "@/components/empty-state";
@@ -9,6 +8,21 @@ import { PersonDescriptionPanel } from "@/components/people/person-description-p
 
 function personName(p: { first_name: string | null; surname: string | null }, fallback: string) {
   return [p.first_name, p.surname].filter(Boolean).join(" ") || fallback;
+}
+
+function initials(p: { first_name: string | null; surname: string | null }, fallback: string) {
+  const a = p.first_name?.[0] ?? fallback[0];
+  const b = p.surname?.[0] ?? fallback[1] ?? "";
+  return (a + b).toUpperCase();
+}
+
+function formatDob(value: string | null) {
+  if (!value) return "DOB withheld";
+  return `DOB ${new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
+}
+
+function formatFirstSeen(value: string) {
+  return `first seen ${new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
 }
 
 export default async function PersonProfilePage({ params }: PageProps<"/people/[id]">) {
@@ -46,16 +60,31 @@ export default async function PersonProfilePage({ params }: PageProps<"/people/[
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-8 py-8">
-      <div className="space-y-2">
-        <p className="font-mono text-xs text-muted-foreground">{person.reference}</p>
-        <PageHeader title={personName(person, person.reference)} description={person.description ?? undefined} />
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{person.classification}</Badge>
-          <Badge variant="secondary" className="capitalize">
-            {person.status}
-          </Badge>
+      <div className="flex items-start gap-5 rounded-lg border border-border bg-card p-5">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted text-xl font-semibold text-muted-foreground">
+          {initials(person, person.reference)}
         </div>
-        <p className="text-sm text-muted-foreground">Purpose: {person.purpose}</p>
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5 flex flex-wrap items-center gap-2">
+            <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10.5px] tracking-[0.06em] text-muted-foreground uppercase">
+              {person.purpose}
+            </span>
+            <span className="font-mono text-[11px] text-muted-foreground">{person.reference}</span>
+          </div>
+          <h1 className="mb-1.5 text-[21px] leading-tight font-semibold tracking-tight text-foreground">{personName(person, person.reference)}</h1>
+          <p className="text-[12.5px] text-muted-foreground">
+            {formatDob(person.date_of_birth)} · {formatFirstSeen(person.created_at)}
+          </p>
+          {person.description ? <p className="mt-2 text-sm text-foreground">{person.description}</p> : null}
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Badge variant="secondary" className="capitalize">
+              {person.classification}
+            </Badge>
+            <Badge variant="secondary" className="capitalize">
+              {person.status}
+            </Badge>
+          </div>
+        </div>
       </div>
 
       <PersonDescriptionPanel

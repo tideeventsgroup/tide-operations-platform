@@ -10,6 +10,23 @@ export async function listAuditTemplates(organisationId: string, { includeInacti
   return data;
 }
 
+// Org-wide submission list — /audits. audit_answers is embedded so the
+// list can show a real pass/total fraction and flagged (failed) count per
+// submission without an N+1 query per row.
+export async function listAuditSubmissionsForOrg(organisationId: string, limit = 30) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("audit_submissions")
+    .select(
+      "*, audit_templates(name), submitted_by_profile:submitted_by(first_name, surname, email), operations(name), audit_answers(response)",
+    )
+    .eq("organisation_id", organisationId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return data;
+}
+
 export async function getAuditTemplate(id: string) {
   const supabase = await createClient();
   const [{ data: template, error: templateErr }, { data: questions, error: questionsErr }] = await Promise.all([

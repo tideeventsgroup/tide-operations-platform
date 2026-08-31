@@ -2,6 +2,20 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeFilterTerm } from "@/lib/domain/postgrest-filter";
 
+// Org-wide case list — /investigations. Linked-record and linked-operation
+// counts come from the same junction table listInvestigationIncidents()
+// uses, just embedded here so the list doesn't need N+1 queries.
+export async function listInvestigations(organisationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("investigations")
+    .select("*, lead_investigator:lead_investigator_id(first_name, surname, email), investigation_events(events(operation_id))")
+    .eq("organisation_id", organisationId)
+    .order("opened_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function getInvestigation(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

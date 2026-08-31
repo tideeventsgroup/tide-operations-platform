@@ -1,9 +1,8 @@
-"use client";
-
 import Link from "next/link";
-import { EventStatusBadge } from "@/components/status-badges";
 import { Badge } from "@/components/ui/badge";
 import { ResponseClocks } from "@/components/events/response-clocks";
+import { EventStatusElapsedPill } from "@/components/events/event-status-elapsed-pill";
+import { priorityColor, isPriorityCode } from "@/lib/priority-colors";
 import { splitEventReference } from "@/lib/format-reference";
 import type { getEvent, listEventPriorities } from "@/lib/domain/event-service";
 
@@ -38,27 +37,60 @@ export function EventCommandHeader({
   priority: Priority | undefined;
 }) {
   const { prefix, number } = splitEventReference(incident.reference);
+  const hasPriority = isPriorityCode(incident.priority_code);
+  const endedAt = incident.closed_at ?? incident.resolved_at ?? null;
 
   return (
     <div className="rounded-lg border border-border bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-center gap-1.5 font-mono text-xs text-muted-foreground">
+        <Link href={`/operations/${incident.operations?.id}`} className="text-primary hover:underline">
+          {incident.operations?.name}
+        </Link>
+        <span>/</span>
+        <Link href={`/operations/${incident.operations?.id}/events`} className="text-primary hover:underline">
+          Events
+        </Link>
+        <span>/</span>
+        <span className="font-medium text-foreground">
+          {prefix}-{number}
+        </span>
+      </div>
+
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <Link href={`/operations/${incident.operations?.id}/events`} className="text-xs text-muted-foreground hover:underline">
-              {incident.operations?.reference}
-            </Link>
-          </div>
-          <div className="mt-0.5 flex flex-wrap items-center gap-2.5">
-            <h1 className="text-[28px] leading-none font-bold tracking-tight text-foreground">
-              {prefix}-{number} · {categoryName.toUpperCase()}
-            </h1>
-            {incident.priority_code ? (
-              <Badge className="h-6 bg-destructive px-2.5 text-[13px] font-bold text-destructive-foreground">
-                {incident.priority_code}
-              </Badge>
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            {hasPriority ? (
+              <span
+                className="rounded px-1.5 py-0.5 font-mono text-[11px] font-semibold text-white uppercase"
+                style={{ backgroundColor: priorityColor(incident.priority_code) }}
+              >
+                {incident.priority_code} {priority?.name ?? ""}
+              </span>
             ) : null}
-            <EventStatusBadge status={incident.status} />
+            <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10.5px] tracking-[0.06em] text-muted-foreground uppercase">
+              {categoryName}
+            </span>
+            <EventStatusElapsedPill status={incident.status} priorityCode={incident.priority_code} createdAt={incident.created_at} endedAt={endedAt} />
             <ClassificationBadge classification={incident.classification} />
+          </div>
+          <h1 className="mb-2 text-[22px] leading-tight font-semibold tracking-tight text-foreground">{incident.summary}</h1>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-muted-foreground">
+            <span>
+              <span className="text-muted-foreground/70">Ref</span> <span className="font-mono font-medium text-foreground">{incident.reference}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              <span className="text-muted-foreground/70">Opened</span>{" "}
+              <span className="font-mono text-foreground">{new Date(incident.created_at).toLocaleTimeString("en-GB")}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              <span className="text-muted-foreground/70">Reported by</span> <span className="text-foreground">{personName(incident.reported_by_profile) !== "Unassigned" ? personName(incident.reported_by_profile) : incident.reported_by_name || "Unknown"}</span>
+            </span>
+            <span className="text-border">|</span>
+            <span>
+              <span className="text-muted-foreground/70">Owner</span> <span className="text-foreground">{personName(incident.owner)}</span>
+            </span>
           </div>
         </div>
         <ResponseClocks
@@ -70,8 +102,6 @@ export function EventCommandHeader({
           targetResolveMinutes={priority?.target_resolve_minutes ?? null}
         />
       </div>
-
-      <p className="mt-3 text-sm text-foreground">{incident.summary}</p>
 
       <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-border pt-4 text-sm">
         <div>

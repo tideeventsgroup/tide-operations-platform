@@ -39,11 +39,47 @@ export default async function ClientDetailPage({ params }: PageProps<"/clients/[
           <PageHeader title={client.trading_name || client.legal_name} />
           <ClientStatusBadge status={client.status} />
         </div>
-        {client.trading_name && <p className="text-sm text-muted-foreground">{client.legal_name}</p>}
+        <p className="text-[12.5px] text-muted-foreground">
+          {client.trading_name ? `${client.legal_name} · ` : ""}
+          client since {new Date(client.created_at).getFullYear()} ·{" "}
+          {events.filter((e) => e.year === new Date().getFullYear()).length} contracted operation
+          {events.filter((e) => e.year === new Date().getFullYear()).length === 1 ? "" : "s"} this year
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
         <div className="space-y-6">
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="section-label">Contracted operations ({events.length})</h2>
+              <Button
+                render={<Link href={`/operations/new?client=${id}`} />}
+                nativeButton={false}
+                size="sm"
+                variant="outline"
+              >
+                New event
+              </Button>
+            </div>
+            {events.length === 0 ? (
+              <EmptyState message="No events yet" />
+            ) : (
+              <div className="space-y-3">
+                {events.map((event) => (
+                  <EntityCard
+                    key={event.id}
+                    href={`/operations/${event.id}`}
+                    icon={<CalendarDays className="size-5" />}
+                    title={event.name}
+                    reference={event.reference}
+                    subtitle={event.start_date ? new Date(event.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : undefined}
+                    value={<LifecycleStageBadge stage={event.lifecycle_stage} />}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="section-label">Contacts ({contacts.length})</h2>
@@ -75,37 +111,6 @@ export default async function ClientDetailPage({ params }: PageProps<"/clients/[
               </div>
             )}
             <AddContactForm clientId={id} roleTypes={roleTypes} />
-          </section>
-
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="section-label">Events ({events.length})</h2>
-              <Button
-                render={<Link href={`/operations/new?client=${id}`} />}
-                nativeButton={false}
-                size="sm"
-                variant="outline"
-              >
-                New event
-              </Button>
-            </div>
-            {events.length === 0 ? (
-              <EmptyState message="No events yet" />
-            ) : (
-              <div className="space-y-3">
-                {events.map((event) => (
-                  <EntityCard
-                    key={event.id}
-                    href={`/operations/${event.id}`}
-                    icon={<CalendarDays className="size-5" />}
-                    title={event.name}
-                    reference={event.reference}
-                    subtitle={event.start_date ? new Date(event.start_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : undefined}
-                    value={<LifecycleStageBadge stage={event.lifecycle_stage} />}
-                  />
-                ))}
-              </div>
-            )}
           </section>
         </div>
 

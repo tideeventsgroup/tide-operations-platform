@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTransition } from "react";
 import { activateMajorIncidentAction, deactivateMajorIncidentAction } from "@/lib/actions/flagship-control";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,34 @@ function personName(p: { first_name: string | null; surname: string | null; emai
   return [p.first_name, p.surname].filter(Boolean).join(" ") || p.email;
 }
 
+function formatElapsed(totalSeconds: number) {
+  const s = Math.max(0, totalSeconds);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function useElapsed(since: string) {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    function tick() {
+      setSeconds(Math.max(0, Math.floor((Date.now() - new Date(since).getTime()) / 1000)));
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [since]);
+  return seconds;
+}
+
 const DISCLAIMER =
   "SENTINEL does not contact emergency services automatically. Follow the approved event emergency communications procedure and use 999 where required.";
+
+function ElapsedReadout({ since }: { since: string }) {
+  const seconds = useElapsed(since);
+  return <span className="font-mono text-xs font-medium text-white/70">ELAPSED {formatElapsed(seconds)}</span>;
+}
 
 export function MajorIncidentBanner({ eventId, activation }: { eventId: string; activation: Activation }) {
   const [open, setOpen] = useState(false);
@@ -43,21 +70,25 @@ export function MajorIncidentBanner({ eventId, activation }: { eventId: string; 
 
   if (activation) {
     return (
-      <div className="space-y-2 rounded-lg border-2 border-destructive bg-destructive/10 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <p className="text-sm font-bold tracking-wide text-destructive uppercase">Major Incident Mode active</p>
-            <p className="text-sm text-foreground">{activation.reason}</p>
-            <p className="text-xs text-muted-foreground">
-              Activated by {personName(activation.activated_by_profile)} ·{" "}
-              {new Date(activation.activated_at).toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })}
-            </p>
-          </div>
-          <Button size="sm" variant="outline" disabled={pending} onClick={deactivate}>
+      <div className="space-y-1.5 rounded-lg p-3.5" style={{ background: "color-mix(in oklab, var(--priority-p1) 22%, #14181a)" }}>
+        <div className="flex flex-wrap items-center gap-3">
+          <span
+            className="rounded px-2 py-1 font-mono text-[11px] font-bold tracking-[0.05em] text-white"
+            style={{ background: "var(--priority-p1)" }}
+          >
+            MAJOR INCIDENT DECLARED
+          </span>
+          <span className="text-[12.5px] text-white/85">
+            Declared by {personName(activation.activated_by_profile)} at{" "}
+            <span className="font-mono">{new Date(activation.activated_at).toLocaleTimeString("en-GB")}</span>
+          </span>
+          <div className="flex-1" />
+          <ElapsedReadout since={activation.activated_at} />
+          <Button size="sm" variant="outline" disabled={pending} className="border-white/30 bg-transparent text-white hover:bg-white/10" onClick={deactivate}>
             Deactivate
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">{DISCLAIMER}</p>
+        <p className="text-[11px] text-white/60">{DISCLAIMER}</p>
       </div>
     );
   }
@@ -67,7 +98,8 @@ export function MajorIncidentBanner({ eventId, activation }: { eventId: string; 
       {!open ? (
         <Button
           size="lg"
-          className="bg-destructive text-base font-semibold text-destructive-foreground hover:bg-destructive/90"
+          className="text-base font-semibold text-white"
+          style={{ background: "var(--priority-p1)" }}
           onClick={() => setOpen(true)}
         >
           Activate Major Incident Mode
@@ -85,7 +117,8 @@ export function MajorIncidentBanner({ eventId, activation }: { eventId: string; 
             />
             <Button
               size="sm"
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-white"
+              style={{ background: "var(--priority-p1)" }}
               disabled={pending || !reason.trim()}
               onClick={activate}
             >

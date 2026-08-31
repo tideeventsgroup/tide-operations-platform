@@ -104,13 +104,15 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
               <TabsTrigger value="decisions">Decisions</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
               <TabsTrigger value="agencies">Agencies</TabsTrigger>
-              <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
-              <TabsTrigger value="evidence">Evidence</TabsTrigger>
+              <TabsTrigger value="intelligence">
+                Intelligence{people.length + vehicles.length > 0 ? ` (${people.length + vehicles.length})` : ""}
+              </TabsTrigger>
+              <TabsTrigger value="evidence">Evidence{evidence.length > 0 ? ` (${evidence.length})` : ""}</TabsTrigger>
               {canViewRestricted ? <TabsTrigger value="restricted">Restricted</TabsTrigger> : null}
               <TabsTrigger value="methane">METHANE</TabsTrigger>
             </TabsList>
             <TabsContent value="timeline" className="pt-4">
-              <EventTimeline eventId={id} entries={timeline} />
+              <EventTimeline eventId={id} operationId={incident.operation_id} entries={timeline} />
             </TabsContent>
             <TabsContent value="actions" className="pt-4">
               <EventActionsPanel eventId={id} actions={actions} />
@@ -151,7 +153,7 @@ export default async function IncidentDetailPage({ params }: PageProps<"/events/
             </TabsContent>
           </Tabs>
         </div>
-        <EventContextRail incident={incident} otherOpenIncidents={otherOpenIncidents} />
+        <EventContextRail incident={incident} otherOpenIncidents={otherOpenIncidents} agenciesCount={agencies.length} />
       </div>
     </div>
   );

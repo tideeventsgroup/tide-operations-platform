@@ -79,7 +79,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
             ) : undefined
           }
         />
-        <SearchHero initialQuery={query} />
+        <SearchHero initialQuery={query} resultCount={counts[activeType]} />
         <SearchPills active={activeType} query={query} scopes={scopes} counts={counts} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_260px]">
           <div className="min-w-0 space-y-3">
@@ -119,7 +119,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-8 py-8">
       <PageHeader title="Search" />
-      <SearchHero initialQuery={query} />
+      <SearchHero initialQuery={query} resultCount={Object.values(counts).reduce((a, b) => a + b, 0)} />
       <SearchPills active="all" query={query} scopes={scopes} counts={counts} />
       <SearchAllResults results={results} scopes={scopes} query={query} />
     </div>
