@@ -6,6 +6,7 @@ import { createRiskAction } from "@/lib/actions/risks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function NewRiskForm({ operationId }: { operationId: string }) {
   const [open, setOpen] = useState(false);
@@ -66,33 +67,33 @@ export function NewRiskForm({ operationId }: { operationId: string }) {
       <div className="grid grid-cols-2 gap-3 sm:w-64">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Likelihood (1-5)</label>
-          <select
-            value={likelihood}
-            onChange={(e) => setLikelihood(Number(e.target.value))}
-            className="h-8 w-full rounded-md border border-input bg-transparent px-2 text-sm"
-            disabled={pending}
-          >
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+          <Select value={String(likelihood)} onValueChange={(v) => setLikelihood(Number(v ?? 3))}>
+            <SelectTrigger className="w-full" disabled={pending}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Impact (1-5)</label>
-          <select
-            value={impact}
-            onChange={(e) => setImpact(Number(e.target.value))}
-            className="h-8 w-full rounded-md border border-input bg-transparent px-2 text-sm"
-            disabled={pending}
-          >
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+          <Select value={String(impact)} onValueChange={(v) => setImpact(Number(v ?? 3))}>
+            <SelectTrigger className="w-full" disabled={pending}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <div className="flex gap-2">

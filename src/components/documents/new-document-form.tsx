@@ -5,7 +5,16 @@ import { toast } from "sonner";
 import { createDocumentAction } from "@/lib/actions/documents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables, Enums } from "@/lib/supabase/types";
+
+const CLASSIFICATIONS: { value: Enums<"classification_level">; label: string }[] = [
+  { value: "public", label: "Public" },
+  { value: "client", label: "Client" },
+  { value: "internal", label: "Internal" },
+  { value: "confidential", label: "Confidential" },
+  { value: "restricted", label: "Restricted" },
+];
 
 export function NewDocumentForm({ operationId, documentTypes }: { operationId: string; documentTypes: Tables<"document_types">[] }) {
   const [open, setOpen] = useState(false);
@@ -42,19 +51,18 @@ export function NewDocumentForm({ operationId, documentTypes }: { operationId: s
         <label className="text-xs text-muted-foreground" htmlFor="doc-type">
           Type
         </label>
-        <select
-          id="doc-type"
-          value={documentTypeId}
-          onChange={(e) => setDocumentTypeId(e.target.value)}
-          className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-          disabled={pending}
-        >
-          {documentTypes.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
+        <Select value={documentTypeId} onValueChange={(v) => setDocumentTypeId(v ?? "")}>
+          <SelectTrigger id="doc-type" size="sm" disabled={pending}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {documentTypes.map((t) => (
+              <SelectItem key={t.id} value={t.id}>
+                {t.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground" htmlFor="doc-title">
@@ -66,19 +74,18 @@ export function NewDocumentForm({ operationId, documentTypes }: { operationId: s
         <label className="text-xs text-muted-foreground" htmlFor="doc-classification">
           Classification
         </label>
-        <select
-          id="doc-classification"
-          value={classification}
-          onChange={(e) => setClassification(e.target.value as Enums<"classification_level">)}
-          className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-          disabled={pending}
-        >
-          <option value="public">Public</option>
-          <option value="client">Client</option>
-          <option value="internal">Internal</option>
-          <option value="confidential">Confidential</option>
-          <option value="restricted">Restricted</option>
-        </select>
+        <Select value={classification} onValueChange={(v) => setClassification((v ?? "internal") as Enums<"classification_level">)}>
+          <SelectTrigger id="doc-classification" size="sm" disabled={pending}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {CLASSIFICATIONS.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" size="sm" disabled={pending || !documentTypeId || !title.trim()}>
         {pending ? "Creating…" : "Create"}

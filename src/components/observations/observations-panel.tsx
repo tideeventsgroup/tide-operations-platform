@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { listObservations } from "@/lib/domain/observation-service";
 import type { Enums, Tables } from "@/lib/supabase/types";
+
+const NO_LOCATION = "__none__";
 
 type Observation = Awaited<ReturnType<typeof listObservations>>[number];
 type ObservationStatus = Enums<"observation_status">;
@@ -83,19 +86,19 @@ export function ObservationsPanel({
               <option key={c} value={c} />
             ))}
           </datalist>
-          <select
-            value={locationId}
-            onChange={(e) => setLocationId(e.target.value)}
-            className="h-9 flex-1 rounded-md border border-input bg-transparent px-2 text-sm"
-            disabled={pending}
-          >
-            <option value="">No location</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name}
-              </option>
-            ))}
-          </select>
+          <Select value={locationId || NO_LOCATION} onValueChange={(v) => setLocationId(v === NO_LOCATION ? "" : (v ?? ""))}>
+            <SelectTrigger className="flex-1" disabled={pending}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NO_LOCATION}>No location</SelectItem>
+              {locations.map((loc) => (
+                <SelectItem key={loc.id} value={loc.id}>
+                  {loc.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Textarea
           value={summary}
@@ -198,18 +201,18 @@ function ObservationRow({
             </Button>
           ) : (
             <div className="flex items-center gap-2">
-              <select
-                value={promoteCategory}
-                onChange={(e) => setPromoteCategory(e.target.value)}
-                className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-                disabled={pending}
-              >
-                {categories.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={promoteCategory} onValueChange={(v) => setPromoteCategory(v ?? "")}>
+                <SelectTrigger size="sm" disabled={pending}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button size="sm" className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={pending} onClick={promote}>
                 {pending ? "Promoting…" : "Confirm promotion"}
               </Button>

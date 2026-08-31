@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 export function AddLocationForm({ operationId, locations }: { operationId: string; locations: Tables<"operational_locations">[] }) {
@@ -19,7 +20,7 @@ export function AddLocationForm({ operationId, locations }: { operationId: strin
         operation_id: operationId,
         type: formData.get("type") as Tables<"operational_locations">["type"],
         name: String(formData.get("name")),
-        parent_id: (formData.get("parent_id") as string) || null,
+        parent_id: formData.get("parent_id") === "none" ? null : (formData.get("parent_id") as string),
       });
       if (error) {
         toast.error(error.message);
@@ -46,12 +47,17 @@ export function AddLocationForm({ operationId, locations }: { operationId: strin
         <label className="text-xs text-muted-foreground" htmlFor="loc-type">
           Type
         </label>
-        <select id="loc-type" name="type" className="h-8 rounded-md border border-input bg-transparent px-2 text-sm">
-          <option value="site">Site</option>
-          <option value="zone">Zone</option>
-          <option value="area">Area</option>
-          <option value="location">Location</option>
-        </select>
+        <Select name="type" defaultValue="site">
+          <SelectTrigger id="loc-type" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="site">Site</SelectItem>
+            <SelectItem value="zone">Zone</SelectItem>
+            <SelectItem value="area">Area</SelectItem>
+            <SelectItem value="location">Location</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground" htmlFor="loc-name">
@@ -63,14 +69,19 @@ export function AddLocationForm({ operationId, locations }: { operationId: strin
         <label className="text-xs text-muted-foreground" htmlFor="loc-parent">
           Parent
         </label>
-        <select id="loc-parent" name="parent_id" className="h-8 rounded-md border border-input bg-transparent px-2 text-sm">
-          <option value="">None</option>
-          {locations.map((loc) => (
-            <option key={loc.id} value={loc.id}>
-              {loc.name}
-            </option>
-          ))}
-        </select>
+        <Select name="parent_id" defaultValue="none">
+          <SelectTrigger id="loc-parent" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {locations.map((loc) => (
+              <SelectItem key={loc.id} value={loc.id}>
+                {loc.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" size="sm" disabled={pending}>
         {pending ? "Saving…" : "Save"}

@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/events";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { getEvent, listEventPriorities } from "@/lib/domain/event-service";
 
 type Incident = Awaited<ReturnType<typeof getEvent>>;
@@ -79,17 +80,18 @@ export function EventQuickActions({ incident, priorities }: { incident: Incident
 
       {active === "priority" ? (
         <div className="flex items-center gap-2 border-t border-border pt-3">
-          <select
-            value={priorityCode}
-            onChange={(e) => setPriorityCode(e.target.value)}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-          >
-            {priorities.map((p) => (
-              <option key={p.code} value={p.code}>
-                {p.code} — {p.name}
-              </option>
-            ))}
-          </select>
+          <Select value={priorityCode} onValueChange={(v) => setPriorityCode(v ?? "")}>
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {priorities.map((p) => (
+                <SelectItem key={p.code} value={p.code}>
+                  {p.code} — {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             size="sm"
             disabled={pending}

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { setEventClassificationAction, setEventRestrictedNarrativeAction } from "@/lib/actions/event-classification";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Enums } from "@/lib/supabase/types";
 import type { getEventRestrictedNarrative } from "@/lib/domain/event-service";
 
@@ -59,18 +60,18 @@ export function EventRestrictedPanel({
       <div className="space-y-2 rounded-lg border border-border bg-card p-3">
         <div className="section-label">Classification</div>
         <div className="flex items-center gap-2">
-          <select
-            value={pendingClass}
-            onChange={(e) => setPendingClass(e.target.value as Enums<"classification_level">)}
-            className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
-            disabled={pending}
-          >
-            {CLASSIFICATIONS.map((c) => (
-              <option key={c} value={c}>
-                {CLASSIFICATION_LABEL[c]}
-              </option>
-            ))}
-          </select>
+          <Select value={pendingClass} onValueChange={(v) => setPendingClass((v ?? classification) as Enums<"classification_level">)}>
+            <SelectTrigger disabled={pending}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CLASSIFICATIONS.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {CLASSIFICATION_LABEL[c]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button size="sm" disabled={pending || pendingClass === classification} onClick={saveClassification}>
             {pending ? "Saving…" : "Update classification"}
           </Button>

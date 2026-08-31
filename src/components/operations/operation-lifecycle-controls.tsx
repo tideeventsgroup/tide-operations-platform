@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Enums } from "@/lib/supabase/types";
 
 const PRE_LIVE_STAGES: Enums<"operation_lifecycle_stage">[] = [
@@ -85,17 +86,18 @@ export function OperationLifecycleControls({
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card px-4 py-3">
-      <select
-        value={nextStage}
-        onChange={(e) => setNextStage(e.target.value as Enums<"operation_lifecycle_stage">)}
-        className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-      >
-        {availableStages.map((s) => (
-          <option key={s} value={s}>
-            {STAGE_LABEL[s]}
-          </option>
-        ))}
-      </select>
+      <Select value={nextStage} onValueChange={(v) => setNextStage((v ?? stage) as Enums<"operation_lifecycle_stage">)}>
+        <SelectTrigger size="sm">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {availableStages.map((s) => (
+            <SelectItem key={s} value={s}>
+              {STAGE_LABEL[s]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Button size="sm" variant="outline" disabled={pending || nextStage === stage} onClick={submitStageChange}>
         Change stage
       </Button>

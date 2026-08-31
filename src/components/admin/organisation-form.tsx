@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { updateOrganisation } from "@/lib/actions/admin-organisation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 export function OrganisationForm({ organisation }: { organisation: Tables<"organisations"> }) {
@@ -45,16 +46,15 @@ export function OrganisationForm({ organisation }: { organisation: Tables<"organ
         <label className="text-sm font-medium text-foreground" htmlFor="status">
           Status
         </label>
-        <select
-          id="status"
-          name="status"
-          defaultValue={organisation.status}
-          disabled={pending}
-          className="h-9 w-full rounded-md border border-input bg-transparent px-2 text-sm"
-        >
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
+        <Select name="status" defaultValue={organisation.status}>
+          <SelectTrigger id="status" className="w-full" disabled={pending}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="suspended">Suspended</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" disabled={pending}>
         {pending ? "Saving…" : "Save changes"}

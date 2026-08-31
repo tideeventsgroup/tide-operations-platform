@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { endControlSessionAction, startControlSessionAction } from "@/lib/actions/flagship-control";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { listControlRoles, listControlSessions } from "@/lib/domain/operation-service";
 
 type Role = Awaited<ReturnType<typeof listControlRoles>>[number];
@@ -41,18 +42,18 @@ export function ControlRosterPanel({ operationId, roles, sessions }: { operation
       <h2 className="section-label">Event Control roster ({onDuty.length} on duty)</h2>
 
       <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-3">
-        <select
-          value={roleId}
-          onChange={(e) => setRoleId(e.target.value)}
-          className="h-8 flex-1 rounded-md border border-input bg-transparent px-2 text-sm"
-          disabled={pending || roles.length === 0}
-        >
-          {roles.map((r) => (
-            <option key={r.id} value={r.id}>
-              {r.name}
-            </option>
-          ))}
-        </select>
+        <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
+          <SelectTrigger className="flex-1" disabled={pending || roles.length === 0}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {roles.map((r) => (
+              <SelectItem key={r.id} value={r.id}>
+                {r.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button size="sm" disabled={pending || !roleId} onClick={signOn}>
           Sign on
         </Button>

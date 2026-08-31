@@ -7,6 +7,7 @@ import { createUser } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 type OperationOption = Pick<Tables<"operations">, "id" | "name" | "reference">;
@@ -114,35 +115,38 @@ export function AddUserForm({ roles, operations }: { roles: Tables<"roles">[]; o
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label>Role</Label>
-          <select
-            className="h-9 w-full rounded-md border border-input bg-transparent px-2 text-sm"
-            value={roleId}
-            onChange={(e) => setRoleId(e.target.value)}
-            disabled={pending}
-          >
-            {roles.map((role) => (
-              <option key={role.id} value={role.id}>
-                {role.name}
-              </option>
-            ))}
-          </select>
+          <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
+            <SelectTrigger className="w-full" disabled={pending}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role.id} value={role.id}>
+                  {role.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         {needsOperation ? (
           <div className="space-y-1.5">
             <Label>Operation</Label>
-            <select
-              className="h-9 w-full rounded-md border border-input bg-transparent px-2 text-sm"
-              value={operationId}
-              onChange={(e) => setOperationId(e.target.value)}
-              disabled={pending}
-            >
-              {operations.length === 0 ? <option value="">No operations</option> : null}
-              {operations.map((operation) => (
-                <option key={operation.id} value={operation.id}>
-                  {operation.reference} — {operation.name}
-                </option>
-              ))}
-            </select>
+            {operations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No operations</p>
+            ) : (
+              <Select value={operationId} onValueChange={(v) => setOperationId(v ?? "")}>
+                <SelectTrigger className="w-full" disabled={pending}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {operations.map((operation) => (
+                    <SelectItem key={operation.id} value={operation.id}>
+                      {operation.reference} — {operation.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
         ) : null}
       </div>

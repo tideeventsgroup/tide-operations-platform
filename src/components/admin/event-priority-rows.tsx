@@ -6,6 +6,7 @@ import { createEventPriority, deleteEventPriority, updateEventPriority } from "@
 import { DeleteConfigButton } from "@/components/admin/delete-config-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EventPriorityBadge } from "@/components/status-badges";
 import { DataTable, DataTableBody, DataTableHead, DataTableHeadCell, DataTableRow } from "@/components/ui/data-table";
 import type { Tables } from "@/lib/supabase/types";
@@ -20,17 +21,18 @@ function PriorityFields({ priority }: { priority?: EventPriority }) {
       <Input name="name" defaultValue={priority?.name} placeholder="Name" className="w-32" required />
       <Input name="description" defaultValue={priority?.description} placeholder="Description" className="flex-1 min-w-40" required />
       <Input name="rank" type="number" defaultValue={priority?.rank ?? 1} placeholder="Rank" className="w-16" required />
-      <select
-        name="colorToken"
-        defaultValue={priority?.color_token ?? "destructive"}
-        className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-      >
-        {COLOR_TOKENS.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
+      <Select name="colorToken" defaultValue={priority?.color_token ?? "destructive"}>
+        <SelectTrigger size="sm" className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {COLOR_TOKENS.map((t) => (
+            <SelectItem key={t} value={t}>
+              {t}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Input
         name="targetAckMinutes"
         type="number"

@@ -10,12 +10,15 @@ import { refreshPendingCount } from "@/lib/offline/pending-store";
 import { logEvidenceItemAction } from "@/lib/actions/evidence";
 import { priorityColor } from "@/lib/priority-colors";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Enums, Tables } from "@/lib/supabase/types";
 
 type OperationOption = Pick<Tables<"operations">, "id" | "name" | "reference" | "organisation_id">;
 type EventCategory = Tables<"event_categories">;
 type EventPriority = Tables<"event_priorities">;
 type Location = Tables<"operational_locations">;
+
+const NOT_SPECIFIED = "__not_specified__";
 
 // One screen, one thumb: category and priority are single-tap tiles (never
 // pickers), location defaults from GPS with three quick chips behind it,
@@ -214,21 +217,25 @@ export function MobileReportEventForm({
           <span className="shrink-0 text-[12.5px] font-medium text-primary">Change</span>
         </button>
         {locationExpanded ? (
-          <select
-            value={locationId}
-            onChange={(e) => {
-              setLocationId(e.target.value);
+          <Select
+            value={locationId || NOT_SPECIFIED}
+            onValueChange={(v) => {
+              setLocationId(v === NOT_SPECIFIED ? "" : (v ?? ""));
               setLocationExpanded(false);
             }}
-            className="mb-2 h-11 w-full rounded-md border border-input bg-transparent px-3 text-base"
           >
-            <option value="">Not specified</option>
-            {locations.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="mb-2 h-11 w-full text-base">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NOT_SPECIFIED}>Not specified</SelectItem>
+              {locations.map((loc) => (
+                <SelectItem key={loc.id} value={loc.id}>
+                  {loc.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
           <div className="flex flex-wrap gap-2">
             {quickLocations.map((loc) => (

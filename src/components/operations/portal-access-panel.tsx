@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { grantOperationPortalAccessAction, setOperationPortalEnabledAction } from "@/lib/actions/portal-admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 import type { listOperationPortalGrants } from "@/lib/domain/user-admin-service";
 
@@ -73,18 +74,18 @@ export function PortalAccessPanel({
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Role</label>
-              <select
-                value={roleId}
-                onChange={(e) => setRoleId(e.target.value)}
-                className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-                disabled={pending}
-              >
-                {externalRoles.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
+                <SelectTrigger size="sm" disabled={pending}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {externalRoles.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Button size="sm" disabled={pending || !email.trim() || !roleId} onClick={grant}>
               Grant access

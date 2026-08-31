@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { startAuditSubmissionAction } from "@/lib/actions/audits";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 export function StartAuditForm({ templates }: { templates: Tables<"audit_templates">[] }) {
@@ -24,18 +25,18 @@ export function StartAuditForm({ templates }: { templates: Tables<"audit_templat
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card p-3">
-      <select
-        value={templateId}
-        onChange={(e) => setTemplateId(e.target.value)}
-        className="h-9 flex-1 rounded-md border border-input bg-transparent px-2 text-sm"
-        disabled={pending}
-      >
-        {templates.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
+      <Select value={templateId} onValueChange={(v) => setTemplateId(v ?? "")}>
+        <SelectTrigger className="flex-1" disabled={pending}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {templates.map((t) => (
+            <SelectItem key={t.id} value={t.id}>
+              {t.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Button size="sm" disabled={pending || !templateId} onClick={start}>
         {pending ? "Starting…" : "Start audit"}
       </Button>

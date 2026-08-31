@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { approveUser } from "@/lib/actions/admin";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 type OperationOption = Pick<Tables<"operations">, "id" | "name" | "reference">;
@@ -26,30 +27,35 @@ export function ApproveUserForm({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <select
-        className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-        value={roleId}
-        onChange={(e) => setRoleId(e.target.value)}
-      >
-        {roles.map((role) => (
-          <option key={role.id} value={role.id}>
-            {role.name}
-          </option>
-        ))}
-      </select>
-      {needsEvent ? (
-        <select
-          className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-          value={operationId}
-          onChange={(e) => setEventId(e.target.value)}
-        >
-          {operations.length === 0 ? <option value="">No operations</option> : null}
-          {operations.map((operation) => (
-            <option key={operation.id} value={operation.id}>
-              {operation.reference} — {operation.name}
-            </option>
+      <Select value={roleId} onValueChange={(v) => setRoleId(v ?? "")}>
+        <SelectTrigger size="sm">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {roles.map((role) => (
+            <SelectItem key={role.id} value={role.id}>
+              {role.name}
+            </SelectItem>
           ))}
-        </select>
+        </SelectContent>
+      </Select>
+      {needsEvent ? (
+        operations.length === 0 ? (
+          <span className="text-sm text-muted-foreground">No operations</span>
+        ) : (
+          <Select value={operationId} onValueChange={(v) => setEventId(v ?? "")}>
+            <SelectTrigger size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {operations.map((operation) => (
+                <SelectItem key={operation.id} value={operation.id}>
+                  {operation.reference} — {operation.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
       ) : null}
       <Button
         size="sm"

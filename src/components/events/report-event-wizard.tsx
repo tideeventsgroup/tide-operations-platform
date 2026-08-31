@@ -40,9 +40,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { EventTypeTile } from "@/components/ui/event-type-tile";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MobileReportEventForm } from "@/components/events/mobile-report-event-form";
 import { cn } from "@/lib/utils";
 import type { Enums, Tables } from "@/lib/supabase/types";
+
+const NOT_SPECIFIED = "__not_specified__";
+const NOT_SET = "__not_set__";
 
 type OperationOption = Pick<Tables<"operations">, "id" | "name" | "reference" | "organisation_id">;
 type EventCategory = Tables<"event_categories">;
@@ -398,19 +402,19 @@ export function ReportEventWizard({
               <label className="text-sm font-medium text-foreground" htmlFor="location_id">
                 Location
               </label>
-              <select
-                id="location_id"
-                value={locationId}
-                onChange={(e) => setLocationId(e.target.value)}
-                className="h-11 w-full rounded-md border border-input bg-transparent px-3 text-base"
-              >
-                <option value="">Not specified</option>
-                {locations.map((loc) => (
-                  <option key={loc.id} value={loc.id}>
-                    {loc.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={locationId || NOT_SPECIFIED} onValueChange={(v) => setLocationId(v === NOT_SPECIFIED ? "" : (v ?? ""))}>
+                <SelectTrigger id="location_id" className="h-11 w-full text-base">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NOT_SPECIFIED}>Not specified</SelectItem>
+                  {locations.map((loc) => (
+                    <SelectItem key={loc.id} value={loc.id}>
+                      {loc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground" htmlFor="summary">
@@ -439,19 +443,19 @@ export function ReportEventWizard({
               <label className="text-sm font-medium text-foreground" htmlFor="priority_code">
                 Priority
               </label>
-              <select
-                id="priority_code"
-                value={priorityCode}
-                onChange={(e) => setPriorityCode(e.target.value)}
-                className="h-11 w-full rounded-md border border-input bg-transparent px-3 text-base"
-              >
-                <option value="">Not set</option>
-                {priorities.map((p) => (
-                  <option key={p.code} value={p.code}>
-                    {p.code} — {p.name}
-                  </option>
-                ))}
-              </select>
+              <Select value={priorityCode || NOT_SET} onValueChange={(v) => setPriorityCode(v === NOT_SET ? "" : (v ?? ""))}>
+                <SelectTrigger id="priority_code" className="h-11 w-full text-base">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NOT_SET}>Not set</SelectItem>
+                  {priorities.map((p) => (
+                    <SelectItem key={p.code} value={p.code}>
+                      {p.code} — {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         ) : null}
@@ -524,18 +528,18 @@ export function ReportEventWizard({
               <label className="text-sm font-medium text-foreground" htmlFor="report_source">
                 Source
               </label>
-              <select
-                id="report_source"
-                value={reportSource}
-                onChange={(e) => setReportSource(e.target.value as Enums<"report_source">)}
-                className="h-11 w-full rounded-md border border-input bg-transparent px-3 text-base"
-              >
-                {REPORT_SOURCES.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={reportSource} onValueChange={(v) => setReportSource((v ?? reportSource) as Enums<"report_source">)}>
+                <SelectTrigger id="report_source" className="h-11 w-full text-base">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {REPORT_SOURCES.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5 rounded-md border border-border bg-muted/40 p-3 text-sm">

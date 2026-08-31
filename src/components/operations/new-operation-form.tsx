@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/lib/supabase/types";
 
 export function NewOperationForm({
@@ -29,22 +30,18 @@ export function NewOperationForm({
 
       <div className="space-y-2">
         <Label htmlFor="client_id">Client</Label>
-        <select
-          id="client_id"
-          name="client_id"
-          required
-          defaultValue={defaultClientId ?? ""}
-          className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
-        >
-          <option value="" disabled>
-            Select a client
-          </option>
-          {clients.map((client) => (
-            <option key={client.id} value={client.id}>
-              {client.trading_name || client.legal_name}
-            </option>
-          ))}
-        </select>
+        <Select name="client_id" defaultValue={defaultClientId}>
+          <SelectTrigger id="client_id" className="w-full">
+            <SelectValue placeholder="Select a client" />
+          </SelectTrigger>
+          <SelectContent>
+            {clients.map((client) => (
+              <SelectItem key={client.id} value={client.id}>
+                {client.trading_name || client.legal_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
