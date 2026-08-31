@@ -50,12 +50,12 @@ function ClockTile({
   }
 
   return (
-    <div>
-      <div className="section-label">
+    <div className="flex items-baseline justify-between gap-3 sm:block">
+      <div className="section-label min-w-0 flex-1 !text-[10px] sm:flex-none sm:!text-[11px]">
         {label}
         {targetMinutes != null ? <span className="ml-1 normal-case text-muted-foreground/70">(target {targetMinutes}m)</span> : null}
       </div>
-      <div className={cn("data-value font-mono text-2xl", colorClass)}>{formatDuration(seconds)}</div>
+      <div className={cn("data-value shrink-0 font-mono text-base sm:text-2xl", colorClass)}>{formatDuration(seconds)}</div>
     </div>
   );
 }
@@ -78,7 +78,7 @@ export function ResponseClocks({
   const elapsedEnd = closedAt ?? resolvedAt ?? null;
 
   return (
-    <div className="grid grid-cols-3 gap-4 text-right">
+    <div className="flex w-full flex-col gap-1.5 sm:grid sm:w-auto sm:grid-cols-3 sm:gap-4 sm:text-right">
       <ClockTile label="Elapsed" start={createdAt} end={elapsedEnd} targetMinutes={null} />
       <ClockTile label="To acknowledge" start={createdAt} end={acknowledgedAt} targetMinutes={targetAckMinutes} />
       <ClockTile label="To resolve" start={createdAt} end={resolvedAt} targetMinutes={targetResolveMinutes} />

@@ -176,7 +176,7 @@ export function EventTimeline({ eventId, operationId, entries }: { eventId: stri
                 {i === 0 ? <span className="size-1.5 rounded-full" style={{ background: DOT_COLOR[entry.entry_type] ?? "var(--border)" }} /> : null}
               </div>
               <div className="rounded-md border border-border bg-card p-3">
-                <div className="mb-1.5 flex items-center gap-2">
+                <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="font-mono text-xs font-semibold text-foreground">{formatTime(entry.occurred_at)}</span>
                   <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] tracking-[0.06em] text-muted-foreground uppercase">
                     {ENTRY_TYPE_LABEL[entry.entry_type] ?? entry.entry_type}

@@ -44,20 +44,22 @@ export function EntityCard({
         className,
       )}
     >
-      <div className="flex w-full gap-3 p-5">
-        {icon ? (
-          <div className="hidden h-fit shrink-0 items-center justify-center rounded-md bg-accent p-2 text-primary md:flex">{icon}</div>
-        ) : null}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="flex flex-wrap items-baseline gap-x-1.5">
-            <span className="text-base font-semibold text-foreground">{title}</span>
-            {reference ? <span className="text-base font-normal text-primary">{reference}</span> : null}
-            {meta ? <span className="text-sm font-normal text-muted-foreground">{meta}</span> : null}
+      <div className="flex w-full flex-col gap-3 p-5 sm:flex-row">
+        <div className="flex min-w-0 flex-1 gap-3">
+          {icon ? (
+            <div className="hidden h-fit shrink-0 items-center justify-center rounded-md bg-accent p-2 text-primary md:flex">{icon}</div>
+          ) : null}
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex flex-wrap items-baseline gap-x-1.5">
+              <span className="text-base font-semibold text-foreground">{title}</span>
+              {reference ? <span className="text-base font-normal text-primary">{reference}</span> : null}
+              {meta ? <span className="text-sm font-normal text-muted-foreground">{meta}</span> : null}
+            </div>
+            {subtitle ? <span className="truncate text-sm text-muted-foreground">{subtitle}</span> : null}
           </div>
-          {subtitle ? <span className="truncate text-sm text-muted-foreground">{subtitle}</span> : null}
         </div>
         {value ? (
-          <div className="flex shrink-0 flex-col items-end">
+          <div className="flex shrink-0 flex-row items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start sm:gap-0">
             {typeof value === "string" ? <span className="text-base font-semibold text-foreground capitalize">{value}</span> : value}
             {subtitleRight ? <span className="text-sm text-muted-foreground">{subtitleRight}</span> : null}
           </div>

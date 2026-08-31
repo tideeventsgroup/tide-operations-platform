@@ -100,7 +100,10 @@ export default async function IncidentDetailPage({ params, searchParams }: PageP
           <EventQuickActions incident={incident} priorities={priorities} />
 
           <Tabs defaultValue={defaultTab}>
-            <TabsList variant="line" className="w-full justify-start border-b border-border">
+            <TabsList
+              variant="line"
+              className="w-full justify-start overflow-x-auto border-b border-border [&_[data-slot=tabs-trigger]]:flex-none"
+            >
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="actions">
                 Actions{outstandingActions > 0 ? ` (${outstandingActions})` : ""}

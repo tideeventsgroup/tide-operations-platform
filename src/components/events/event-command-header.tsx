@@ -103,7 +103,7 @@ export function EventCommandHeader({
         />
       </div>
 
-      <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-border pt-4 text-sm">
+      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-border pt-4 text-sm sm:grid-cols-3 sm:gap-4">
         <div>
           <dt className="section-label mb-1">Location</dt>
           <dd className="text-foreground">{incident.operational_locations?.name ?? "Not specified"}</dd>

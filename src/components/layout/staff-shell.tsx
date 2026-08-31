@@ -96,7 +96,7 @@ export function StaffShell({
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="shrink-0 text-white/85 hover:bg-black/5 hover:text-white md:hidden"
+                className="size-11 shrink-0 text-white/85 hover:bg-black/5 hover:text-white md:hidden"
                 aria-label="Open menu"
               />
             }
@@ -104,13 +104,13 @@ export function StaffShell({
             <MenuIcon />
           </SheetTrigger>
 
-          <SheetContent side="left" className="w-64 border-sidebar-border bg-sidebar text-sidebar-foreground">
+          <SheetContent side="left" className="w-72 border-sidebar-border bg-sidebar text-sidebar-foreground">
             <SheetHeader>
               <SheetTitle className="text-sidebar-foreground">
                 <SentinelWordmark variant="dark" height={18} />
               </SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col gap-1 px-4 pb-4">
+            <nav className="flex flex-col gap-1 px-4 pb-2">
               {items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
@@ -121,7 +121,7 @@ export function StaffShell({
                       <Link
                         href={item.href}
                         className={cn(
-                          "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                          "flex min-h-11 items-center rounded-md px-3 text-[15px] font-medium transition-colors",
                           active
                             ? "bg-sidebar-accent text-sidebar-accent-foreground"
                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
@@ -134,6 +134,37 @@ export function StaffShell({
                 );
               })}
             </nav>
+
+            <div className="mt-1 flex flex-col gap-1 border-t border-sidebar-border px-4 pt-3 pb-4">
+              <div className="px-3 pb-1 font-mono text-[10px] font-semibold tracking-[0.1em] text-sidebar-foreground/45 uppercase">Create</div>
+              {createItems.map((item) => (
+                <SheetClose
+                  key={item.href}
+                  nativeButton={false}
+                  render={<Link href={item.href} className="flex min-h-11 items-center rounded-md px-3 text-[15px] font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground" />}
+                >
+                  {item.label}
+                </SheetClose>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-1 border-t border-sidebar-border px-4 pt-3">
+              <SheetClose
+                nativeButton={false}
+                render={<Link href="/settings" className="flex min-h-11 items-center rounded-md px-3 text-[15px] font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground" />}
+              >
+                Settings
+              </SheetClose>
+              <div className="flex items-center justify-between px-3 py-2">
+                <span className="text-[15px] font-medium text-sidebar-foreground/80">Appearance</span>
+                <ThemeToggle className="text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground" />
+              </div>
+              <form action={signOut}>
+                <button type="submit" className="flex min-h-11 w-full items-center rounded-md px-3 text-left text-[15px] font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground">
+                  Sign out
+                </button>
+              </form>
+            </div>
           </SheetContent>
         </Sheet>
 
@@ -188,58 +219,62 @@ export function StaffShell({
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-3 md:flex-none">
+        <div className="flex flex-1 items-center justify-end gap-2 md:flex-none md:gap-3">
           <Button
             render={<Link href="/events/new" />}
             nativeButton={false}
-            size="sm"
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            aria-label="Report event"
+            className="h-9 shrink-0 bg-destructive px-2.5 text-destructive-foreground hover:bg-destructive/90 md:h-7 md:px-2.5"
           >
             <PlusIcon className="size-4" />
-            Report event
+            <span className="hidden sm:inline">Report event</span>
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" size="sm" className="border-white/25 bg-transparent text-white/85 hover:bg-black/5 hover:text-white" />
-              }
+          {/* Everything below is desktop chrome — mobile reaches it via the
+              hamburger sheet instead, which has the room for it without
+              crowding a 375px-wide header. */}
+          <div className="hidden items-center gap-3 md:flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" size="sm" className="border-white/25 bg-transparent text-white/85 hover:bg-black/5 hover:text-white" />
+                }
+              >
+                Create
+                <ChevronDownIcon className="size-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {createItems.map((item) => (
+                  <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
+                    {item.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <SyncStatusBadge />
+            <ThemeToggle className="text-white/85 hover:bg-black/5 hover:text-white" />
+            <Button
+              render={<Link href="/settings" />}
+              nativeButton={false}
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Settings"
+              className="text-white/85 hover:bg-black/5 hover:text-white"
             >
-              Create
-              <ChevronDownIcon className="size-3.5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {createItems.map((item) => (
-                <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
-                  {item.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <SyncStatusBadge />
-          <ThemeToggle className="text-white/85 hover:bg-black/5 hover:text-white" />
-          <Button
-            render={<Link href="/settings" />}
-            nativeButton={false}
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Settings"
-            className="text-white/85 hover:bg-black/5 hover:text-white"
-          >
-            <SettingsIcon />
-          </Button>
-          <div className="flex items-center gap-2.5">
-            <span className="hidden text-[12.5px] text-white/78 sm:inline">{name}</span>
-            <div className="flex size-[27px] shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold text-white" style={{ background: "oklch(0.5 0.1 245)" }}>
-              {initials}
-            </div>
-          </div>
-          <form action={signOut}>
-            <Button type="submit" variant="ghost" size="sm" className="text-white/85 hover:bg-black/5 hover:text-white">
-              Sign out
+              <SettingsIcon />
             </Button>
-          </form>
+            <span className="text-[12.5px] text-white/78">{name}</span>
+            <form action={signOut}>
+              <Button type="submit" variant="ghost" size="sm" className="text-white/85 hover:bg-black/5 hover:text-white">
+                Sign out
+              </Button>
+            </form>
+          </div>
+
+          <div className="flex size-[27px] shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold text-white" style={{ background: "oklch(0.5 0.1 245)" }}>
+            {initials}
+          </div>
         </div>
       </header>
 
