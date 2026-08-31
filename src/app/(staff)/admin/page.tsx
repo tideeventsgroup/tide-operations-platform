@@ -7,6 +7,7 @@ import {
 import { listOperations } from "@/lib/domain/operation-service";
 import { PageHeader } from "@/components/page-header";
 import { ApproveUserForm } from "@/components/admin/approve-user-form";
+import { AddUserForm } from "@/components/admin/add-user-form";
 import { RevokeRoleButton } from "@/components/admin/revoke-role-button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/empty-state";
@@ -33,7 +34,9 @@ export default async function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader title="Users" description="Approve pending accounts and manage role grants." />
+      <PageHeader title="Users" description="Add accounts, approve pending signups, and manage role grants." />
+
+      <AddUserForm roles={roles} operations={operations} />
 
       <StatTileGroup columns={3}>
         <StatTile label="Pending approval" value={pending.length} />

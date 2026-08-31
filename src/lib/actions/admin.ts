@@ -1,11 +1,106 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentProfile, isAdmin } from "@/lib/domain/auth-service";
 
 export type ActionResult = { error?: string; success?: boolean };
+
+function generateTempPassword() {
+  // 12 URL-safe characters — well past Supabase Auth's minimum, and never
+  // stored anywhere; it only ever leaves this function in the action's
+  // one-time result so the admin can hand it to the new user directly.
+  return randomBytes(9).toString("base64url");
+}
+
+const createUserSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required"),
+  surname: z.string().trim().min(1, "Surname is required"),
+  email: z.string().trim().email("Enter a valid email"),
+  roleId: z.string().uuid(),
+  operationId: z.string().uuid().nullish(),
+});
+
+export type CreateUserResult = ActionResult & { tempPassword?: string; email?: string };
+
+/**
+ * Admin-created account: skips the self-signup + approval two-step and
+ * creates an already-active, already-role-granted account in one go.
+ * Uses the service-role client only for the auth.users insert (GoTrue's
+ * admin API needs it); every other write reuses the same session-scoped
+ * path as approveUser() so an admin-created and a self-signup-then-
+ * approved account end up in an identical final state.
+ */
+export async function createUser(formData: FormData): Promise<CreateUserResult> {
+  if (!(await isAdmin())) return { error: "Not authorised." };
+
+  const parsed = createUserSchema.safeParse({
+    firstName: formData.get("firstName"),
+    surname: formData.get("surname"),
+    email: formData.get("email"),
+    roleId: formData.get("roleId"),
+    operationId: formData.get("operationId") || null,
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid request." };
+
+  const admin = await getCurrentProfile();
+  if (!admin?.organisation_id) return { error: "Your account has no organisation." };
+
+  const supabase = await createClient();
+
+  const { data: role } = await supabase.from("roles").select("is_external").eq("id", parsed.data.roleId).single();
+  if (role?.is_external && !parsed.data.operationId) {
+    return { error: "External roles must be scoped to an event." };
+  }
+
+  const tempPassword = generateTempPassword();
+  const serviceRole = createServiceRoleClient();
+  const { data: created, error: createError } = await serviceRole.auth.admin.createUser({
+    email: parsed.data.email,
+    password: tempPassword,
+    email_confirm: true,
+    user_metadata: { first_name: parsed.data.firstName, surname: parsed.data.surname },
+  });
+  if (createError) return { error: createError.message };
+  const newUserId = created.user.id;
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({
+      first_name: parsed.data.firstName,
+      surname: parsed.data.surname,
+      organisation_id: admin.organisation_id,
+      account_type: role?.is_external ? "client" : "staff",
+    })
+    .eq("id", newUserId);
+  if (profileError) return { error: profileError.message };
+
+  const { error: roleError } = await supabase.from("user_roles").insert({
+    user_id: newUserId,
+    role_id: parsed.data.roleId,
+    organisation_id: admin.organisation_id,
+    operation_id: role?.is_external ? parsed.data.operationId : null,
+    granted_by: admin.id,
+  });
+  if (roleError) return { error: roleError.message };
+
+  await supabase.rpc("record_audit_event", {
+    p_entity_type: "user",
+    p_entity_id: newUserId,
+    p_action: "created_by_admin",
+    p_after_state: {
+      email: parsed.data.email,
+      role_id: parsed.data.roleId,
+      account_type: role?.is_external ? "client" : "staff",
+      operation_id: role?.is_external ? parsed.data.operationId : null,
+    },
+  });
+
+  revalidatePath("/admin");
+  return { success: true, tempPassword, email: parsed.data.email };
+}
 
 const approveUserSchema = z.object({
   userId: z.string().uuid(),

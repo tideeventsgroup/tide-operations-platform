@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDownIcon, MenuIcon, PlusIcon } from "lucide-react";
+import { ChevronDownIcon, MenuIcon, PlusIcon, SettingsIcon } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { SentinelWordmark } from "@/components/sentinel-wordmark";
@@ -164,6 +164,16 @@ export function StaffShell({
 
           <SyncStatusBadge />
           <ThemeToggle className="text-white/85 hover:bg-black/5 hover:text-white" />
+          <Button
+            render={<Link href="/settings" />}
+            nativeButton={false}
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Settings"
+            className="text-white/85 hover:bg-black/5 hover:text-white"
+          >
+            <SettingsIcon />
+          </Button>
           <span className="hidden text-sm text-white/90 sm:inline">{name}</span>
           <form action={signOut}>
             <Button type="submit" variant="ghost" size="sm" className="text-white/85 hover:bg-black/5 hover:text-white">

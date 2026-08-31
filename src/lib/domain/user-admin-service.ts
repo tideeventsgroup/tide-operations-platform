@@ -48,3 +48,17 @@ export async function listUserRoleGrants(organisationId: string) {
   if (error) throw error;
   return data;
 }
+
+// A single user's own active grants — the read-only "your roles" list on
+// the settings page, not the org-wide admin view above.
+export async function listMyRoleGrants(userId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("*, roles(name, code), operations(name, reference)")
+    .eq("user_id", userId)
+    .is("revoked_at", null);
+
+  if (error) throw error;
+  return data;
+}
