@@ -13,6 +13,7 @@ function toRpcArgs(record: PendingIncident) {
     p_description: record.description || undefined,
     p_priority_code: record.priority_code || undefined,
     p_report_source: record.report_source || undefined,
+    p_what3words: record.what3words || undefined,
   };
 }
 

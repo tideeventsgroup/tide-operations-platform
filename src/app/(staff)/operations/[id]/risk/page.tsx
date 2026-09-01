@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getOperation } from "@/lib/domain/operation-service";
 import { listOperationReadinessChecks, listReadinessChecklist, listRisks } from "@/lib/domain/risk-service";
+import { computeProtectDutyTier } from "@/lib/domain/protect-duty";
 import { PageHeader } from "@/components/page-header";
 import { NewRiskForm } from "@/components/risk/new-risk-form";
 import { RiskRegisterTable } from "@/components/risk/risk-register-table";
@@ -35,7 +36,12 @@ export default async function EventRiskPage({ params }: PageProps<"/operations/[
           <RiskRegisterTable operationId={id} risks={risks} />
         </div>
 
-        <ReadinessChecklistPanel operationId={id} items={checklistItems} checks={checks} />
+        <ReadinessChecklistPanel
+          operationId={id}
+          items={checklistItems}
+          checks={checks}
+          protectDutyTier={computeProtectDutyTier(event)}
+        />
       </div>
     </div>
   );

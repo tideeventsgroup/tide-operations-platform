@@ -40,6 +40,7 @@ export async function createMethaneMessageAction(
     accessAndEgress?: string;
     casualties?: string;
     emergencyServices?: string;
+    what3words?: string;
   },
 ): Promise<ActionResult> {
   return callRpc(
@@ -53,6 +54,7 @@ export async function createMethaneMessageAction(
       p_access_and_egress: fields.accessAndEgress || undefined,
       p_casualties: fields.casualties || undefined,
       p_emergency_services: fields.emergencyServices || undefined,
+      p_what3words: fields.what3words || undefined,
     },
     `/events/${eventId}`,
   );

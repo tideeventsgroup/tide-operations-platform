@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { splitEventReference } from "@/lib/format-reference";
+import { EventWhat3WordsField } from "@/components/events/event-what3words-field";
 import type { getEvent, listEvents } from "@/lib/domain/event-service";
 
 type Incident = Awaited<ReturnType<typeof getEvent>>;
@@ -49,6 +50,7 @@ export function EventContextRail({
             value={incident.operations?.clients?.trading_name || incident.operations?.clients?.legal_name || "—"}
           />
           <GlanceRow label="Agencies" value={agenciesCount > 0 ? `${agenciesCount} involved` : "None"} />
+          <EventWhat3WordsField eventId={incident.id} what3words={incident.what3words} />
         </div>
       </Panel>
 

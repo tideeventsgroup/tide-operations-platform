@@ -12,6 +12,7 @@ export type PendingIncident = {
   description?: string;
   priority_code?: string;
   report_source?: string;
+  what3words?: string;
 };
 
 function openDb(): Promise<IDBDatabase> {

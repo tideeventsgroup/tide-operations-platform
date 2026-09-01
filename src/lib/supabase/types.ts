@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -898,6 +898,90 @@ export type Database = {
         }
         Relationships: []
       }
+      event_cordons: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          established_at: string
+          established_by: string | null
+          event_id: string | null
+          id: string
+          label: string
+          location_description: string | null
+          notes: string | null
+          operation_id: string
+          organisation_id: string
+          type: Database["public"]["Enums"]["cordon_type"]
+          what3words: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          established_at?: string
+          established_by?: string | null
+          event_id?: string | null
+          id?: string
+          label: string
+          location_description?: string | null
+          notes?: string | null
+          operation_id: string
+          organisation_id: string
+          type: Database["public"]["Enums"]["cordon_type"]
+          what3words?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          established_at?: string
+          established_by?: string | null
+          event_id?: string | null
+          id?: string
+          label?: string
+          location_description?: string | null
+          notes?: string | null
+          operation_id?: string
+          organisation_id?: string
+          type?: Database["public"]["Enums"]["cordon_type"]
+          what3words?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_cordons_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_cordons_established_by_fkey"
+            columns: ["established_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_cordons_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_cordons_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_cordons_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_decisions: {
         Row: {
           created_at: string
@@ -1212,6 +1296,45 @@ export type Database = {
           },
         ]
       }
+      event_tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_id: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_tags_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_vehicles: {
         Row: {
           event_id: string
@@ -1297,6 +1420,7 @@ export type Database = {
           status: Database["public"]["Enums"]["event_status"]
           subtype: string | null
           summary: string
+          what3words: string | null
         }
         Insert: {
           acknowledged_at?: string | null
@@ -1332,6 +1456,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
           summary: string
+          what3words?: string | null
         }
         Update: {
           acknowledged_at?: string | null
@@ -1367,6 +1492,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["event_status"]
           subtype?: string | null
           summary?: string
+          what3words?: string | null
         }
         Relationships: [
           {
@@ -1979,6 +2105,7 @@ export type Database = {
           submitted_at: string
           submitted_by: string | null
           version_no: number
+          what3words: string | null
         }
         Insert: {
           access_and_egress?: string | null
@@ -1993,6 +2120,7 @@ export type Database = {
           submitted_at?: string
           submitted_by?: string | null
           version_no: number
+          what3words?: string | null
         }
         Update: {
           access_and_egress?: string | null
@@ -2007,6 +2135,7 @@ export type Database = {
           submitted_at?: string
           submitted_by?: string | null
           version_no?: number
+          what3words?: string | null
         }
         Relationships: [
           {
@@ -2946,6 +3075,7 @@ export type Database = {
       }
       readiness_checklist_items: {
         Row: {
+          category: string
           code: string
           description: string | null
           id: string
@@ -2954,6 +3084,7 @@ export type Database = {
           sort_order: number
         }
         Insert: {
+          category?: string
           code: string
           description?: string | null
           id?: string
@@ -2962,6 +3093,7 @@ export type Database = {
           sort_order?: number
         }
         Update: {
+          category?: string
           code?: string
           description?: string | null
           id?: string
@@ -3334,6 +3466,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_event_tag: {
+        Args: { p_event_id: string; p_tag: string }
+        Returns: string
+      }
       add_investigation_note: {
         Args: { p_body: string; p_investigation_id: string }
         Returns: string
@@ -3401,6 +3537,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      close_cordon: { Args: { p_cordon_id: string }; Returns: undefined }
       close_event: {
         Args: { p_closure_summary: string; p_event_id: string }
         Returns: undefined
@@ -3457,20 +3594,36 @@ export type Database = {
         }
         Returns: string
       }
-      create_event: {
-        Args: {
-          p_category_code: string
-          p_description?: string
-          p_location_id?: string
-          p_occurred_at?: string
-          p_operation_id: string
-          p_priority_code?: string
-          p_report_source?: Database["public"]["Enums"]["report_source"]
-          p_reported_by_name?: string
-          p_summary: string
-        }
-        Returns: string
-      }
+      create_event:
+        | {
+            Args: {
+              p_category_code: string
+              p_description?: string
+              p_location_id?: string
+              p_occurred_at?: string
+              p_operation_id: string
+              p_priority_code?: string
+              p_report_source?: Database["public"]["Enums"]["report_source"]
+              p_reported_by_name?: string
+              p_summary: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_category_code: string
+              p_description?: string
+              p_location_id?: string
+              p_occurred_at?: string
+              p_operation_id: string
+              p_priority_code?: string
+              p_report_source?: Database["public"]["Enums"]["report_source"]
+              p_reported_by_name?: string
+              p_summary: string
+              p_what3words?: string
+            }
+            Returns: string
+          }
       create_event_action: {
         Args: {
           p_assigned_to?: string
@@ -3507,19 +3660,34 @@ export type Database = {
         }
         Returns: string
       }
-      create_methane_message: {
-        Args: {
-          p_access_and_egress?: string
-          p_casualties?: string
-          p_emergency_services?: string
-          p_event_id: string
-          p_exact_location: string
-          p_hazards?: string
-          p_incident_type: string
-          p_major_incident_declared: boolean
-        }
-        Returns: string
-      }
+      create_methane_message:
+        | {
+            Args: {
+              p_access_and_egress?: string
+              p_casualties?: string
+              p_emergency_services?: string
+              p_event_id: string
+              p_exact_location: string
+              p_hazards?: string
+              p_incident_type: string
+              p_major_incident_declared: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_access_and_egress?: string
+              p_casualties?: string
+              p_emergency_services?: string
+              p_event_id: string
+              p_exact_location: string
+              p_hazards?: string
+              p_incident_type: string
+              p_major_incident_declared: boolean
+              p_what3words?: string
+            }
+            Returns: string
+          }
       create_observation: {
         Args: {
           p_category: string
@@ -3614,6 +3782,18 @@ export type Database = {
       end_control_session: {
         Args: { p_session_id: string }
         Returns: undefined
+      }
+      establish_cordon: {
+        Args: {
+          p_event_id?: string
+          p_label: string
+          p_location_description?: string
+          p_notes?: string
+          p_operation_id: string
+          p_type: Database["public"]["Enums"]["cordon_type"]
+          p_what3words?: string
+        }
+        Returns: string
       }
       get_portal_event_summary: {
         Args: { p_operation_id: string }
@@ -3796,6 +3976,7 @@ export type Database = {
         }
         Returns: string
       }
+      remove_event_tag: { Args: { p_tag_id: string }; Returns: undefined }
       reopen_event: {
         Args: { p_event_id: string; p_reason: string }
         Returns: undefined
@@ -3829,6 +4010,10 @@ export type Database = {
       }
       set_event_restricted_narrative: {
         Args: { p_body: string; p_event_id: string }
+        Returns: undefined
+      }
+      set_event_what3words: {
+        Args: { p_event_id: string; p_what3words: string }
         Returns: undefined
       }
       set_operation_portal_enabled: {
@@ -4007,6 +4192,11 @@ export type Database = {
         | "internal"
         | "confidential"
         | "restricted"
+      cordon_type:
+        | "inner_cordon"
+        | "outer_cordon"
+        | "rendezvous_point"
+        | "casualty_clearing_station"
       document_status:
         | "draft"
         | "in_review"
@@ -4242,6 +4432,12 @@ export const Constants = {
         "internal",
         "confidential",
         "restricted",
+      ],
+      cordon_type: [
+        "inner_cordon",
+        "outer_cordon",
+        "rendezvous_point",
+        "casualty_clearing_station",
       ],
       document_status: [
         "draft",

@@ -4,15 +4,18 @@ import {
   getOperation,
   listControlRoles,
   listControlSessions,
+  listOperationCordons,
   listOperationLocations,
   listOperationStageHistory,
 } from "@/lib/domain/operation-service";
+import { CordonsPanel } from "@/components/operations/cordons-panel";
 import { listEvents } from "@/lib/domain/event-service";
 import { listDocuments } from "@/lib/domain/document-service";
 import { listAssignableRoles, listOperationPortalGrants } from "@/lib/domain/user-admin-service";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { LifecycleStageBadge, OperationPhaseBadge, LocationStatusBadge } from "@/components/status-badges";
+import { computeProtectDutyTier, PROTECT_DUTY_TIER_LABEL } from "@/lib/domain/protect-duty";
 import { OperationLifecycleControls } from "@/components/operations/operation-lifecycle-controls";
 import { AddLocationForm } from "@/components/operations/add-location-form";
 import { ControlRosterPanel } from "@/components/operations/control-roster-panel";
@@ -52,7 +55,7 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
     notFound();
   }
 
-  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants, events, documents] = await Promise.all([
+  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants, events, documents, cordons] = await Promise.all([
     listOperationLocations(id),
     listOperationStageHistory(id),
     listControlRoles(event.organisation_id),
@@ -61,6 +64,7 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
     listOperationPortalGrants(id),
     listEvents(id),
     listDocuments(id),
+    listOperationCordons(id),
   ]);
   const externalRoles = assignableRoles.filter((r) => r.is_external);
   const onDuty = controlSessions.filter((s) => !s.ended_at);
@@ -82,6 +86,19 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
             <PageHeader title={event.name} />
             <LifecycleStageBadge stage={event.lifecycle_stage} />
             {event.current_phase ? <OperationPhaseBadge phase={event.current_phase} /> : null}
+            {(() => {
+              const tier = computeProtectDutyTier(event);
+              if (tier === "none") return null;
+              return (
+                <Link
+                  href={`/operations/${event.id}/risk`}
+                  className="rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.05em] text-white uppercase"
+                  style={{ background: tier === "enhanced" ? "var(--priority-p2)" : "var(--priority-p3)" }}
+                >
+                  Protect Duty · {PROTECT_DUTY_TIER_LABEL[tier]}
+                </Link>
+              );
+            })()}
           </div>
           <div className="flex items-center gap-2">
             <Button render={<Link href={`/operations/${event.id}/control-overview`} />} nativeButton={false} size="lg" variant="outline">
@@ -307,6 +324,8 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
               )}
             </div>
           </section>
+
+          <CordonsPanel operationId={id} cordons={cordons} />
         </TabsContent>
 
         <TabsContent value="roster" className="pt-4">

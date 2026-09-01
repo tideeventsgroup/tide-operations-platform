@@ -184,6 +184,7 @@ export function ReportEventWizard({
 
   const [categoryCode, setCategoryCode] = useState("");
   const [locationId, setLocationId] = useState("");
+  const [what3words, setWhat3words] = useState("");
   const [summary, setSummary] = useState("");
   const [priorityCode, setPriorityCode] = useState("");
   const [restricted, setRestricted] = useState(false);
@@ -255,6 +256,7 @@ export function ReportEventWizard({
       category_code: categoryCode,
       summary: summary.trim(),
       location_id: locationId || undefined,
+      what3words: what3words.trim().replace(/^\/+/, "") || undefined,
       priority_code: priorityCode || undefined,
       report_source: reportSource || undefined,
     };
@@ -275,6 +277,7 @@ export function ReportEventWizard({
           p_category_code: record.category_code,
           p_summary: record.summary,
           p_location_id: record.location_id,
+          p_what3words: record.what3words,
           p_priority_code: record.priority_code,
           p_report_source: record.report_source as Enums<"report_source"> | undefined,
         });
@@ -415,6 +418,18 @@ export function ReportEventWizard({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground" htmlFor="what3words">
+                what3words <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <input
+                id="what3words"
+                value={what3words}
+                onChange={(e) => setWhat3words(e.target.value)}
+                placeholder="///covert.sandbar.ripen"
+                className="h-11 w-full rounded-md border border-input bg-transparent px-3 font-mono text-base"
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground" htmlFor="summary">

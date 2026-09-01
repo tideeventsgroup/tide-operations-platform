@@ -45,6 +45,7 @@ export function MobileReportEventForm({
   const [priorityCode, setPriorityCode] = useState("");
   const [locationId, setLocationId] = useState("");
   const [locationExpanded, setLocationExpanded] = useState(false);
+  const [what3words, setWhat3words] = useState("");
   const [summary, setSummary] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [voice, setVoice] = useState<File | null>(null);
@@ -86,6 +87,7 @@ export function MobileReportEventForm({
       category_code: categoryCode,
       summary: summary.trim(),
       location_id: locationId || undefined,
+      what3words: what3words.trim().replace(/^\/+/, "") || undefined,
       priority_code: priorityCode || undefined,
       report_source: "field_app" as Enums<"report_source">,
     };
@@ -106,6 +108,7 @@ export function MobileReportEventForm({
           p_category_code: record.category_code,
           p_summary: record.summary,
           p_location_id: record.location_id,
+          p_what3words: record.what3words,
           p_priority_code: record.priority_code,
           p_report_source: record.report_source,
         });
@@ -253,6 +256,12 @@ export function MobileReportEventForm({
             ))}
           </div>
         )}
+        <input
+          value={what3words}
+          onChange={(e) => setWhat3words(e.target.value)}
+          placeholder="what3words (optional) — ///covert.sandbar.ripen"
+          className="mt-2 h-11 w-full rounded-lg border border-input bg-card px-3.5 font-mono text-[13px] text-foreground placeholder:font-sans"
+        />
       </div>
 
       <div>

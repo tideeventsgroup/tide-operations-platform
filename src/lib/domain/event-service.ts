@@ -28,6 +28,13 @@ export async function getEvent(id: string) {
   return data;
 }
 
+export async function listEventTags(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("event_tags").select("*").eq("event_id", eventId).order("created_at");
+  if (error) throw error;
+  return data;
+}
+
 export async function listEventTimeline(eventId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

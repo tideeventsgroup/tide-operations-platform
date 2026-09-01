@@ -74,6 +74,21 @@ export async function listControlRoles(organisationId: string) {
   return data;
 }
 
+// Structured control points — inner/outer cordons, rendezvous points,
+// casualty clearing stations — real LESLP/JESIP doctrine rather than free
+// text. Open ones first (most operationally relevant), then most recent.
+export async function listOperationCordons(operationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("event_cordons")
+    .select("*, established_by_profile:established_by(first_name, surname, email), events(reference)")
+    .eq("operation_id", operationId)
+    .order("closed_at", { ascending: true, nullsFirst: true })
+    .order("established_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export async function listControlSessions(operationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

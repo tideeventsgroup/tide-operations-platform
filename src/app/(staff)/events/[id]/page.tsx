@@ -11,11 +11,13 @@ import {
   listEventPeople,
   listEventPriorities,
   listEventResources,
+  listEventTags,
   listEventTimeline,
   listEventVehicles,
   listEvents,
   listMethaneVersions,
 } from "@/lib/domain/event-service";
+import { EventTagsRow } from "@/components/events/event-tags-row";
 import { listEvidenceItems } from "@/lib/domain/evidence-service";
 import { hasPermission } from "@/lib/domain/auth-service";
 import { EventCommandHeader } from "@/components/events/event-command-header";
@@ -64,6 +66,7 @@ export default async function IncidentDetailPage({ params, searchParams }: PageP
     eventIncidents,
     canViewRestricted,
     crimeClassifications,
+    tags,
   ] = await Promise.all([
     listEventTimeline(id),
     listEventActions(id),
@@ -80,6 +83,7 @@ export default async function IncidentDetailPage({ params, searchParams }: PageP
     listEvents(incident.operation_id),
     hasPermission("event.view_restricted", { organisationId: incident.organisation_id, operationId: incident.operation_id }),
     listCrimeClassifications(),
+    listEventTags(id),
   ]);
 
   const restrictedNarrative = canViewRestricted ? await getEventRestrictedNarrative(id) : null;
@@ -96,6 +100,7 @@ export default async function IncidentDetailPage({ params, searchParams }: PageP
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         <div className="min-w-0 space-y-6">
           <EventCommandHeader incident={incident} categoryName={category?.name ?? incident.category_code} priority={priority} />
+          <EventTagsRow eventId={id} tags={tags} />
           <MajorIncidentBanner eventId={id} activation={majorIncidentActivation} />
           <EventQuickActions incident={incident} priorities={priorities} />
 

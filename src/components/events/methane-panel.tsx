@@ -32,7 +32,12 @@ type FieldState = "complete" | "empty";
 function methaneFields(v: Version): { letter: string; label: string; value: string; state: FieldState }[] {
   return [
     { letter: "M", label: "Major incident declared", value: v.major_incident_declared ? "Yes — declared." : "Not declared.", state: "complete" },
-    { letter: "E", label: "Exact location", value: v.exact_location, state: v.exact_location ? "complete" : "empty" },
+    {
+      letter: "E",
+      label: "Exact location",
+      value: v.what3words ? `${v.exact_location} · ///${v.what3words.replace(/^\/+/, "")}` : v.exact_location,
+      state: v.exact_location ? "complete" : "empty",
+    },
     { letter: "T", label: "Type of incident", value: v.incident_type, state: v.incident_type ? "complete" : "empty" },
     { letter: "H", label: "Hazards", value: v.hazards ?? "", state: v.hazards ? "complete" : "empty" },
     { letter: "A", label: "Access & egress", value: v.access_and_egress ?? "", state: v.access_and_egress ? "complete" : "empty" },
@@ -45,7 +50,7 @@ function formattedBlock(v: Version, reference: string) {
   return [
     `METHANE — ${reference} (v${v.version_no})`,
     `M — Major incident declared: ${v.major_incident_declared ? "YES" : "No"}`,
-    `E — Exact location: ${v.exact_location}`,
+    `E — Exact location: ${v.exact_location}${v.what3words ? ` (///${v.what3words.replace(/^\/+/, "")})` : ""}`,
     `T — Type: ${v.incident_type}`,
     `H — Hazards: ${v.hazards || "None reported"}`,
     `A — Access & egress: ${v.access_and_egress || "Not reported"}`,
@@ -58,6 +63,7 @@ export function MethanePanel({ eventId, data }: { eventId: string; data: Methane
   const [open, setOpen] = useState(data.versions.length === 0);
   const [majorIncidentDeclared, setMajorIncidentDeclared] = useState(false);
   const [exactLocation, setExactLocation] = useState("");
+  const [what3words, setWhat3words] = useState("");
   const [incidentType, setIncidentType] = useState("");
   const [hazards, setHazards] = useState("");
   const [accessAndEgress, setAccessAndEgress] = useState("");
@@ -78,6 +84,7 @@ export function MethanePanel({ eventId, data }: { eventId: string; data: Methane
         accessAndEgress: accessAndEgress.trim() || undefined,
         casualties: casualties.trim() || undefined,
         emergencyServices: emergencyServices.trim() || undefined,
+        what3words: what3words.trim().replace(/^\/+/, "") || undefined,
       });
       if (result.error) toast.error(result.error);
       else {
@@ -85,6 +92,7 @@ export function MethanePanel({ eventId, data }: { eventId: string; data: Methane
         setOpen(false);
         setMajorIncidentDeclared(false);
         setExactLocation("");
+        setWhat3words("");
         setIncidentType("");
         setHazards("");
         setAccessAndEgress("");
@@ -138,9 +146,19 @@ export function MethanePanel({ eventId, data }: { eventId: string; data: Methane
               <Input value={exactLocation} onChange={(e) => setExactLocation(e.target.value)} required disabled={pending} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Type</label>
-              <Input value={incidentType} onChange={(e) => setIncidentType(e.target.value)} required disabled={pending} />
+              <label className="text-xs text-muted-foreground">what3words (optional)</label>
+              <Input
+                value={what3words}
+                onChange={(e) => setWhat3words(e.target.value)}
+                placeholder="///covert.sandbar.ripen"
+                className="font-mono"
+                disabled={pending}
+              />
             </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">Type</label>
+            <Input value={incidentType} onChange={(e) => setIncidentType(e.target.value)} required disabled={pending} />
           </div>
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Hazards</label>

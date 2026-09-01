@@ -109,3 +109,30 @@ export async function addCorrectionAction(
   revalidatePath(`/events/${eventId}`);
   return { success: true };
 }
+
+export async function setEventWhat3wordsAction(eventId: string, what3words: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_event_what3words", {
+    p_event_id: eventId,
+    p_what3words: what3words.trim().replace(/^\/+/, ""),
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/events/${eventId}`);
+  return { success: true };
+}
+
+export async function addEventTagAction(eventId: string, tag: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("add_event_tag", { p_event_id: eventId, p_tag: tag });
+  if (error) return { error: error.message };
+  revalidatePath(`/events/${eventId}`);
+  return { success: true };
+}
+
+export async function removeEventTagAction(eventId: string, tagId: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("remove_event_tag", { p_tag_id: tagId });
+  if (error) return { error: error.message };
+  revalidatePath(`/events/${eventId}`);
+  return { success: true };
+}
