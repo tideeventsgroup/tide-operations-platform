@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/domain/auth-service";
-import { getOperation, listControlSessions, listOperationLocations } from "@/lib/domain/operation-service";
+import { getOperation, listControlSessions, listOperationCordons, listOperationLocations } from "@/lib/domain/operation-service";
 import { listActiveMajorIncidentsForOperation, listEventCategories, listEvents } from "@/lib/domain/event-service";
 import { listRadioLogEntries } from "@/lib/domain/radio-log-service";
 import { AutoRefresh } from "@/components/auto-refresh";
@@ -59,14 +59,16 @@ export default async function OperationWallDisplayPage({ params }: PageProps<"/o
     notFound();
   }
 
-  const [events, categories, controlSessions, majorIncidents, locations, radioLog] = await Promise.all([
+  const [events, categories, controlSessions, majorIncidents, locations, radioLog, cordons] = await Promise.all([
     listEvents(id),
     listEventCategories(),
     listControlSessions(id),
     listActiveMajorIncidentsForOperation(id),
     listOperationLocations(id),
     listRadioLogEntries(id),
+    listOperationCordons(id),
   ]);
+  const activeCordons = cordons.filter((c) => !c.closed_at);
 
   const categoryName = new Map(categories.map((c) => [c.code, c.name]));
   const openEvents = events
@@ -267,6 +269,29 @@ export default async function OperationWallDisplayPage({ params }: PageProps<"/o
                   <div className="font-mono text-[11px]" style={{ color: "var(--priority-resolved)" }}>
                     ON DUTY
                   </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-5 mb-3 font-mono text-[11px] tracking-[0.12em]" style={{ color: "var(--wall-text-muted)" }}>
+            ACTIVE CORDONS &amp; CONTROL POINTS · {activeCordons.length}
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {activeCordons.length === 0 ? (
+              <p className="text-sm" style={{ color: "var(--wall-text-muted)" }}>
+                None established.
+              </p>
+            ) : (
+              activeCordons.map((c) => (
+                <div key={c.id} className="rounded-md border p-3" style={{ background: "var(--wall-panel)", borderColor: "var(--wall-border)" }}>
+                  <div className="font-mono text-[9.5px] tracking-[0.1em] text-white/40 uppercase">{c.type.replace(/_/g, " ")}</div>
+                  <div className="mt-0.5 text-[13.5px] font-medium text-white">{c.label}</div>
+                  {c.what3words ? (
+                    <div className="font-mono text-[10.5px]" style={{ color: "var(--wall-text-muted)" }}>
+                      {`///${c.what3words.replace(/^\/+/, "")}`}
+                    </div>
+                  ) : null}
                 </div>
               ))
             )}

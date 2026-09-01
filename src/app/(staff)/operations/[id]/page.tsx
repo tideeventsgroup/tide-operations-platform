@@ -4,11 +4,9 @@ import {
   getOperation,
   listControlRoles,
   listControlSessions,
-  listOperationCordons,
   listOperationLocations,
   listOperationStageHistory,
 } from "@/lib/domain/operation-service";
-import { CordonsPanel } from "@/components/operations/cordons-panel";
 import { listEvents } from "@/lib/domain/event-service";
 import { listDocuments } from "@/lib/domain/document-service";
 import { listAssignableRoles, listOperationPortalGrants } from "@/lib/domain/user-admin-service";
@@ -55,7 +53,7 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
     notFound();
   }
 
-  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants, events, documents, cordons] = await Promise.all([
+  const [locations, stageHistory, controlRoles, controlSessions, assignableRoles, portalGrants, events, documents] = await Promise.all([
     listOperationLocations(id),
     listOperationStageHistory(id),
     listControlRoles(event.organisation_id),
@@ -64,7 +62,6 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
     listOperationPortalGrants(id),
     listEvents(id),
     listDocuments(id),
-    listOperationCordons(id),
   ]);
   const externalRoles = assignableRoles.filter((r) => r.is_external);
   const onDuty = controlSessions.filter((s) => !s.ended_at);
@@ -118,6 +115,7 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
           items={[
             { href: `/operations/${event.id}/observations`, label: "Observations" },
             { href: `/operations/${event.id}/radio-log`, label: "Radio Log" },
+            { href: `/operations/${event.id}/cordons`, label: "Cordons" },
             { href: `/operations/${event.id}/documents`, label: "Documents" },
             { href: `/operations/${event.id}/risk`, label: "Risk & Readiness" },
             { href: `/operations/${event.id}/post-event-report`, label: "Post-event Report" },
@@ -324,8 +322,6 @@ export default async function EventDetailPage({ params }: PageProps<"/operations
               )}
             </div>
           </section>
-
-          <CordonsPanel operationId={id} cordons={cordons} />
         </TabsContent>
 
         <TabsContent value="roster" className="pt-4">
