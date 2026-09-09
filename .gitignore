@@ -1,0 +1,33 @@
+# Environment and credentials
+.env
+.env.*
+.env.example
+
+# Dependencies, builds and coverage
+.next/
+node_modules/
+coverage/
+*.tsbuildinfo
+
+# Local operating-system and editor state
+.DS_Store
+.claude/settings.json
+
+# Local Supabase tooling state
+supabase/.branches/
+supabase/.temp/
+
+# PandaOS machine-specific and credential metadata
+.pandaos/.artifacts-migrated-v1
+.pandaos/.projected-rules.json
+.pandaos/.rules-adopted
+.pandaos/.team-managed.json
+.pandaos/creds-access.json
+.pandaos/designs/
+.pandaos/browser-downloads/
+
+# Local AI workspace instructions, caches and planning artefacts
+.agents/
+.claude/
+.pandaos/
+AGENTS.md
