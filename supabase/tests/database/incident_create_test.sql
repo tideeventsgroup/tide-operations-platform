@@ -4,43 +4,29 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(11);
 
-insert into auth.users (id, email, aud, role, created_at, updated_at)
-values
-  ('44444444-4444-4444-8444-444444444444', 'incident-manager@example.test', 'authenticated', 'authenticated', now(), now()),
-  ('66666666-6666-4666-8666-666666666666', 'incident-reader@example.test', 'authenticated', 'authenticated', now(), now());
+insert into public.internal_users (id, display_name, username, password_hash, role, is_active) values
+  ('44444444-4444-4444-8444-444444444444', 'Incident manager', 'incident-manager-test', crypt(gen_random_uuid()::text, gen_salt('bf')), 'event_control', true),
+  ('66666666-6666-4666-8666-666666666666', 'Incident reader', 'incident-reader-test', crypt(gen_random_uuid()::text, gen_salt('bf')), 'view_only', true);
 
-insert into public.profiles (id, display_name)
-values
-  ('44444444-4444-4444-8444-444444444444', 'Incident manager'),
-  ('66666666-6666-4666-8666-666666666666', 'Incident reader');
+insert into public.clients (id, name, display_reference)
+values ('cddddddd-dddd-4ddd-8ddd-dddddddddddd', 'Incident Test Client', 'CL-TST-INCIDENT');
 
-insert into public.organisations (id, name, slug, created_by)
-values ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'Incident Test Organisation', 'incident-test-organisation', '44444444-4444-4444-8444-444444444444');
-
-insert into public.organisation_memberships (organisation_id, profile_id, role)
-values
-  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '44444444-4444-4444-8444-444444444444', 'event_control_manager'),
-  ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', '66666666-6666-4666-8666-666666666666', 'read_only');
-
-insert into public.clients (id, organisation_id, name, display_reference)
-values ('cddddddd-dddd-4ddd-8ddd-dddddddddddd', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'Incident Test Client', 'CL-TST-INCIDENT');
-
-insert into public.events (id, organisation_id, client_id, name, display_reference, timezone, starts_at, ends_at, created_by)
-values ('eddddddd-dddd-4ddd-8ddd-dddddddddddd', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'cddddddd-dddd-4ddd-8ddd-dddddddddddd', 'Incident Test Event', 'EVT-TST-INCIDENT', 'Europe/London', now(), now() + interval '1 hour', '44444444-4444-4444-8444-444444444444');
-
-insert into public.event_access (event_id, organisation_id, profile_id, role, granted_by)
-values
-  ('eddddddd-dddd-4ddd-8ddd-dddddddddddd', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', '44444444-4444-4444-8444-444444444444', 'event_control_manager', '44444444-4444-4444-8444-444444444444'),
-  ('eddddddd-dddd-4ddd-8ddd-dddddddddddd', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd', '66666666-6666-4666-8666-666666666666', 'read_only', '44444444-4444-4444-8444-444444444444');
-
-set local role authenticated;
-set local request.jwt.claim.sub = '44444444-4444-4444-8444-444444444444';
+insert into public.events (id, client_id, name, display_reference, timezone, starts_at, ends_at, created_by)
+values ('eddddddd-dddd-4ddd-8ddd-dddddddddddd', 'cddddddd-dddd-4ddd-8ddd-dddddddddddd', 'Incident Test Event', 'EVT-TST-INCIDENT', 'Europe/London', now(), now() + interval '1 hour', '44444444-4444-4444-8444-444444444444');
 
 select results_eq(
   $$select created from public.create_incident_report(
+    '44444444-4444-4444-8444-444444444444',
     'eddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'quick',
+    null,
     'Medical assistance requested at the east gate.',
+    'operator',
     '2026-09-07T16:00:00Z',
+    null,
+    null,
+    null,
+    null,
     '55555555-5555-4555-8555-555555555555'
   )$$,
   $$values (true)$$,
@@ -65,22 +51,25 @@ select is(
   'the report creates its audit event'
 );
 
-reset role;
-
 select is(
   (select count(*) from public.operational_outbox),
   1::bigint,
   'the report creates its transactional outbox message'
 );
 
-set local role authenticated;
-set local request.jwt.claim.sub = '44444444-4444-4444-8444-444444444444';
-
 select results_eq(
   $$select created from public.create_incident_report(
+    '44444444-4444-4444-8444-444444444444',
     'eddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'quick',
+    null,
     'Medical assistance requested at the east gate.',
+    'operator',
     '2026-09-07T16:00:00Z',
+    null,
+    null,
+    null,
+    null,
     '55555555-5555-4555-8555-555555555555'
   )$$,
   $$values (false)$$,
@@ -93,18 +82,24 @@ select is(
   'an idempotent retry does not create a duplicate incident'
 );
 
-set local request.jwt.claim.sub = '66666666-6666-4666-8666-666666666666';
-
 select throws_ok(
   $$select * from public.create_incident_report(
+    '66666666-6666-4666-8666-666666666666',
     'eddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'quick',
+    null,
     'This must not be recorded.',
+    'operator',
     '2026-09-07T16:01:00Z',
+    null,
+    null,
+    null,
+    null,
     '77777777-7777-4777-8777-777777777777'
   )$$,
   '42501',
-  'Incident creation is not permitted for this event',
-  'a read-only event user cannot create an incident'
+  'Incident creation is not permitted',
+  'a view-only user cannot create an incident'
 );
 
 select is(
@@ -113,17 +108,23 @@ select is(
   'a forbidden command does not partially create an incident'
 );
 
-set local request.jwt.claim.sub = '44444444-4444-4444-8444-444444444444';
-
 select throws_ok(
   $$select * from public.create_incident_report(
+    '44444444-4444-4444-8444-444444444444',
     'eddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'quick',
+    null,
     repeat('x', 4001),
+    'operator',
     '2026-09-07T16:02:00Z',
+    null,
+    null,
+    null,
+    null,
     '88888888-8888-4888-8888-888888888888'
   )$$,
   '22001',
-  'Initial report exceeds the 4000 character limit',
+  'The report content exceeds its character limit',
   'oversized initial reports are rejected'
 );
 

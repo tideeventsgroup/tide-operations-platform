@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
+import { auth } from "@/auth";
+import { hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +10,13 @@ type Body = { casualtyReference?: unknown; conditionState?: unknown; careProvide
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { eventId, incidentId } = await context.params;
+  const session = await auth();
+  const actorId = session?.user?.id;
+  const actorRole = session?.user?.role as InternalRole | undefined;
+  if (!actorId || !actorRole) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
+  if (!hasCapability(actorRole, "casualty.manage")) {
+    return NextResponse.json({ error: "You do not have permission to create a restricted casualty record for this incident." }, { status: 403 });
+  }
   let body: Body;
   try { body = await request.json() as Body; } catch { return invalidRequest(); }
   const client = createServiceSupabaseClient();
@@ -19,6 +28,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     .maybeSingle();
   if (!incident) return notFoundOrDenied();
   const { data, error } = await client.rpc("create_casualty_record", {
+    p_actor_id: actorId,
     p_incident_id: incidentId,
     p_casualty_reference: value(body.casualtyReference),
     p_condition_state: value(body.conditionState),

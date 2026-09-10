@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
+import { auth } from "@/auth";
+import { hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +10,13 @@ type Body = { periodId?: unknown; checkpointName?: unknown; status?: unknown; ob
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { eventId } = await context.params;
+  const session = await auth();
+  const actorId = session?.user?.id;
+  const actorRole = session?.user?.role as InternalRole | undefined;
+  if (!actorId || !actorRole) return NextResponse.json({ error: "Sign in is required." }, { status: 401 });
+  if (!hasCapability(actorRole, "perimeter.check")) {
+    return NextResponse.json({ error: "You do not have permission to record a perimeter check for this event." }, { status: 403 });
+  }
   let body: Body;
   try { body = await request.json() as Body; } catch { return invalidRequest(); }
   const client = createServiceSupabaseClient();
@@ -19,6 +28,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     .maybeSingle();
   if (!period) return notFoundOrDenied();
   const { data, error } = await client.rpc("record_perimeter_check", {
+    p_actor_id: actorId,
     p_operational_period_id: value(body.periodId),
     p_checkpoint_name: value(body.checkpointName),
     p_status: value(body.status),

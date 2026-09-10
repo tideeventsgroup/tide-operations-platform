@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
+import { auth } from "@/auth";
+import { hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +19,14 @@ type CloseBody = {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   const { eventId } = await context.params;
+  const actor = await requireOperationalActor("period.manage");
+  if ("response" in actor) return actor.response;
   const body = await readJson<OpenBody>(request);
   if (!body) return invalidRequest();
 
   const client = createServiceSupabaseClient();
   const { data, error } = await client.rpc("open_operational_period", {
+    p_actor_id: actor.id,
     p_event_id: eventId,
     p_opening_note: text(body.openingNote),
     p_idempotency_key: text(body.idempotencyKey),
@@ -31,12 +36,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  const { eventId } = await context.params;
+  await context.params;
+  const actor = await requireOperationalActor("period.manage");
+  if ("response" in actor) return actor.response;
   const body = await readJson<CloseBody>(request);
   if (!body || typeof body.expectedVersion !== "number") return invalidRequest();
 
   const client = createServiceSupabaseClient();
   const { data, error } = await client.rpc("close_operational_period", {
+    p_actor_id: actor.id,
     p_operational_period_id: request.nextUrl.searchParams.get("periodId") ?? "",
     p_expected_version: body.expectedVersion,
     p_closure_note: text(body.closureNote),
@@ -48,6 +56,19 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   });
 
   return operationalResponse(data, error, "close");
+}
+
+async function requireOperationalActor(capability: string): Promise<{ id: string } | { response: NextResponse }> {
+  const session = await auth();
+  const actorId = session?.user?.id;
+  const actorRole = session?.user?.role as InternalRole | undefined;
+  if (!actorId || !actorRole) {
+    return { response: NextResponse.json({ error: "Sign in is required." }, { status: 401 }) };
+  }
+  if (!hasCapability(actorRole, capability)) {
+    return { response: NextResponse.json({ error: "You do not have permission to perform this command." }, { status: 403 }) };
+  }
+  return { id: actorId };
 }
 
 async function readJson<T>(request: NextRequest): Promise<T | null> {

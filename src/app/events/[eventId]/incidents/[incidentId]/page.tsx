@@ -1,23 +1,25 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
-import { requireCapability } from "@/modules/identity/internal-auth";
+import { requireCapability, hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 import { EventAccessDeniedError, resolveEventContext, validateEventId, type EventContext } from "@/modules/tenancy/event-context";
+import { IncidentTransitionCommand } from "./incident-transition-command";
 import styles from "../../control/control-console.module.css";
 
 export const dynamic = "force-dynamic";
 
 type RouteContext = { params: Promise<{ eventId: string; incidentId: string }> };
-type IncidentRecord = { display_reference: string; initial_report: string | null; reported_at: string; severity: string; status: string };
+type IncidentRecord = { display_reference: string; initial_report: string | null; reported_at: string; severity: string; status: string; version: number };
 type TimelineRecord = { content: string | null; occurred_at: string; source: string };
-type IncidentData = { event: EventContext; incident: IncidentRecord; timeline: TimelineRecord[] };
+type IncidentData = { event: EventContext; incident: IncidentRecord; timeline: TimelineRecord[]; actorRole: InternalRole };
 
 export default async function IncidentDetailPage({ params }: RouteContext) {
   const { eventId, incidentId } = await params;
   const data = await loadIncidentData(eventId, incidentId);
 
   if (!data) redirect("/access-denied");
-  const { event, incident, timeline } = data;
+  const { event, incident, timeline, actorRole } = data;
+  const canTransition = hasCapability(actorRole, "incident.manage");
 
   return (
     <main className={styles.shell}>
@@ -33,7 +35,7 @@ export default async function IncidentDetailPage({ params }: RouteContext) {
         <aside className={styles.zone}>
           <p className={styles.zoneLabel}>Incident state</p>
           <div className={styles.liveMetric}><strong>{incident.severity}</strong><span>Current severity</span></div>
-          <div className={styles.liveMetric}><strong>1</strong><span>Record version</span></div>
+          <div className={styles.liveMetric}><strong>{incident.version}</strong><span>Record version</span></div>
         </aside>
         <section className={styles.zone} aria-labelledby="timeline-title">
           <p className={styles.zoneLabel}>Operational timeline</p>
@@ -49,7 +51,18 @@ export default async function IncidentDetailPage({ params }: RouteContext) {
         <aside className={`${styles.zone} ${styles.rail}`}>
           <p className={styles.zoneLabel}>Command rail</p>
           <h2>Next operational step</h2>
-          <p>Assessment, assignment and escalation are deliberately unavailable until their governed lifecycle rules are implemented.</p>
+          {canTransition ? (
+            <IncidentTransitionCommand
+              eventId={event.eventId}
+              incidentId={incidentId}
+              currentStatus={incident.status}
+              currentSeverity={incident.severity}
+              version={incident.version}
+            />
+          ) : (
+            <p>You do not have permission to transition this incident.</p>
+          )}
+          <p>Assignment and escalation are deliberately unavailable until their governed lifecycle rules are implemented.</p>
         </aside>
       </div>
     </main>
@@ -57,7 +70,7 @@ export default async function IncidentDetailPage({ params }: RouteContext) {
 }
 
 async function loadIncidentData(eventId: string, incidentId: string): Promise<IncidentData | null> {
-  await requireCapability("event.read");
+  const session = await requireCapability("event.read");
   const client = createServiceSupabaseClient();
 
   try {
@@ -65,7 +78,7 @@ async function loadIncidentData(eventId: string, incidentId: string): Promise<In
     const event = await resolveEventContext(client, eventId);
     const { data: incident, error: incidentError } = await client
       .from("incidents")
-      .select("display_reference, status, severity, initial_report, reported_at")
+      .select("display_reference, status, severity, initial_report, reported_at, version")
       .eq("event_id", event.eventId)
       .eq("id", incidentId)
       .maybeSingle<IncidentRecord>();
@@ -80,7 +93,7 @@ async function loadIncidentData(eventId: string, incidentId: string): Promise<In
       .returns<TimelineRecord[]>();
     if (timelineError) return null;
 
-    return { event, incident, timeline: timeline ?? [] };
+    return { event, incident, timeline: timeline ?? [], actorRole: session.role };
   } catch (error) {
     if (error instanceof EventAccessDeniedError) return null;
     throw error;
