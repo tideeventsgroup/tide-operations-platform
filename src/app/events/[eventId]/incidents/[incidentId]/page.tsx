@@ -1,105 +1,190 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppHeader } from "@/components/operations/app-header";
+import { SeverityBadge, StateBadge, StatusBadge } from "@/components/operations/status-badge";
+import { humanise, type Tone } from "@/modules/incidents/vocabulary";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
 import { requireCapability, hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 import { EventAccessDeniedError, resolveEventContext, validateEventId, type EventContext } from "@/modules/tenancy/event-context";
 import { IncidentTransitionCommand } from "./incident-transition-command";
-import styles from "../../control/control-console.module.css";
+import { IncidentDetailForm } from "./incident-detail-form";
+import { IncidentRecordControls } from "./incident-record-controls";
+import { SafeguardingClassification } from "./safeguarding-classification";
+import { IncidentActionsPanel, type IncidentAction } from "./incident-actions-panel";
+import { IncidentDecisionPanel, type IncidentDecision } from "./incident-decision-panel";
+import { IncidentTimelineCommand } from "./incident-timeline-command";
+import styles from "./incident-workspace.module.css";
 
 export const dynamic = "force-dynamic";
 
-type RouteContext = { params: Promise<{ eventId: string; incidentId: string }> };
-type IncidentRecord = { display_reference: string; initial_report: string | null; reported_at: string; severity: string; status: string; version: number };
-type TimelineRecord = { content: string | null; occurred_at: string; source: string };
-type IncidentData = { event: EventContext; incident: IncidentRecord; timeline: TimelineRecord[]; actorRole: InternalRole };
+type RouteContext = {
+  params: Promise<{ eventId: string; incidentId: string }>;
+  searchParams: Promise<{ section?: string }>;
+};
+type IncidentRecord = {
+  display_reference: string;
+  title: string | null;
+  initial_report: string | null;
+  reported_at: string;
+  occurred_at: string;
+  severity: string;
+  status: string;
+  confidentiality: "normal" | "restricted" | "safeguarding";
+  version: number;
+  location_id: string | null;
+  zone_id: string | null;
+};
+type TimelineRecord = { id: string; content: string | null; occurred_at: string; source: string; entry_type: string };
+type IncidentData = {
+  event: EventContext;
+  incident: IncidentRecord;
+  timeline: TimelineRecord[];
+  locationName: string | null;
+  zoneCode: string | null;
+  actorRole: InternalRole;
+  recordedSections: string[];
+  actions: IncidentAction[];
+  decisions: IncidentDecision[];
+};
 
-export default async function IncidentDetailPage({ params }: RouteContext) {
+const sections = [
+  ["overview", "Overview"], ["chronology", "Chronology"], ["reporter", "Reporter & location"],
+  ["information", "Initial information"], ["assessment", "Assessment"], ["resources", "Resources"],
+  ["agencies", "Agencies"], ["people", "People & medical"], ["safeguarding", "Safeguarding"],
+  ["evidence", "Evidence"], ["impact", "Operational impact"], ["escalation", "Escalation"],
+  ["closure", "Resolution & closure"], ["review", "Review & export"],
+] as const;
+
+export default async function IncidentDetailPage({ params, searchParams }: RouteContext) {
   const { eventId, incidentId } = await params;
+  const { section = "overview" } = await searchParams;
   const data = await loadIncidentData(eventId, incidentId);
 
   if (!data) redirect("/access-denied");
-  const { event, incident, timeline, actorRole } = data;
+  const { event, incident, timeline, locationName, zoneCode, actorRole, actions, decisions } = data;
+  const selectedSection = sections.some(([id]) => id === section) ? section : "overview";
   const canTransition = hasCapability(actorRole, "incident.manage");
+  const title = incident.title ?? incident.initial_report?.slice(0, 96) ?? "Untitled incident";
+  const location = [zoneCode ? `Zone ${zoneCode}` : null, locationName].filter(Boolean).join(" · ") || "Location not yet recorded";
 
   return (
     <main className={styles.shell}>
-      <header className={styles.topbar}>
-        <div className={styles.product}><strong>Sential</strong><span>Incident Control</span></div>
-        <Link href={`/events/${event.eventId}/control`}>Return to Event Control</Link>
-      </header>
-      <section className={styles.eventbar}>
-        <div><p className="eyebrow">{event.displayReference} · {incident.display_reference}</p><h1>Incident record</h1></div>
-        <span className={styles.status}>{incident.status}</span>
+      <AppHeader active="incidents" event={{ id: event.eventId, name: event.name, reference: event.displayReference }} incidentId={incidentId} />
+
+      <section className={styles.contextBar} aria-label="Incident context">
+        <div>
+          <p className={styles.reference}>{event.displayReference} · {incident.display_reference}</p>
+          <h1>{title}</h1>
+          <p className={styles.location}>{location}</p>
+        </div>
+        <div className={styles.contextStates}>
+          <StatusBadge title="Status" value={incident.status} />
+          <SeverityBadge title="Severity" value={incident.severity} />
+          <StateBadge title="Access" label={humanise(incident.confidentiality)} tone={ACCESS_TONE[incident.confidentiality]} />
+          <span className={styles.lastUpdate}>Last activity {formatEventTime(timeline.at(-1)?.occurred_at ?? incident.reported_at, event.timezone)}</span>
+        </div>
       </section>
-      <div className={styles.zones}>
-        <aside className={styles.zone}>
-          <p className={styles.zoneLabel}>Incident state</p>
-          <div className={styles.liveMetric}><strong>{incident.severity}</strong><span>Current severity</span></div>
-          <div className={styles.liveMetric}><strong>{incident.version}</strong><span>Record version</span></div>
+
+      <div className={styles.workspace}>
+        <aside className={styles.sectionMenu} aria-label="Incident record sections">
+          <p className={styles.menuTitle}>Incident record</p>
+          <nav>
+            {sections.map(([id, label]) => {
+              const state = sectionState(id, timeline.length, incident.confidentiality, data.recordedSections);
+              return <Link key={id} href={`?section=${id}`} className={selectedSection === id ? styles.sectionCurrent : styles.sectionLink}>
+                <span>{label}</span><small>{state}</small>
+              </Link>;
+            })}
+          </nav>
         </aside>
-        <section className={styles.zone} aria-labelledby="timeline-title">
-          <p className={styles.zoneLabel}>Operational timeline</p>
-          <h2 id="timeline-title">{incident.display_reference}</h2>
-          <p>Reported {formatEventTime(incident.reported_at, event.timezone)}</p>
-          <div className={styles.empty}>{incident.initial_report ?? "No narrative was available when this report was received."}</div>
-          <div className={styles.chronologyHeader}><h2>Chronology</h2></div>
-          <table className={styles.incidentTable}>
-            <thead><tr><th scope="col">Time</th><th scope="col">Source</th><th scope="col">Recorded fact</th></tr></thead>
-            <tbody>{timeline.map((entry, index) => <tr key={`${entry.occurred_at}-${entry.source}-${index}`}><td>{formatEventTime(entry.occurred_at, event.timezone)}</td><td>{entry.source}</td><td>{entry.content ?? "No narrative supplied."}</td></tr>)}</tbody>
-          </table>
+
+        <section className={styles.content} aria-labelledby="record-section-title">
+          {selectedSection === "overview" ? <Overview incident={incident} timezone={event.timezone} location={location} /> : null}
+          {selectedSection === "chronology" ? <Chronology eventId={event.eventId} incidentId={incidentId} timeline={timeline} timezone={event.timezone} canManage={canTransition} /> : null}
+          {selectedSection !== "overview" && selectedSection !== "chronology" ? <IncidentSection eventId={event.eventId} incidentId={incidentId} section={selectedSection} confidentiality={incident.confidentiality} /> : null}
         </section>
-        <aside className={`${styles.zone} ${styles.rail}`}>
-          <p className={styles.zoneLabel}>Command rail</p>
-          <h2>Next operational step</h2>
-          {canTransition ? (
-            <IncidentTransitionCommand
-              eventId={event.eventId}
-              incidentId={incidentId}
-              currentStatus={incident.status}
-              currentSeverity={incident.severity}
-              version={incident.version}
-            />
-          ) : (
-            <p>You do not have permission to transition this incident.</p>
-          )}
-          <p>Assignment and escalation are deliberately unavailable until their governed lifecycle rules are implemented.</p>
+
+        <aside className={styles.commandRail} aria-label="Incident commands">
+          <p className={styles.menuTitle}>Command rail</p>
+          <h2>Manage the live record</h2>
+          <p>Lifecycle changes stay governed and every change is retained in the incident chronology.</p>
+          {canTransition ? <IncidentTransitionCommand eventId={event.eventId} incidentId={incidentId} currentStatus={incident.status} currentSeverity={incident.severity} version={incident.version} /> : <p className={styles.permissionHint}>You can view this record but cannot change its lifecycle.</p>}
+          {canTransition ? <><IncidentActionsPanel actions={actions} eventId={event.eventId} incidentId={incidentId} /><IncidentDecisionPanel decisions={decisions} eventId={event.eventId} incidentId={incidentId} /><IncidentRecordControls eventId={event.eventId} incidentId={incidentId} reference={incident.display_reference} isAdmin={actorRole === "admin"} title={title} initialReport={incident.initial_report ?? ""} /></> : null}
+          <dl className={styles.recordMeta}>
+            <div><dt>Reported</dt><dd>{formatEventTime(incident.reported_at, event.timezone)}</dd></div>
+            <div><dt>Occurred</dt><dd>{formatEventTime(incident.occurred_at, event.timezone)}</dd></div>
+            <div><dt>Record version</dt><dd>{incident.version}</dd></div>
+          </dl>
         </aside>
       </div>
     </main>
   );
 }
 
+function Overview({ incident, timezone, location }: { incident: IncidentRecord; timezone: string; location: string }) {
+  return <><p className={styles.eyebrow}>Live operational record</p><h2 id="record-section-title">Incident overview</h2>
+    <div className={styles.summaryGrid}>
+      <div><span>Current position</span><StatusBadge value={incident.status} /></div>
+      <div><span>Severity</span><SeverityBadge value={incident.severity} /></div>
+      <div><span>Location</span><strong>{location}</strong></div>
+    </div>
+    <section className={styles.narrative}><h3>Initial report</h3><p>{incident.initial_report ?? "No narrative was available when this report was received."}</p><small>Reported {formatEventTime(incident.reported_at, timezone)}. This record is progressively completed; operational history is retained.</small></section>
+  </>;
+}
+
+function Chronology({ eventId, incidentId, timeline, timezone, canManage }: { eventId: string; incidentId: string; timeline: TimelineRecord[]; timezone: string; canManage: boolean }) {
+  return <><p className={styles.eyebrow}>Append-only operational history</p><h2 id="record-section-title">Chronology</h2>
+    {canManage ? <IncidentTimelineCommand eventId={eventId} incidentId={incidentId} /> : null}
+    {timeline.length ? <ol className={styles.timeline}>{timeline.map((entry) => <li key={entry.id}><time dateTime={entry.occurred_at}>{formatEventTime(entry.occurred_at, timezone)}</time><div><strong>{humanise(entry.entry_type)}</strong><p>{entry.content ?? "No narrative supplied."}</p><small>{humanise(entry.source)}</small></div></li>)}</ol> : <p className={styles.emptyState}>No chronology entries have been recorded yet.</p>}
+  </>;
+}
+
+function IncidentSection({ eventId, incidentId, section, confidentiality }: { eventId: string; incidentId: string; section: string; confidentiality: string }) {
+  const label = sections.find(([id]) => id === section)?.[1] ?? "Incident section";
+  const restricted = section === "safeguarding" && confidentiality === "safeguarding";
+  const editable = section === "reporter" || section === "information" || section === "assessment" || section === "impact" || section === "closure" || section === "resources" || section === "agencies" || section === "people" || section === "evidence" || section === "escalation" || section === "review" ? section : null;
+  if (section === "safeguarding" && !restricted) return <><p className={styles.eyebrow}>Not required</p><h2 id="record-section-title">Safeguarding</h2><div className={styles.emptyState}><p>This incident is not currently classified as safeguarding.</p><SafeguardingClassification eventId={eventId} incidentId={incidentId} /></div></>;
+  return <><p className={styles.eyebrow}>{restricted ? "Restricted section" : "Structured incident report"}</p><h2 id="record-section-title">{label}</h2>{editable ? <IncidentDetailForm eventId={eventId} incidentId={incidentId} section={editable} /> : <div className={styles.emptyState}><p>This structured section is not recorded yet.</p><p>Its dedicated operational form is being added; use Chronology for a timestamped update in the meantime.</p></div>}</>;
+}
+
+/** Confidentiality is not part of the incident lifecycle, so it carries its own tones. */
+const ACCESS_TONE: Record<IncidentRecord["confidentiality"], Tone> = {
+  normal: "grey",
+  restricted: "orange",
+  safeguarding: "red",
+};
+
+function sectionState(section: string, timelineCount: number, confidentiality: string, recordedSections: string[]) {
+  if (section === "overview") return "Live";
+  if (section === "chronology") return timelineCount ? "Recorded" : "Outstanding";
+  if (section === "safeguarding" && confidentiality !== "safeguarding") return "Not required";
+  if (section === "safeguarding") return "Restricted";
+  const table = sectionTables[section];
+  return table && recordedSections.includes(table) ? "Recorded" : table ? "Ready to complete" : "Not recorded";
+}
+
+const sectionTables: Record<string, string> = { reporter: "incident_reporters", information: "incident_initial_details", assessment: "incident_assessments", impact: "incident_operational_impacts", closure: "incident_closures", resources: "incident_resources", agencies: "incident_agencies", people: "incident_people", evidence: "incident_evidence", escalation: "incident_escalations", review: "incident_follow_up_actions" };
+
 async function loadIncidentData(eventId: string, incidentId: string): Promise<IncidentData | null> {
   const session = await requireCapability("event.read");
   const client = createServiceSupabaseClient();
-
   try {
     validateEventId(incidentId);
     const event = await resolveEventContext(client, eventId);
-    const { data: incident, error: incidentError } = await client
-      .from("incidents")
-      .select("display_reference, status, severity, initial_report, reported_at, version")
-      .eq("event_id", event.eventId)
-      .eq("id", incidentId)
-      .maybeSingle<IncidentRecord>();
-    if (incidentError || !incident) return null;
-
-    const { data: timeline, error: timelineError } = await client
-      .from("incident_timeline_entries")
-      .select("content, occurred_at, source")
-      .eq("event_id", event.eventId)
-      .eq("incident_id", incidentId)
-      .order("sequence_number", { ascending: true })
-      .returns<TimelineRecord[]>();
+    const { data: incident, error } = await client.from("incidents").select("display_reference, title, status, severity, confidentiality, initial_report, reported_at, occurred_at, version, location_id, zone_id").eq("event_id", event.eventId).eq("id", incidentId).maybeSingle<IncidentRecord>();
+    if (error || !incident) return null;
+    const [{ data: timeline, error: timelineError }, { data: location }, { data: zone }, { data: actions }, { data: decisions }, ...sectionRows] = await Promise.all([
+      client.from("incident_timeline_entries").select("id, content, occurred_at, source, entry_type").eq("event_id", event.eventId).eq("incident_id", incidentId).order("sequence_number", { ascending: true }).returns<TimelineRecord[]>(),
+      incident.location_id ? client.from("event_locations").select("name").eq("id", incident.location_id).maybeSingle<{ name: string }>() : Promise.resolve({ data: null }),
+      incident.zone_id ? client.from("event_zones").select("code").eq("id", incident.zone_id).maybeSingle<{ code: string }>() : Promise.resolve({ data: null }),
+      client.from("incident_actions").select("id, title, owner_name, priority, status, due_at, operational_note").eq("event_id", event.eventId).eq("incident_id", incidentId).order("assigned_at", { ascending: false }).returns<IncidentAction[]>(),
+      client.from("incident_decisions").select("id, decision, rationale, decision_maker, decided_at").eq("event_id", event.eventId).eq("incident_id", incidentId).order("decided_at", { ascending: false }).returns<IncidentDecision[]>(),
+      ...Object.values(sectionTables).map((table) => client.from(table).select("incident_id").eq("incident_id", incidentId).maybeSingle()),
+    ]);
     if (timelineError) return null;
-
-    return { event, incident, timeline: timeline ?? [], actorRole: session.role };
-  } catch (error) {
-    if (error instanceof EventAccessDeniedError) return null;
-    throw error;
-  }
+    const recordedSections = Object.entries(sectionTables).flatMap(([, table], index) => sectionRows[index]?.data ? [table] : []);
+    return { event, incident, timeline: timeline ?? [], locationName: location?.name ?? null, zoneCode: zone?.code ?? null, actorRole: session.role, recordedSections, actions: actions ?? [], decisions: decisions ?? [] };
+  } catch (error) { if (error instanceof EventAccessDeniedError) return null; throw error; }
 }
 
-function formatEventTime(value: string, timezone: string): string {
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "medium", timeZone: timezone }).format(new Date(value));
-}
+function formatEventTime(value: string, timezone: string): string { return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: timezone }).format(new Date(value)); }

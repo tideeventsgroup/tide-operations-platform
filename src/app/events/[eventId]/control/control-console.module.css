@@ -84,12 +84,8 @@
 }
 
 .liveMetric {
-  padding: 14px 0;
-  border-top: 1px solid #e1e2e2;
-}
-
-.liveMetric:last-child {
-  border-bottom: 1px solid #e1e2e2;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .liveMetric strong,
@@ -98,14 +94,48 @@
 }
 
 .liveMetric strong {
-  font-size: 28px;
+  font-size: 26px;
   letter-spacing: -0.035em;
 }
 
 .liveMetric span {
-  margin-top: 3px;
-  color: #5d5b5c;
-  font-size: 13px;
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/*
+ * Attention states carry a left bar and a wording change, never colour alone,
+ * and only appear when the underlying count is non-zero.
+ */
+.metricAlert,
+.metricAttention {
+  padding-left: var(--space-3);
+}
+
+.metricAlert {
+  border-left: 3px solid var(--tone-red-border);
+}
+
+.metricAlert strong {
+  color: var(--tone-red-text);
+}
+
+.metricAttention {
+  border-left: 3px solid var(--tone-purple-border);
+}
+
+.metricAttention strong {
+  color: var(--tone-purple-text);
+}
+
+.metricNote {
+  margin: var(--space-3) 0 0;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
 }
 
 .zoneHeader {
@@ -162,24 +192,28 @@
   font-weight: 700;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #899092;
-  padding: 3px 6px;
-  color: #373536;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: capitalize;
+/*
+ * Resolved and closed incidents stay visible for continuity but recede, so the
+ * live picture reads first. Contrast remains above the WCAG AA body-text ratio.
+ */
+.closedRow td {
+  background: var(--surface-muted);
 }
 
-.status::before {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #60b9c5;
-  content: "";
+.closedRow a {
+  color: var(--text-muted);
+}
+
+.noneCell {
+  color: var(--text-muted);
+}
+
+.tableCaption {
+  padding: 0 var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+  text-align: left;
 }
 
 .empty {
@@ -208,6 +242,27 @@
   background: #373536;
   font-weight: 700;
   cursor: pointer;
+}
+
+.reportCommands {
+  display: grid;
+  gap: 8px;
+}
+
+.quickReportButton {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #737575;
+  border-radius: 3px;
+  color: #373536;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quickReportButton:hover {
+  background: #edf7f8;
 }
 
 .commandStack {

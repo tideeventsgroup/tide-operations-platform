@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppHeader } from "@/components/operations/app-header";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
 import { requireCapability } from "@/modules/identity/internal-auth";
 
@@ -29,10 +30,7 @@ export default async function SelectEventPage() {
 
   return (
     <main className="workspace-shell">
-      <header className="workspace-header">
-        <strong>Sential</strong>
-        <span>Incident Control</span>
-      </header>
+      <AppHeader active="events" />
       <section className="workspace-main" aria-labelledby="event-selection-title">
         <p className="eyebrow">Event context</p>
         <h1 id="event-selection-title">Select an event</h1>

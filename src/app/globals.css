@@ -1,6 +1,95 @@
+/*
+ * Sential design system tokens.
+ *
+ * Central definitions for the whole platform. Screens and CSS modules must use
+ * these variables rather than introducing new literal colours, so that brand,
+ * status meaning and density stay consistent and remain configurable per
+ * organisation later.
+ */
 :root {
-  color: #373536;
-  background: #ffffff;
+  /* Brand — Tide charcoal, teal and white. */
+  --brand-charcoal: #373536;
+  --brand-charcoal-dark: #1f1e1f;
+  --brand-teal: #60b9c5;
+  --brand-teal-dark: #0c6672;
+  --brand-teal-deep: #123f46;
+
+  /* Surfaces and structure. */
+  --surface: #ffffff;
+  --surface-sunken: #f5f6f6;
+  --surface-muted: #f7f7f7;
+  --surface-rail: #fafafa;
+  --border-strong: #aaa8a8;
+  --border: #d5d7d7;
+  --border-subtle: #e3e3e3;
+
+  /* Text. */
+  --text: #373536;
+  --text-muted: #5d5b5c;
+  --text-subtle: #6b6869;
+  --text-on-dark: #ffffff;
+  --text-on-dark-muted: #d3d7d7;
+  --text-on-dark-subtle: #aab4b5;
+
+  /*
+   * Status tones. Light surfaces with dark text, each pairing meeting WCAG AA.
+   * A tone always appears alongside a text label, never as the only signal.
+   */
+  --tone-grey-surface: #f1f2f2;
+  --tone-grey-border: #b8bcbc;
+  --tone-grey-text: #3d3b3c;
+  --tone-blue-surface: #e8f1fb;
+  --tone-blue-border: #a6c5e8;
+  --tone-blue-text: #10437e;
+  --tone-teal-surface: #e0f3f5;
+  --tone-teal-border: #93cdd5;
+  --tone-teal-text: #0c5661;
+  --tone-green-surface: #e6f5ec;
+  --tone-green-border: #9ecfb4;
+  --tone-green-text: #12603a;
+  --tone-yellow-surface: #fdf3d7;
+  --tone-yellow-border: #e3c66d;
+  --tone-yellow-text: #6b4a05;
+  --tone-orange-surface: #fdeade;
+  --tone-orange-border: #f0b183;
+  --tone-orange-text: #8a3d09;
+  --tone-red-surface: #fdeceb;
+  --tone-red-border: #efb3ae;
+  --tone-red-text: #8f1d16;
+  --tone-purple-surface: #f0ecfa;
+  --tone-purple-border: #c4b3e6;
+  --tone-purple-text: #4a2b8c;
+
+  /* Feedback messages. */
+  --notice-error-border: #b42318;
+  --notice-error-text: #7a271a;
+  --notice-error-surface: #fef3f2;
+  --notice-success-border: #167e38;
+  --notice-success-text: #155d2e;
+  --notice-success-surface: #ecfdf3;
+
+  /* Spacing scale. */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 10px;
+  --space-4: 14px;
+  --space-5: 20px;
+  --space-6: 28px;
+
+  /* Type scale. */
+  --font-size-2xs: 10px;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+
+  /* Radii and controls. */
+  --radius-sm: 2px;
+  --radius: 3px;
+  --control-min-height: 46px;
+  --touch-target: 44px;
+
+  color: var(--text);
+  background: var(--surface);
   font-family: Arial, sans-serif;
 }
 
@@ -11,7 +100,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: #f5f6f6;
+  background: var(--surface-sunken);
 }
 
 button,
@@ -22,7 +111,7 @@ input {
 button:focus-visible,
 input:focus-visible,
 a:focus-visible {
-  outline: 3px solid #60b9c5;
+  outline: 3px solid var(--brand-teal);
   outline-offset: 2px;
 }
 
@@ -34,8 +123,8 @@ a:focus-visible {
 
 .auth-brief {
   padding: 42px clamp(40px, 7vw, 112px);
-  background: #373536;
-  color: #ffffff;
+  background: var(--brand-charcoal);
+  color: var(--surface);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -44,7 +133,7 @@ a:focus-visible {
 .brand-kicker,
 .eyebrow {
   margin: 0;
-  color: #60b9c5;
+  color: var(--brand-teal);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -61,7 +150,7 @@ a:focus-visible {
 
 .auth-brief p:not(.brand-kicker) {
   max-width: 540px;
-  color: #d7d8d8;
+  color: var(--text-on-dark-muted);
   font-size: 18px;
   line-height: 1.55;
 }
@@ -70,20 +159,20 @@ a:focus-visible {
   display: flex;
   gap: 12px;
   align-items: center;
-  color: #c9cccd;
+  color: var(--text-on-dark-muted);
   font-size: 13px;
 }
 
 .auth-brief footer span {
   width: 8px;
   height: 8px;
-  border: 2px solid #60b9c5;
+  border: 2px solid var(--brand-teal);
   border-radius: 50%;
 }
 
 .auth-panel {
   padding: 52px clamp(30px, 7vw, 112px);
-  background: #ffffff;
+  background: var(--surface);
   display: flex;
   align-items: center;
 }
@@ -115,7 +204,7 @@ a:focus-visible {
 
 .auth-card > p:not(.eyebrow) {
   margin: 0 0 28px;
-  color: #5d5b5c;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -132,7 +221,7 @@ a:focus-visible {
 .field-label {
   display: grid;
   gap: 8px;
-  color: #373536;
+  color: var(--text);
   font-size: 14px;
   font-weight: 700;
 }
@@ -140,16 +229,16 @@ a:focus-visible {
 .text-input {
   min-height: 46px;
   width: 100%;
-  border: 1px solid #aaa8a8;
+  border: 1px solid var(--border-strong);
   border-radius: 3px;
   padding: 10px 12px;
-  color: #373536;
-  background: #ffffff;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .text-input:disabled {
-  color: #777;
-  background: #f1f2f2;
+  color: var(--text-muted);
+  background: var(--tone-grey-surface);
 }
 
 .password-field {
@@ -169,7 +258,7 @@ a:focus-visible {
   min-height: 44px;
   border: 0;
   border-radius: 2px;
-  color: #373536;
+  color: var(--text);
   background: transparent;
   cursor: pointer;
   font-size: 13px;
@@ -177,7 +266,7 @@ a:focus-visible {
 }
 
 .password-toggle:hover:not(:disabled) {
-  background: #f1f2f2;
+  background: var(--tone-grey-surface);
 }
 
 .password-toggle:disabled {
@@ -195,14 +284,14 @@ a:focus-visible {
 }
 
 .primary-button {
-  border: 1px solid #373536;
-  color: #ffffff;
-  background: #373536;
+  border: 1px solid var(--brand-charcoal);
+  color: var(--surface);
+  background: var(--brand-charcoal);
   cursor: pointer;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: #1f1e1f;
+  background: var(--brand-charcoal-dark);
 }
 
 .primary-button:disabled {
@@ -212,43 +301,43 @@ a:focus-visible {
 
 .secondary-link {
   display: inline-block;
-  border: 1px solid #373536;
-  color: #373536;
+  border: 1px solid var(--brand-charcoal);
+  color: var(--text);
   text-decoration: none;
 }
 
 .notice {
   margin: 0;
-  border-left: 4px solid #60b9c5;
+  border-left: 4px solid var(--brand-teal);
   padding: 10px 12px;
-  color: #373536;
-  background: #edf8fa;
+  color: var(--text);
+  background: var(--tone-teal-surface);
   font-size: 14px;
   line-height: 1.45;
 }
 
 .notice--error {
-  border-left-color: #b42318;
-  color: #7a271a;
-  background: #fef3f2;
+  border-left-color: var(--notice-error-border);
+  color: var(--notice-error-text);
+  background: var(--notice-error-surface);
 }
 
 .notice--success {
-  border-left-color: #167e38;
-  color: #155d2e;
-  background: #ecfdf3;
+  border-left-color: var(--notice-success-border);
+  color: var(--notice-success-text);
+  background: var(--notice-success-surface);
 }
 
 .auth-help {
   margin: 4px 0 0;
-  color: #6b6869;
+  color: var(--text-subtle);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .workspace-shell {
   min-height: 100vh;
-  background: #f5f6f6;
+  background: var(--surface-sunken);
 }
 
 .workspace-header {
@@ -258,8 +347,8 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  color: #ffffff;
-  background: #373536;
+  color: var(--surface);
+  background: var(--brand-charcoal);
 }
 
 .workspace-header strong {
@@ -282,15 +371,15 @@ a:focus-visible {
 .workspace-main > p {
   max-width: 660px;
   margin: 0;
-  color: #5d5b5c;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
 .event-table-wrap {
   margin-top: 32px;
   overflow-x: auto;
-  border: 1px solid #d2d2d2;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .event-table {
@@ -303,13 +392,13 @@ a:focus-visible {
 .event-table th,
 .event-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid #e3e3e3;
+  border-bottom: 1px solid var(--border-subtle);
   font-size: 14px;
 }
 
 .event-table th {
-  color: #5d5b5c;
-  background: #f7f7f7;
+  color: var(--text-muted);
+  background: var(--surface-muted);
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -320,15 +409,15 @@ a:focus-visible {
 }
 
 .event-table a {
-  color: #0c6672;
+  color: var(--brand-teal-dark);
   font-weight: 700;
 }
 
 .empty-state {
   margin-top: 32px;
-  border: 1px solid #d2d2d2;
+  border: 1px solid var(--border);
   padding: 32px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .mfa-qr {
@@ -336,8 +425,8 @@ a:focus-visible {
   width: 210px;
   max-width: 100%;
   margin: 4px auto 10px;
-  border: 1px solid #d2d2d2;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .break-all {

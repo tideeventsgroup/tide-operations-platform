@@ -1,0 +1,113 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  padding: 2px var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/*
+ * Tones use light surfaces with dark text. GOV.UK research found dark tags with
+ * white text are mistaken for buttons, and every pairing below is checked for
+ * WCAG AA contrast against its own background.
+ */
+.grey {
+  border-color: var(--tone-grey-border);
+  color: var(--tone-grey-text);
+  background: var(--tone-grey-surface);
+}
+
+.blue {
+  border-color: var(--tone-blue-border);
+  color: var(--tone-blue-text);
+  background: var(--tone-blue-surface);
+}
+
+.teal {
+  border-color: var(--tone-teal-border);
+  color: var(--tone-teal-text);
+  background: var(--tone-teal-surface);
+}
+
+.green {
+  border-color: var(--tone-green-border);
+  color: var(--tone-green-text);
+  background: var(--tone-green-surface);
+}
+
+.yellow {
+  border-color: var(--tone-yellow-border);
+  color: var(--tone-yellow-text);
+  background: var(--tone-yellow-surface);
+}
+
+.orange {
+  border-color: var(--tone-orange-border);
+  color: var(--tone-orange-text);
+  background: var(--tone-orange-surface);
+}
+
+.red {
+  border-color: var(--tone-red-border);
+  color: var(--tone-red-text);
+  background: var(--tone-red-surface);
+}
+
+.purple {
+  border-color: var(--tone-purple-border);
+  color: var(--tone-purple-text);
+  background: var(--tone-purple-surface);
+}
+
+/*
+ * Redundant non-colour cue for severity: filled pips encode rank, so severity
+ * survives greyscale printing, monochrome control-room displays and colour
+ * vision deficiency. Hidden from assistive tech, which reads the label instead.
+ */
+.pips {
+  display: inline-flex;
+  gap: 2px;
+  flex: none;
+}
+
+.pip {
+  width: 3px;
+  height: 9px;
+  border: 1px solid currentcolor;
+  border-radius: 1px;
+}
+
+.pipFilled {
+  background: currentcolor;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Stacked variant used in the incident context bar, where the badge is titled. */
+.titled {
+  display: inline-grid;
+  gap: 2px;
+  min-width: 84px;
+}
+
+/*
+ * Containers on a dark surface override --badge-title-color so the caption keeps
+ * sufficient contrast without the badge needing to know where it is rendered.
+ */
+.titledLabel {
+  color: var(--badge-title-color, var(--text-muted));
+  font-size: var(--font-size-2xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

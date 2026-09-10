@@ -31,3 +31,5 @@ supabase/.temp/
 .claude/
 .pandaos/
 AGENTS.md
+.vercel
+.env*

@@ -3,6 +3,7 @@
 import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { retainIdempotencyKey } from "@/modules/commands/idempotency";
+import { ASSESSABLE_SEVERITIES, severityOf, statusOf } from "@/modules/incidents/vocabulary";
 import styles from "../../control/control-console.module.css";
 
 const NEXT_STATUS: Record<string, string[]> = {
@@ -13,24 +14,6 @@ const NEXT_STATUS: Record<string, string[]> = {
   resolved: ["closed"],
   closed: ["reopened"],
   reopened: ["active"],
-};
-
-const SEVERITY_OPTIONS = ["low", "moderate", "high", "critical"];
-
-const STATUS_LABEL: Record<string, string> = {
-  assessing: "Assessing",
-  active: "Active",
-  monitoring: "Monitoring",
-  resolved: "Resolved",
-  closed: "Closed",
-  reopened: "Reopened",
-};
-
-const SEVERITY_LABEL: Record<string, string> = {
-  low: "Low",
-  moderate: "Moderate",
-  high: "High",
-  critical: "Critical",
 };
 
 type Props = { eventId: string; incidentId: string; currentStatus: string; currentSeverity: string; version: number };
@@ -89,14 +72,14 @@ export function IncidentTransitionCommand({ eventId, incidentId, currentStatus, 
             New status
             <select id="target-status" className={styles.textInput} value={targetStatus} onChange={(event) => setTargetStatus(event.target.value)} disabled={submitting || availableStatuses.length === 0}>
               <option value="">No status change</option>
-              {availableStatuses.map((status) => <option key={status} value={status}>{STATUS_LABEL[status]}</option>)}
+              {availableStatuses.map((status) => <option key={status} value={status}>{statusOf(status).label}</option>)}
             </select>
           </label>
           <label className="field-label" htmlFor="target-severity">
             New severity
             <select id="target-severity" className={styles.textInput} value={targetSeverity} onChange={(event) => setTargetSeverity(event.target.value)} disabled={submitting}>
               <option value="">No severity change</option>
-              {SEVERITY_OPTIONS.filter((severity) => severity !== currentSeverity).map((severity) => <option key={severity} value={severity}>{SEVERITY_LABEL[severity]}</option>)}
+              {ASSESSABLE_SEVERITIES.filter((severity) => severity !== currentSeverity).map((severity) => <option key={severity} value={severity}>{severityOf(severity).label}</option>)}
             </select>
           </label>
           <label className="field-label" htmlFor="transition-reason">

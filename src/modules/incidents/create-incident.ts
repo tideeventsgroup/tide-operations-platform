@@ -9,14 +9,18 @@ export type CreateIncidentCommand = {
   entryMode: IncidentEntryMode;
   eventId: string;
   idempotencyKey: string;
+  immediateAssistanceRequired: boolean;
   initialReport: string | null;
   locationId: string | null;
   occurredAt: string;
   reportSource: IncidentReportSource;
   severity: IncidentSeverity;
+  subcategoryId: string | null;
   title: string | null;
   zoneId: string | null;
 };
+
+export const quickReportInputKeys = ["categoryId", "locationOrZone", "severity", "initialReport", "immediateAssistanceRequired"] as const;
 
 export type CreateIncidentResult = {
   created: boolean;
@@ -36,11 +40,13 @@ type CreateInput = {
   entryMode?: unknown;
   eventId: string;
   idempotencyKey: string;
+  immediateAssistanceRequired?: unknown;
   initialReport?: unknown;
   locationId?: unknown;
   occurredAt?: unknown;
   reportSource?: unknown;
   severity?: unknown;
+  subcategoryId?: unknown;
   title?: unknown;
   zoneId?: unknown;
 };
@@ -48,20 +54,25 @@ type CreateInput = {
 export function createIncidentCommand(input: CreateInput): CreateIncidentCommand {
   validateEventId(input.eventId);
   validateUuid(input.idempotencyKey);
-
-  return {
+  const entryMode = normalizeEnum(input.entryMode, "quick", ["quick", "full"]);
+  const command = {
     categoryId: normalizeOptionalUuid(input.categoryId),
-    entryMode: normalizeEnum(input.entryMode, "quick", ["quick", "full"]),
+    entryMode,
     eventId: input.eventId,
     idempotencyKey: input.idempotencyKey,
+    immediateAssistanceRequired: normalizeBoolean(input.immediateAssistanceRequired, entryMode === "quick"),
     initialReport: normalizeText(input.initialReport, 4000),
     locationId: normalizeOptionalUuid(input.locationId),
     occurredAt: normalizeOccurredAt(input.occurredAt),
     reportSource: normalizeEnum(input.reportSource, "operator", ["operator", "field_reporter", "radio", "member_of_public", "emergency_service", "other"]),
     severity: normalizeEnum(input.severity, "unknown", ["unknown", "low", "moderate", "high", "critical"]),
+    subcategoryId: normalizeOptionalUuid(input.subcategoryId),
     title: normalizeText(input.title, 200),
     zoneId: normalizeOptionalUuid(input.zoneId),
   };
+  if (command.subcategoryId && !command.categoryId) throw new InvalidIncidentCommandError();
+  if (entryMode === "quick" && (!command.categoryId || (!command.locationId && !command.zoneId) || command.severity === "unknown" || !command.initialReport)) throw new InvalidIncidentCommandError();
+  return command;
 }
 
 export function normalizeInitialReport(value: unknown): string | null {
@@ -95,6 +106,15 @@ function normalizeEnum<T extends string>(value: unknown, fallback: T, values: re
   if (value === undefined || value === null || value === "") return fallback;
   if (typeof value !== "string" || !values.includes(value as T)) throw new InvalidIncidentCommandError();
   return value as T;
+}
+
+function normalizeBoolean(value: unknown, required: boolean): boolean {
+  if (value === undefined || value === null) {
+    if (required) throw new InvalidIncidentCommandError();
+    return false;
+  }
+  if (typeof value !== "boolean") throw new InvalidIncidentCommandError();
+  return value;
 }
 
 function validateUuid(value: string): void {

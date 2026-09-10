@@ -3,6 +3,7 @@ import {
   createIncidentCommand,
   InvalidIncidentCommandError,
   normalizeInitialReport,
+  quickReportInputKeys,
 } from "./create-incident";
 
 const eventId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -13,6 +14,7 @@ describe("create incident command", () => {
     const command = createIncidentCommand({
       eventId,
       idempotencyKey,
+      entryMode: "full",
       initialReport: "   ",
       occurredAt: "2026-09-07T16:00:00.000Z",
     });
@@ -49,6 +51,14 @@ describe("create incident command", () => {
       severity: "high",
       title: "Medical assistance requested",
     });
+  });
+
+  it("keeps the quick path to its five operational inputs", () => {
+    expect(quickReportInputKeys).toEqual(["categoryId", "locationOrZone", "severity", "initialReport", "immediateAssistanceRequired"]);
+  });
+
+  it("requires every quick-report input", () => {
+    expect(() => createIncidentCommand({ eventId, idempotencyKey, entryMode: "quick" })).toThrow(InvalidIncidentCommandError);
   });
 
   it("rejects an unknown severity or report source", () => {
