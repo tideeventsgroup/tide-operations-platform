@@ -1,0 +1,49 @@
+/* Deliberately plain, matching the surrounding console rather than restyling it. */
+.status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.live {
+  color: var(--text-muted);
+}
+
+/* A stale screen is a safety problem during live operations, so it is stated in
+   words rather than signalled by colour alone. */
+.stale {
+  border-left: 3px solid var(--notice-error-border);
+  padding-left: 8px;
+  color: var(--notice-error-text);
+  font-weight: 700;
+}
+
+.time {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.button {
+  min-height: 28px;
+  border: 1px solid #737575;
+  border-radius: 3px;
+  padding: 3px 8px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--tone-grey-surface);
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}

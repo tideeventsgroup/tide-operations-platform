@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/operations/app-header";
+import { LiveRefresh } from "@/components/operations/live-refresh";
 import { humanise } from "@/modules/incidents/vocabulary";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
 import { requireCapability, hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
@@ -99,7 +100,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Route
 
         <section className={styles.content} aria-labelledby="record-section-title">
           {selectedSection === "overview" ? <Overview incident={incident} timezone={event.timezone} location={location} /> : null}
-          {selectedSection === "chronology" ? <Chronology eventId={event.eventId} incidentId={incidentId} timeline={timeline} timezone={event.timezone} canManage={canTransition} /> : null}
+          {selectedSection === "chronology" ? <Chronology eventId={event.eventId} incidentId={incidentId} timeline={timeline} timezone={event.timezone} canManage={canTransition} renderedAt={new Date().toISOString()} /> : null}
           {selectedSection !== "overview" && selectedSection !== "chronology" ? <IncidentSection eventId={event.eventId} incidentId={incidentId} section={selectedSection} confidentiality={incident.confidentiality} /> : null}
         </section>
 
@@ -127,10 +128,11 @@ function Overview({ incident, timezone, location }: { incident: IncidentRecord; 
   </>;
 }
 
-function Chronology({ eventId, incidentId, timeline, timezone, canManage }: { eventId: string; incidentId: string; timeline: TimelineRecord[]; timezone: string; canManage: boolean }) {
+function Chronology({ eventId, incidentId, timeline, timezone, canManage, renderedAt }: { eventId: string; incidentId: string; timeline: TimelineRecord[]; timezone: string; canManage: boolean; renderedAt: string }) {
   return <><p className={styles.eyebrow}>Append-only operational history</p><h2 id="record-section-title">Chronology</h2>
     {canManage ? <IncidentTimelineCommand eventId={eventId} incidentId={incidentId} /> : null}
     {timeline.length ? <ol className={styles.timeline}>{timeline.map((entry) => <li key={entry.id}><time dateTime={entry.occurred_at}>{formatEventTime(entry.occurred_at, timezone)}</time><div><strong>{humanise(entry.entry_type)}</strong><p>{entry.content ?? "No narrative supplied."}</p><small>{humanise(entry.source)}</small></div></li>)}</ol> : <p className={styles.emptyState}>No chronology entries have been recorded yet.</p>}
+    <LiveRefresh label="chronology" renderedAt={renderedAt} />
   </>;
 }
 

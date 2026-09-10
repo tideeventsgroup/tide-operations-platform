@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/operations/app-header";
+import { LiveRefresh } from "@/components/operations/live-refresh";
 import type { EventContext } from "@/modules/tenancy/event-context";
 import { OperationalCommandForms } from "./operational-command-forms";
 import { ReportIncidentDialog } from "./report-incident-dialog";
@@ -17,13 +18,14 @@ type OperationalPeriod = { id: string; status: "open" | "closed"; version: numbe
 export type IncidentOption = { id: string; label: string };
 export type LocationOption = IncidentOption & { type: "location" | "zone" };
 
-export function ControlConsole({ event, incidents, operationalPeriod, incidentCategories, locations, outstandingActions }: {
+export function ControlConsole({ event, incidents, operationalPeriod, incidentCategories, locations, outstandingActions, renderedAt }: {
   event: EventContext;
   incidents: IncidentListItem[];
   operationalPeriod: OperationalPeriod;
   incidentCategories: IncidentOption[];
   locations: LocationOption[];
   outstandingActions: number;
+  renderedAt: string;
 }) {
   return (
     <main className={styles.shell}>
@@ -57,6 +59,7 @@ export function ControlConsole({ event, incidents, operationalPeriod, incidentCa
               </table>
             </div>
           )}
+          <LiveRefresh label="incident" renderedAt={renderedAt} />
         </section>
         <aside className={`${styles.zone} ${styles.rail}`} aria-label="Command rail">
           <p className={styles.zoneLabel}>Zone C · Command rail</p>

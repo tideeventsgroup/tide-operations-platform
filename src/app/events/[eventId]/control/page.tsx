@@ -17,7 +17,8 @@ export default async function EventControlPage({ params }: RouteContext) {
   const data = await loadControlData(eventId);
 
   if (!data) redirect("/access-denied");
-  return <ControlConsole event={data.event} incidents={data.incidents} operationalPeriod={data.operationalPeriod} incidentCategories={data.incidentCategories} locations={data.locations} outstandingActions={data.outstandingActions} />;
+  // Proves to the browser that a refresh completed a full server round trip.
+  return <ControlConsole event={data.event} incidents={data.incidents} operationalPeriod={data.operationalPeriod} incidentCategories={data.incidentCategories} locations={data.locations} outstandingActions={data.outstandingActions} renderedAt={new Date().toISOString()} />;
 }
 
 async function loadControlData(eventId: string): Promise<ControlData | null> {
