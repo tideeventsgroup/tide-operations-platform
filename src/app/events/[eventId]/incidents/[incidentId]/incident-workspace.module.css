@@ -4,7 +4,10 @@
 .reference { color: #aab4b5; }
 .contextBar h1 { max-width: 800px; margin: 4px 0; font-size: 22px; line-height: 1.15; letter-spacing: -.025em; }
 .location { margin: 0; color: #d3d7d7; font-size: 13px; }
-.contextStates { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; --badge-title-color: var(--text-on-dark-muted); }
+.contextStates { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.stateBadge { min-width: 76px; border: 1px solid #697172; padding: 5px 8px; }
+.stateBadge small { display: block; color: #b9c0c0; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.stateBadge strong { display: block; margin-top: 1px; color: #fff; font-size: 12px; font-weight: 700; text-transform: capitalize; }
 .lastUpdate { max-width: 175px; color: #d3d7d7; font-size: 12px; line-height: 1.35; }
 .workspace { display: grid; grid-template-columns: 230px minmax(0, 1fr) 286px; min-height: calc(100vh - 165px); border-top: 1px solid #d5d7d7; }
 .sectionMenu { padding: 20px 14px; border-right: 1px solid #d5d7d7; background: #fff; }

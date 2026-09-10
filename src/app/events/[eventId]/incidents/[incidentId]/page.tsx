@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/operations/app-header";
-import { SeverityBadge, StateBadge, StatusBadge } from "@/components/operations/status-badge";
-import { humanise, type Tone } from "@/modules/incidents/vocabulary";
+import { humanise } from "@/modules/incidents/vocabulary";
 import { createServiceSupabaseClient } from "@/modules/data/supabase-service";
 import { requireCapability, hasCapability, type InternalRole } from "@/modules/identity/internal-auth";
 import { EventAccessDeniedError, resolveEventContext, validateEventId, type EventContext } from "@/modules/tenancy/event-context";
@@ -78,9 +77,9 @@ export default async function IncidentDetailPage({ params, searchParams }: Route
           <p className={styles.location}>{location}</p>
         </div>
         <div className={styles.contextStates}>
-          <StatusBadge title="Status" value={incident.status} />
-          <SeverityBadge title="Severity" value={incident.severity} />
-          <StateBadge title="Access" label={humanise(incident.confidentiality)} tone={ACCESS_TONE[incident.confidentiality]} />
+          <StateBadge label="Status" value={incident.status} />
+          <StateBadge label="Severity" value={incident.severity} />
+          <StateBadge label="Access" value={incident.confidentiality} />
           <span className={styles.lastUpdate}>Last activity {formatEventTime(timeline.at(-1)?.occurred_at ?? incident.reported_at, event.timezone)}</span>
         </div>
       </section>
@@ -123,11 +122,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Route
 
 function Overview({ incident, timezone, location }: { incident: IncidentRecord; timezone: string; location: string }) {
   return <><p className={styles.eyebrow}>Live operational record</p><h2 id="record-section-title">Incident overview</h2>
-    <div className={styles.summaryGrid}>
-      <div><span>Current position</span><StatusBadge value={incident.status} /></div>
-      <div><span>Severity</span><SeverityBadge value={incident.severity} /></div>
-      <div><span>Location</span><strong>{location}</strong></div>
-    </div>
+    <div className={styles.summaryGrid}><div><span>Current position</span><strong>{incident.status}</strong></div><div><span>Severity</span><strong>{incident.severity}</strong></div><div><span>Location</span><strong>{location}</strong></div></div>
     <section className={styles.narrative}><h3>Initial report</h3><p>{incident.initial_report ?? "No narrative was available when this report was received."}</p><small>Reported {formatEventTime(incident.reported_at, timezone)}. This record is progressively completed; operational history is retained.</small></section>
   </>;
 }
@@ -147,12 +142,9 @@ function IncidentSection({ eventId, incidentId, section, confidentiality }: { ev
   return <><p className={styles.eyebrow}>{restricted ? "Restricted section" : "Structured incident report"}</p><h2 id="record-section-title">{label}</h2>{editable ? <IncidentDetailForm eventId={eventId} incidentId={incidentId} section={editable} /> : <div className={styles.emptyState}><p>This structured section is not recorded yet.</p><p>Its dedicated operational form is being added; use Chronology for a timestamped update in the meantime.</p></div>}</>;
 }
 
-/** Confidentiality is not part of the incident lifecycle, so it carries its own tones. */
-const ACCESS_TONE: Record<IncidentRecord["confidentiality"], Tone> = {
-  normal: "grey",
-  restricted: "orange",
-  safeguarding: "red",
-};
+function StateBadge({ label, value }: { label: string; value: string }) {
+  return <span className={styles.stateBadge}><small>{label}</small><strong>{value.replaceAll("_", " ")}</strong></span>;
+}
 
 function sectionState(section: string, timelineCount: number, confidentiality: string, recordedSections: string[]) {
   if (section === "overview") return "Live";

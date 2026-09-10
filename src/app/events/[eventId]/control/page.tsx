@@ -10,15 +10,14 @@ export const dynamic = "force-dynamic";
 type RouteContext = { params: Promise<{ eventId: string }> };
 type IncidentRecord = { display_reference: string; id: string; reported_at: string; severity: string; status: string };
 type OperationalPeriodRecord = { id: string; status: "open" | "closed"; version: number };
-type ActionRecord = { incident_id: string; due_at: string | null };
-type ControlData = { event: EventContext; incidents: IncidentListItem[]; operationalPeriod: OperationalPeriodRecord | null; incidentCategories: IncidentOption[]; locations: LocationOption[]; outstandingActions: number; overdueActions: number };
+type ControlData = { event: EventContext; incidents: IncidentListItem[]; operationalPeriod: OperationalPeriodRecord | null; incidentCategories: IncidentOption[]; locations: LocationOption[]; outstandingActions: number };
 
 export default async function EventControlPage({ params }: RouteContext) {
   const { eventId } = await params;
   const data = await loadControlData(eventId);
 
   if (!data) redirect("/access-denied");
-  return <ControlConsole event={data.event} incidents={data.incidents} operationalPeriod={data.operationalPeriod} incidentCategories={data.incidentCategories} locations={data.locations} outstandingActions={data.outstandingActions} overdueActions={data.overdueActions} />;
+  return <ControlConsole event={data.event} incidents={data.incidents} operationalPeriod={data.operationalPeriod} incidentCategories={data.incidentCategories} locations={data.locations} outstandingActions={data.outstandingActions} />;
 }
 
 async function loadControlData(eventId: string): Promise<ControlData | null> {
@@ -48,21 +47,13 @@ async function loadControlData(eventId: string): Promise<ControlData | null> {
       // or cancelled, matching incident_actions_open_idx.
       client
         .from("incident_actions")
-        .select("incident_id, due_at")
+        .select("id")
         .eq("event_id", event.eventId)
         .not("status", "in", "(verified,cancelled)")
-        .returns<ActionRecord[]>(),
+        .returns<{ id: string }[]>(),
     ]);
 
     if (error || periodError || categoryError || zoneError || locationError || actionError) return null;
-
-    const now = Date.now();
-    const actionsByIncident = new Map<string, number>();
-    let overdueActions = 0;
-    for (const action of openActions ?? []) {
-      actionsByIncident.set(action.incident_id, (actionsByIncident.get(action.incident_id) ?? 0) + 1);
-      if (action.due_at && new Date(action.due_at).getTime() < now) overdueActions += 1;
-    }
 
     return {
       event,
@@ -73,7 +64,6 @@ async function loadControlData(eventId: string): Promise<ControlData | null> {
           reportedAt: incident.reported_at,
           severity: incident.severity,
           status: incident.status,
-          openActions: actionsByIncident.get(incident.id) ?? 0,
         }))
         // Event Control reads by seriousness, not by arrival order.
         .sort(compareByOperationalPriority),
@@ -84,7 +74,6 @@ async function loadControlData(eventId: string): Promise<ControlData | null> {
         ...(locations ?? []).map((location) => ({ ...location, type: "location" as const })),
       ],
       outstandingActions: openActions?.length ?? 0,
-      overdueActions,
     };
   } catch (error) {
     if (error instanceof EventAccessDeniedError) return null;

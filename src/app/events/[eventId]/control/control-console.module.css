@@ -84,8 +84,12 @@
 }
 
 .liveMetric {
-  padding: var(--space-3) 0;
+  padding: 14px 0;
   border-top: 1px solid var(--border-subtle);
+}
+
+.liveMetric:last-child {
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .liveMetric strong,
@@ -94,48 +98,14 @@
 }
 
 .liveMetric strong {
-  font-size: 26px;
+  font-size: 28px;
   letter-spacing: -0.035em;
 }
 
 .liveMetric span {
-  margin-top: 2px;
+  margin-top: 3px;
   color: var(--text-muted);
   font-size: var(--font-size-sm);
-}
-
-/*
- * Attention states carry a left bar and a wording change, never colour alone,
- * and only appear when the underlying count is non-zero.
- */
-.metricAlert,
-.metricAttention {
-  padding-left: var(--space-3);
-}
-
-.metricAlert {
-  border-left: 3px solid var(--tone-red-border);
-}
-
-.metricAlert strong {
-  color: var(--tone-red-text);
-}
-
-.metricAttention {
-  border-left: 3px solid var(--tone-purple-border);
-}
-
-.metricAttention strong {
-  color: var(--tone-purple-text);
-}
-
-.metricNote {
-  margin: var(--space-3) 0 0;
-  border-top: 1px solid var(--border-subtle);
-  padding-top: var(--space-3);
-  color: var(--text-muted);
-  font-size: var(--font-size-xs);
-  line-height: 1.45;
 }
 
 .zoneHeader {
@@ -192,28 +162,24 @@
   font-weight: 700;
 }
 
-/*
- * Resolved and closed incidents stay visible for continuity but recede, so the
- * live picture reads first. Contrast remains above the WCAG AA body-text ratio.
- */
-.closedRow td {
-  background: var(--surface-muted);
-}
-
-.closedRow a {
-  color: var(--text-muted);
-}
-
-.noneCell {
-  color: var(--text-muted);
-}
-
-.tableCaption {
-  padding: 0 var(--space-2) var(--space-3);
-  color: var(--text-muted);
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #899092;
+  padding: 3px 6px;
+  color: var(--text);
   font-size: var(--font-size-xs);
-  line-height: 1.45;
-  text-align: left;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-teal);
+  content: "";
 }
 
 .empty {
